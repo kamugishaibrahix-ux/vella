@@ -1,0 +1,4890 @@
+{
+  "colors_found": [
+    {
+      "value": "var(--mc-muted)",
+      "frequency": 355,
+      "files": [
+        "MOBILE/tailwind.config.ts:33:general",
+        "MOBILE/app/check-in/page.tsx:303:text"
+      ]
+    },
+    {
+      "value": "var(--mc-text)",
+      "frequency": 246,
+      "files": [
+        "MOBILE/tailwind.config.ts:32:general",
+        "MOBILE/app/layout.tsx:33:background"
+      ]
+    },
+    {
+      "value": "var(--mc-border)",
+      "frequency": 91,
+      "files": [
+        "MOBILE/tailwind.config.ts:29:border",
+        "MOBILE/app/check-in/page.tsx:374:shadow"
+      ]
+    },
+    {
+      "value": "var(--mc-card)",
+      "frequency": 50,
+      "files": [
+        "MOBILE/tailwind.config.ts:27:card",
+        "MOBILE/app/check-in/page.tsx:374:shadow"
+      ]
+    },
+    {
+      "value": "var(--mc-card-soft)",
+      "frequency": 49,
+      "files": [
+        "MOBILE/tailwind.config.ts:28:card",
+        "MOBILE/app/check-in/page.tsx:378:shadow"
+      ]
+    },
+    {
+      "value": "var(--mc-primary-soft)",
+      "frequency": 36,
+      "files": [
+        "MOBILE/tailwind.config.ts:39:general",
+        "MOBILE/app/compass-mode/page.tsx:40:shadow"
+      ]
+    },
+    {
+      "value": "var(--mc-muted-strong)",
+      "frequency": 30,
+      "files": [
+        "MOBILE/tailwind.config.ts:34:general",
+        "MOBILE/app/check-in/page.tsx:512:border"
+      ]
+    },
+    {
+      "value": "var(--mc-primary)",
+      "frequency": 30,
+      "files": [
+        "MOBILE/tailwind.config.ts:37:general",
+        "MOBILE/app/check-in/page.tsx:385:shadow"
+      ]
+    },
+    {
+      "value": "var(--mc-accent)",
+      "frequency": 27,
+      "files": [
+        "MOBILE/app/check-in/page.tsx:361:text",
+        "MOBILE/app/compass-mode/page.tsx:78:background"
+      ]
+    },
+    {
+      "value": "var(--mc-bg)",
+      "frequency": 14,
+      "files": [
+        "MOBILE/tailwind.config.ts:23:general",
+        "MOBILE/app/layout.tsx:33:background"
+      ]
+    },
+    {
+      "value": "var(--gradient-primary-start)",
+      "frequency": 13,
+      "files": [
+        "MOBILE/app/check-in/page.tsx:315:gradient",
+        "MOBILE/app/check-in/page.tsx:339:gradient"
+      ]
+    },
+    {
+      "value": "var(--gradient-primary-end)",
+      "frequency": 12,
+      "files": [
+        "MOBILE/app/check-in/page.tsx:315:gradient",
+        "MOBILE/app/check-in/page.tsx:339:gradient"
+      ]
+    },
+    {
+      "value": "var(--gradient-primary-mid)",
+      "frequency": 11,
+      "files": [
+        "MOBILE/app/check-in/page.tsx:315:gradient",
+        "MOBILE/app/check-in/page.tsx:339:gradient"
+      ]
+    },
+    {
+      "value": "var(--mc-danger)",
+      "frequency": 11,
+      "files": [
+        "MOBILE/app/session/page.tsx:662:text",
+        "MOBILE/app/session/page.tsx:702:background"
+      ]
+    },
+    {
+      "value": "var(--mc-border-soft)",
+      "frequency": 7,
+      "files": [
+        "MOBILE/tailwind.config.ts:30:border",
+        "MOBILE/app/onboarding/feeling/page.tsx:46:shadow"
+      ]
+    },
+    {
+      "value": "var(--mc-primary-dark)",
+      "frequency": 7,
+      "files": [
+        "MOBILE/tailwind.config.ts:40:general",
+        "MOBILE/app/onboarding/done/page.tsx:32:shadow"
+      ]
+    },
+    {
+      "value": "var(--jitter, 0px)",
+      "frequency": 6,
+      "files": [
+        "MOBILE/components/voice/LiquidVoiceStage.tsx:40:general",
+        "MOBILE/components/voice/LiquidVoiceStage.tsx:40:general"
+      ]
+    },
+    {
+      "value": "var(--mc-surface)",
+      "frequency": 5,
+      "files": [
+        "MOBILE/app/session/page.tsx:1162:background",
+        "MOBILE/components/chat/ChatPanel.tsx:141:background"
+      ]
+    },
+    {
+      "value": "var(--mc-bg-elevated)",
+      "frequency": 4,
+      "files": [
+        "MOBILE/tailwind.config.ts:25:background",
+        "MOBILE/components/modals/UpgradeGate.tsx:43:shadow"
+      ]
+    },
+    {
+      "value": "var(--shadow-primary-medium)",
+      "frequency": 3,
+      "files": [
+        "MOBILE/app/check-in/page.tsx:398:shadow",
+        "MOBILE/app/timeline/page.tsx:531:shadow"
+      ]
+    },
+    {
+      "value": "var(--gradient-primary-mid-soft)",
+      "frequency": 2,
+      "files": [
+        "MOBILE/app/settings/account-plan/page.tsx:215:gradient",
+        "MOBILE/app/settings/account-plan/page.tsx:340:gradient"
+      ]
+    },
+    {
+      "value": "var(--gradient-primary-start-soft)",
+      "frequency": 2,
+      "files": [
+        "MOBILE/app/settings/account-plan/page.tsx:215:gradient",
+        "MOBILE/app/settings/account-plan/page.tsx:340:gradient"
+      ]
+    },
+    {
+      "value": "var(--shadow-primary-soft)",
+      "frequency": 2,
+      "files": [
+        "MOBILE/app/session/page.tsx:1056:shadow",
+        "MOBILE/app/session/page.tsx:1197:shadow"
+      ]
+    },
+    {
+      "value": "var(--shadow-primary-strong)",
+      "frequency": 2,
+      "files": [
+        "MOBILE/app/profile/page.tsx:94:shadow",
+        "MOBILE/components/layout/BottomNav.tsx:46:shadow"
+      ]
+    },
+    {
+      "value": "var(--blob-layer1-inner)",
+      "frequency": 1,
+      "files": [
+        "MOBILE/components/voice/LiquidVoiceStage.tsx:18:shadow"
+      ]
+    },
+    {
+      "value": "var(--blob-layer1-outer)",
+      "frequency": 1,
+      "files": [
+        "MOBILE/components/voice/LiquidVoiceStage.tsx:18:shadow"
+      ]
+    },
+    {
+      "value": "var(--blob-layer1-ring)",
+      "frequency": 1,
+      "files": [
+        "MOBILE/components/voice/LiquidVoiceStage.tsx:18:shadow"
+      ]
+    },
+    {
+      "value": "var(--blob-layer1-shadow)",
+      "frequency": 1,
+      "files": [
+        "MOBILE/components/voice/LiquidVoiceStage.tsx:18:shadow"
+      ]
+    },
+    {
+      "value": "var(--blob-layer2-inner)",
+      "frequency": 1,
+      "files": [
+        "MOBILE/components/voice/LiquidVoiceStage.tsx:20:shadow"
+      ]
+    },
+    {
+      "value": "var(--blob-layer2-outer)",
+      "frequency": 1,
+      "files": [
+        "MOBILE/components/voice/LiquidVoiceStage.tsx:20:shadow"
+      ]
+    },
+    {
+      "value": "var(--blob-layer2-ring)",
+      "frequency": 1,
+      "files": [
+        "MOBILE/components/voice/LiquidVoiceStage.tsx:20:shadow"
+      ]
+    },
+    {
+      "value": "var(--blob-layer2-shadow)",
+      "frequency": 1,
+      "files": [
+        "MOBILE/components/voice/LiquidVoiceStage.tsx:20:shadow"
+      ]
+    },
+    {
+      "value": "var(--blob-layer3-inner)",
+      "frequency": 1,
+      "files": [
+        "MOBILE/components/voice/LiquidVoiceStage.tsx:22:shadow"
+      ]
+    },
+    {
+      "value": "var(--blob-layer3-outer)",
+      "frequency": 1,
+      "files": [
+        "MOBILE/components/voice/LiquidVoiceStage.tsx:22:shadow"
+      ]
+    },
+    {
+      "value": "var(--blob-layer3-shadow)",
+      "frequency": 1,
+      "files": [
+        "MOBILE/components/voice/LiquidVoiceStage.tsx:22:shadow"
+      ]
+    },
+    {
+      "value": "var(--drop-shadow-glow-color)",
+      "frequency": 1,
+      "files": [
+        "MOBILE/styles/globals.css:94:shadow"
+      ]
+    },
+    {
+      "value": "var(--font-inter)",
+      "frequency": 1,
+      "files": [
+        "MOBILE/tailwind.config.ts:54:general"
+      ]
+    },
+    {
+      "value": "var(--mc-bg-soft)",
+      "frequency": 1,
+      "files": [
+        "MOBILE/tailwind.config.ts:24:background"
+      ]
+    },
+    {
+      "value": "var(--mc-card2)",
+      "frequency": 1,
+      "files": [
+        "MOBILE/components/insights/InsightCard.tsx:17:shadow"
+      ]
+    },
+    {
+      "value": "var(--mc-danger,#ff7b7b)",
+      "frequency": 1,
+      "files": [
+        "MOBILE/components/ui/AlertChip.tsx:18:text"
+      ]
+    },
+    {
+      "value": "var(--mc-muted-strong,#d3d8e4)",
+      "frequency": 1,
+      "files": [
+        "MOBILE/app/session/page.tsx:958:text"
+      ]
+    },
+    {
+      "value": "var(--mc-primary-glow)",
+      "frequency": 1,
+      "files": [
+        "MOBILE/tailwind.config.ts:38:general"
+      ]
+    },
+    {
+      "value": "var(--mc-surface-strong)",
+      "frequency": 1,
+      "files": [
+        "MOBILE/components/chat/ChatPanel.tsx:141:background"
+      ]
+    },
+    {
+      "value": "var(--page-gradient)",
+      "frequency": 1,
+      "files": [
+        "MOBILE/styles/globals.css:73:gradient"
+      ]
+    },
+    {
+      "value": "#31E",
+      "frequency": 6,
+      "files": [
+        "MOBILE/public/logo-vella.svg:3:general",
+        "MOBILE/public/logo-vella.svg:4:general"
+      ]
+    },
+    {
+      "value": "#050",
+      "frequency": 5,
+      "files": [
+        "MOBILE/app/connection-index/page.tsx:239:background",
+        "MOBILE/app/connection-index/page.tsx:274:background"
+      ]
+    },
+    {
+      "value": "#161",
+      "frequency": 4,
+      "files": [
+        "MOBILE/styles/globals.css:18:background",
+        "MOBILE/styles/globals.css:20:card"
+      ]
+    },
+    {
+      "value": "#ff7",
+      "frequency": 4,
+      "files": [
+        "MOBILE/app/check-in/page.tsx:323:gradient",
+        "MOBILE/components/check-in/ConnectionProgressCard.tsx:29:text"
+      ]
+    },
+    {
+      "value": "#0F1",
+      "frequency": 2,
+      "files": [
+        "MOBILE/app/manifest.ts:10:background",
+        "MOBILE/app/manifest.ts:11:text"
+      ]
+    },
+    {
+      "value": "#0a0",
+      "frequency": 2,
+      "files": [
+        "MOBILE/styles/globals.css:17:general",
+        "MOBILE/styles/globals.css:56:gradient"
+      ]
+    },
+    {
+      "value": "#1d1",
+      "frequency": 2,
+      "files": [
+        "MOBILE/components/home/QuickActionCard.tsx:82:background",
+        "MOBILE/components/home/QuickActionCard.tsx:115:background"
+      ]
+    },
+    {
+      "value": "#241",
+      "frequency": 2,
+      "files": [
+        "MOBILE/styles/globals.css:19:background",
+        "MOBILE/styles/globals.css:21:card"
+      ]
+    },
+    {
+      "value": "#252",
+      "frequency": 2,
+      "files": [
+        "MOBILE/components/home/QuickActionCard.tsx:82:background",
+        "MOBILE/components/home/QuickActionCard.tsx:115:background"
+      ]
+    },
+    {
+      "value": "#2b1",
+      "frequency": 2,
+      "files": [
+        "MOBILE/styles/globals.css:23:general",
+        "MOBILE/styles/globals.css:56:gradient"
+      ]
+    },
+    {
+      "value": "#5a3",
+      "frequency": 2,
+      "files": [
+        "MOBILE/styles/globals.css:10:gradient",
+        "MOBILE/styles/globals.css:27:general"
+      ]
+    },
+    {
+      "value": "#a48",
+      "frequency": 2,
+      "files": [
+        "MOBILE/styles/globals.css:11:gradient",
+        "MOBILE/styles/globals.css:26:general"
+      ]
+    },
+    {
+      "value": "#c7b",
+      "frequency": 2,
+      "files": [
+        "MOBILE/styles/globals.css:29:general",
+        "MOBILE/styles/globals.css:34:accent"
+      ]
+    },
+    {
+      "value": "#d2c",
+      "frequency": 2,
+      "files": [
+        "MOBILE/styles/globals.css:12:gradient",
+        "MOBILE/styles/globals.css:28:general"
+      ]
+    },
+    {
+      "value": "#090",
+      "frequency": 1,
+      "files": [
+        "MOBILE/app/session/page.tsx:866:shadow"
+      ]
+    },
+    {
+      "value": "#0C0",
+      "frequency": 1,
+      "files": [
+        "MOBILE/public/logo-vella.svg:2:general"
+      ]
+    },
+    {
+      "value": "#1b1",
+      "frequency": 1,
+      "files": [
+        "MOBILE/components/home/PlanStatusCard.tsx:19:shadow"
+      ]
+    },
+    {
+      "value": "#1d0",
+      "frequency": 1,
+      "files": [
+        "MOBILE/app/session/page.tsx:866:shadow"
+      ]
+    },
+    {
+      "value": "#1d2",
+      "frequency": 1,
+      "files": [
+        "MOBILE/components/home/PlanStatusCard.tsx:19:shadow"
+      ]
+    },
+    {
+      "value": "#1f2",
+      "frequency": 1,
+      "files": [
+        "MOBILE/components/home/PlanStatusCard.tsx:19:shadow"
+      ]
+    },
+    {
+      "value": "#271",
+      "frequency": 1,
+      "files": [
+        "MOBILE/styles/globals.css:25:border"
+      ]
+    },
+    {
+      "value": "#347",
+      "frequency": 1,
+      "files": [
+        "MOBILE/public/theme/noise.png:9508:general"
+      ]
+    },
+    {
+      "value": "#3a2",
+      "frequency": 1,
+      "files": [
+        "MOBILE/styles/globals.css:24:border"
+      ]
+    },
+    {
+      "value": "#3bb",
+      "frequency": 1,
+      "files": [
+        "MOBILE/styles/globals.css:36:general"
+      ]
+    },
+    {
+      "value": "#4cd",
+      "frequency": 1,
+      "files": [
+        "MOBILE/public/theme/noise.png:14618:general"
+      ]
+    },
+    {
+      "value": "#6EC",
+      "frequency": 1,
+      "files": [
+        "MOBILE/public/theme/noise.png:13282:general"
+      ]
+    },
+    {
+      "value": "#866",
+      "frequency": 1,
+      "files": [
+        "MOBILE/styles/globals.css:33:accent"
+      ]
+    },
+    {
+      "value": "#88d",
+      "frequency": 1,
+      "files": [
+        "MOBILE/public/theme/noise.png:6027:general"
+      ]
+    },
+    {
+      "value": "#A28",
+      "frequency": 1,
+      "files": [
+        "MOBILE/public/theme/noise.png:2643:general"
+      ]
+    },
+    {
+      "value": "#Ade",
+      "frequency": 1,
+      "files": [
+        "MOBILE/public/theme/noise.png:3624:general"
+      ]
+    },
+    {
+      "value": "#a89",
+      "frequency": 1,
+      "files": [
+        "MOBILE/styles/globals.css:32:general"
+      ]
+    },
+    {
+      "value": "#abf",
+      "frequency": 1,
+      "files": [
+        "MOBILE/public/theme/noise.png:9261:general"
+      ]
+    },
+    {
+      "value": "#cd5",
+      "frequency": 1,
+      "files": [
+        "MOBILE/public/theme/noise.png:12391:general"
+      ]
+    },
+    {
+      "value": "#cfc",
+      "frequency": 1,
+      "files": [
+        "MOBILE/styles/globals.css:31:general"
+      ]
+    },
+    {
+      "value": "#d3d",
+      "frequency": 1,
+      "files": [
+        "MOBILE/app/session/page.tsx:958:text"
+      ]
+    },
+    {
+      "value": "#d95",
+      "frequency": 1,
+      "files": [
+        "MOBILE/styles/globals.css:35:general"
+      ]
+    },
+    {
+      "value": "#f5f",
+      "frequency": 1,
+      "files": [
+        "MOBILE/styles/globals.css:30:general"
+      ]
+    },
+    {
+      "value": "#f87",
+      "frequency": 1,
+      "files": [
+        "MOBILE/public/theme/noise.png:7160:general"
+      ]
+    },
+    {
+      "value": "#f88",
+      "frequency": 1,
+      "files": [
+        "MOBILE/app/check-in/page.tsx:331:gradient"
+      ]
+    },
+    {
+      "value": "#ff5",
+      "frequency": 1,
+      "files": [
+        "MOBILE/app/check-in/page.tsx:331:gradient"
+      ]
+    },
+    {
+      "value": "#ffb",
+      "frequency": 1,
+      "files": [
+        "MOBILE/app/check-in/page.tsx:323:gradient"
+      ]
+    },
+    {
+      "value": "#ffd",
+      "frequency": 1,
+      "files": [
+        "MOBILE/components/check-in/ConnectionProgressCard.tsx:82:shadow"
+      ]
+    },
+    {
+      "value": "rgba(0,0,0,0.25)",
+      "frequency": 3,
+      "files": [
+        "MOBILE/tailwind.config.ts:49:general",
+        "MOBILE/components/ui/StrategyChip.tsx:133:shadow"
+      ]
+    },
+    {
+      "value": "rgba(255,255,255,0.08)",
+      "frequency": 3,
+      "files": [
+        "MOBILE/app/settings/account-plan/page.tsx:421:gradient",
+        "MOBILE/app/settings/account-plan/page.tsx:421:gradient"
+      ]
+    },
+    {
+      "value": "rgba(0,0,0,0.6)",
+      "frequency": 2,
+      "files": [
+        "MOBILE/components/modals/UpgradeGate.tsx:43:shadow",
+        "MOBILE/components/ui/Sheet.tsx:38:shadow"
+      ]
+    },
+    {
+      "value": "rgba(0,0,0,0.65)",
+      "frequency": 2,
+      "files": [
+        "MOBILE/app/compass-mode/page.tsx:40:shadow",
+        "MOBILE/components/ui/Modal.tsx:39:shadow"
+      ]
+    },
+    {
+      "value": "rgba(163,185,201,0.4)",
+      "frequency": 2,
+      "files": [
+        "MOBILE/components/ui/CompassPulse.tsx:6:shadow",
+        "MOBILE/components/ui/Toggle.tsx:31:shadow"
+      ]
+    },
+    {
+      "value": "rgba(164, 140, 255, 0.5)",
+      "frequency": 2,
+      "files": [
+        "MOBILE/styles/globals.css:38:general",
+        "MOBILE/styles/globals.css:47:shadow"
+      ]
+    },
+    {
+      "value": "rgba(80, 199, 255, 0.55)",
+      "frequency": 2,
+      "files": [
+        "MOBILE/styles/globals.css:182:shadow",
+        "MOBILE/styles/globals.css:198:shadow"
+      ]
+    },
+    {
+      "value": "rgba(0, 0, 0, 0.35)",
+      "frequency": 1,
+      "files": [
+        "MOBILE/styles/voice.css:12:shadow"
+      ]
+    },
+    {
+      "value": "rgba(0, 0, 0, 0.45)",
+      "frequency": 1,
+      "files": [
+        "MOBILE/styles/voice.css:18:shadow"
+      ]
+    },
+    {
+      "value": "rgba(0,0,0,0.75)",
+      "frequency": 1,
+      "files": [
+        "MOBILE/components/voice/AudioSheet.tsx:14:shadow"
+      ]
+    },
+    {
+      "value": "rgba(100,116,139,0.35)",
+      "frequency": 1,
+      "files": [
+        "MOBILE/components/home/QuickActionCard.tsx:73:shadow"
+      ]
+    },
+    {
+      "value": "rgba(13,17,27,0.82)",
+      "frequency": 1,
+      "files": [
+        "MOBILE/components/layout/BottomNav.tsx:22:shadow"
+      ]
+    },
+    {
+      "value": "rgba(130, 112, 255, 0.4)",
+      "frequency": 1,
+      "files": [
+        "MOBILE/styles/globals.css:44:general"
+      ]
+    },
+    {
+      "value": "rgba(138,92,246,0.35)",
+      "frequency": 1,
+      "files": [
+        "MOBILE/components/home/QuickActionCard.tsx:72:shadow"
+      ]
+    },
+    {
+      "value": "rgba(163, 185, 201, ${intensityForCell(bias, day)",
+      "frequency": 1,
+      "files": [
+        "MOBILE/components/insights/BiasHeatmap.tsx:48:background"
+      ]
+    },
+    {
+      "value": "rgba(163, 185, 201, 0.08)",
+      "frequency": 1,
+      "files": [
+        "MOBILE/styles/globals.css:112:general"
+      ]
+    },
+    {
+      "value": "rgba(164, 140, 255, 0.2)",
+      "frequency": 1,
+      "files": [
+        "MOBILE/styles/globals.css:14:gradient"
+      ]
+    },
+    {
+      "value": "rgba(164, 140, 255, 0.25)",
+      "frequency": 1,
+      "files": [
+        "MOBILE/styles/globals.css:41:shadow"
+      ]
+    },
+    {
+      "value": "rgba(164, 140, 255, 0.35)",
+      "frequency": 1,
+      "files": [
+        "MOBILE/styles/globals.css:40:shadow"
+      ]
+    },
+    {
+      "value": "rgba(190, 150, 255, 0.4)",
+      "frequency": 1,
+      "files": [
+        "MOBILE/styles/globals.css:51:shadow"
+      ]
+    },
+    {
+      "value": "rgba(2, 6, 23, 0.75)",
+      "frequency": 1,
+      "files": [
+        "MOBILE/styles/globals.css:121:background"
+      ]
+    },
+    {
+      "value": "rgba(200, 180, 255, 0.55)",
+      "frequency": 1,
+      "files": [
+        "MOBILE/styles/globals.css:46:general"
+      ]
+    },
+    {
+      "value": "rgba(210, 140, 255, 0.18)",
+      "frequency": 1,
+      "files": [
+        "MOBILE/styles/globals.css:48:general"
+      ]
+    },
+    {
+      "value": "rgba(210, 150, 255, 0.45)",
+      "frequency": 1,
+      "files": [
+        "MOBILE/styles/globals.css:50:general"
+      ]
+    },
+    {
+      "value": "rgba(210, 199, 255, 0.25)",
+      "frequency": 1,
+      "files": [
+        "MOBILE/styles/globals.css:15:gradient"
+      ]
+    },
+    {
+      "value": "rgba(212, 199, 255, 0.5)",
+      "frequency": 1,
+      "files": [
+        "MOBILE/styles/globals.css:39:shadow"
+      ]
+    },
+    {
+      "value": "rgba(212, 199, 255, 0.55)",
+      "frequency": 1,
+      "files": [
+        "MOBILE/styles/globals.css:42:shadow"
+      ]
+    },
+    {
+      "value": "rgba(248,113,113,0.65)",
+      "frequency": 1,
+      "files": [
+        "MOBILE/components/voice/LiquidVoiceStage.tsx:248:general"
+      ]
+    },
+    {
+      "value": "rgba(249,168,212,0.45)",
+      "frequency": 1,
+      "files": [
+        "MOBILE/components/voice/LiquidVoiceStage.tsx:252:general"
+      ]
+    },
+    {
+      "value": "rgba(251,191,36,0.55)",
+      "frequency": 1,
+      "files": [
+        "MOBILE/components/voice/LiquidVoiceStage.tsx:250:general"
+      ]
+    },
+    {
+      "value": "rgba(255, 190, 220, 0.15)",
+      "frequency": 1,
+      "files": [
+        "MOBILE/styles/globals.css:52:general"
+      ]
+    },
+    {
+      "value": "rgba(255, 190, 220, 0.3)",
+      "frequency": 1,
+      "files": [
+        "MOBILE/styles/globals.css:54:shadow"
+      ]
+    },
+    {
+      "value": "rgba(255,122,203,0.35)",
+      "frequency": 1,
+      "files": [
+        "MOBILE/components/check-in/ConnectionProgressCard.tsx:82:shadow"
+      ]
+    },
+    {
+      "value": "rgba(255,122,203,0.45)",
+      "frequency": 1,
+      "files": [
+        "MOBILE/components/home/QuickActionCard.tsx:70:shadow"
+      ]
+    },
+    {
+      "value": "rgba(255,192,203,0.35)",
+      "frequency": 1,
+      "files": [
+        "MOBILE/components/home/QuickActionCard.tsx:99:shadow"
+      ]
+    },
+    {
+      "value": "rgba(255,255,255,0.3)",
+      "frequency": 1,
+      "files": [
+        "MOBILE/components/chat/ChatPanel.tsx:68:text"
+      ]
+    },
+    {
+      "value": "rgba(255,255,255,0.35)",
+      "frequency": 1,
+      "files": [
+        "MOBILE/components/ui/EmotionalDisplay.tsx:86:shadow"
+      ]
+    },
+    {
+      "value": "rgba(45, 20, 110, 0.12)",
+      "frequency": 1,
+      "files": [
+        "MOBILE/styles/globals.css:45:general"
+      ]
+    },
+    {
+      "value": "rgba(49,232,201,0.15)",
+      "frequency": 1,
+      "files": [
+        "MOBILE/tailwind.config.ts:51:general"
+      ]
+    },
+    {
+      "value": "rgba(49,232,201,0.4)",
+      "frequency": 1,
+      "files": [
+        "MOBILE/tailwind.config.ts:50:general"
+      ]
+    },
+    {
+      "value": "rgba(5,8,16,0.5)",
+      "frequency": 1,
+      "files": [
+        "MOBILE/components/layout/BottomNav.tsx:22:shadow"
+      ]
+    },
+    {
+      "value": "rgba(50,80,130,0.35)",
+      "frequency": 1,
+      "files": [
+        "MOBILE/components/home/PlanStatusCard.tsx:19:shadow"
+      ]
+    },
+    {
+      "value": "rgba(55,220,210,0.4)",
+      "frequency": 1,
+      "files": [
+        "MOBILE/components/check-in/CheckInSliders.tsx:49:shadow"
+      ]
+    },
+    {
+      "value": "rgba(60, 20, 90, 0.12)",
+      "frequency": 1,
+      "files": [
+        "MOBILE/styles/globals.css:53:general"
+      ]
+    },
+    {
+      "value": "rgba(80, 199, 255, 0.35)",
+      "frequency": 1,
+      "files": [
+        "MOBILE/styles/globals.css:178:shadow"
+      ]
+    },
+    {
+      "value": "rgba(80, 199, 255, 0.5)",
+      "frequency": 1,
+      "files": [
+        "MOBILE/styles/globals.css:190:shadow"
+      ]
+    },
+    {
+      "value": "rgba(80, 199, 255, 0.75)",
+      "frequency": 1,
+      "files": [
+        "MOBILE/styles/globals.css:194:shadow"
+      ]
+    },
+    {
+      "value": "rgba(90, 30, 140, 0.16)",
+      "frequency": 1,
+      "files": [
+        "MOBILE/styles/globals.css:49:general"
+      ]
+    },
+    {
+      "value": "rgba(90, 62, 255, 0.2)",
+      "frequency": 1,
+      "files": [
+        "MOBILE/styles/globals.css:13:gradient"
+      ]
+    },
+    {
+      "value": "rgba(90, 62, 255, 0.25)",
+      "frequency": 1,
+      "files": [
+        "MOBILE/styles/globals.css:38:general"
+      ]
+    },
+    {
+      "value": "rgba(96,165,250,0.45)",
+      "frequency": 1,
+      "files": [
+        "MOBILE/components/voice/LiquidVoiceStage.tsx:253:general"
+      ]
+    }
+  ],
+  "card_colors": [
+    "#161",
+    "#241",
+    "bg-[color:var(--mc-card)]",
+    "bg-[color:var(--mc-card)]/40",
+    "bg-[color:var(--mc-card)]/50",
+    "bg-[color:var(--mc-card)]/60",
+    "bg-[color:var(--mc-card)]/70",
+    "bg-[color:var(--mc-card)]/80",
+    "bg-[color:var(--mc-card-soft)]",
+    "bg-[color:var(--mc-card-soft)]/50",
+    "bg-[color:var(--mc-card-soft)]/60",
+    "bg-[color:var(--mc-card-soft)]/70",
+    "bg-[color:var(--mc-card-soft)]/80",
+    "bg-[color:var(--mc-card2)]",
+    "bg-white/[0.02]",
+    "border-[color:var(--mc-accent)]/50",
+    "border-[color:var(--mc-border)]",
+    "border-[color:var(--mc-border)]/40",
+    "border-[color:var(--mc-border)]/60",
+    "border-[color:var(--mc-border)]/70",
+    "border-[color:var(--mc-border-soft)]",
+    "border-[color:var(--mc-primary)]",
+    "border-[color:var(--mc-primary)]/40",
+    "border-[color:var(--mc-primary)]/50",
+    "border-[color:var(--mc-primary-soft)]",
+    "border-[color:var(--mc-primary-soft)]/30",
+    "from-template-context.d.ts",
+    "outline-none",
+    "shadow-inner",
+    "shadow-innerGlow",
+    "shadow-soft",
+    "text-left",
+    "to-[color:var(--mc-card)]",
+    "to-file.d.mts",
+    "to-json-schema.d.cts",
+    "var(--mc-border)",
+    "var(--mc-border-soft)",
+    "var(--mc-card)",
+    "var(--mc-card-soft)",
+    "var(--mc-card2)",
+    "var(--mc-primary)"
+  ],
+  "background_colors": [
+    "#050",
+    "#090",
+    "#0F1",
+    "#161",
+    "#1b1",
+    "#1d0",
+    "#1d1",
+    "#1d2",
+    "#1f2",
+    "#241",
+    "#252",
+    "#f88",
+    "#ff5",
+    "#ff7",
+    "#ffb",
+    "backdrop-blur",
+    "backdrop-blur-2xl",
+    "backdrop-blur-md",
+    "bg-[",
+    "bg-[color:var(--mc-accent)]",
+    "bg-[color:var(--mc-accent)]/70",
+    "bg-[color:var(--mc-accent)]/80",
+    "bg-[color:var(--mc-bg)]",
+    "bg-[color:var(--mc-bg)]/60",
+    "bg-[color:var(--mc-bg-elevated)]",
+    "bg-[color:var(--mc-border)]/40",
+    "bg-[color:var(--mc-card)]",
+    "bg-[color:var(--mc-card)]/40",
+    "bg-[color:var(--mc-card)]/50",
+    "bg-[color:var(--mc-card)]/60",
+    "bg-[color:var(--mc-card)]/70",
+    "bg-[color:var(--mc-card)]/80",
+    "bg-[color:var(--mc-card-soft)]",
+    "bg-[color:var(--mc-card-soft)]/50",
+    "bg-[color:var(--mc-card-soft)]/60",
+    "bg-[color:var(--mc-card-soft)]/70",
+    "bg-[color:var(--mc-card-soft)]/80",
+    "bg-[color:var(--mc-card2)]",
+    "bg-[color:var(--mc-danger)]",
+    "bg-[color:var(--mc-danger)]/90",
+    "bg-[color:var(--mc-muted)]/40",
+    "bg-[color:var(--mc-primary)]",
+    "bg-[color:var(--mc-primary)]/70",
+    "bg-[color:var(--mc-primary-dark)]",
+    "bg-[color:var(--mc-primary-soft)]",
+    "bg-[color:var(--mc-primary-soft)]/10",
+    "bg-[color:var(--mc-primary-soft)]/20",
+    "bg-[color:var(--mc-primary-soft)]/60",
+    "bg-[color:var(--mc-surface)]/40",
+    "bg-[color:var(--mc-surface)]/60",
+    "bg-[color:var(--mc-surface)]/70",
+    "bg-[color:var(--mc-surface)]/80",
+    "bg-[color:var(--mc-surface-strong)]/80",
+    "bg-[radial-gradient(circle_at_center",
+    "bg-[rgba(13",
+    "bg-amber-300",
+    "bg-amber-500/10",
+    "bg-amber-500/15",
+    "bg-amber-500/20",
+    "bg-black",
+    "bg-black/10",
+    "bg-black/20",
+    "bg-black/25",
+    "bg-black/30",
+    "bg-black/40",
+    "bg-black/60",
+    "bg-black/70",
+    "bg-black/80",
+    "bg-cyan-500/15",
+    "bg-cyan-500/20",
+    "bg-elevated)",
+    "bg-elevated:",
+    "bg-emerald-400",
+    "bg-emerald-500/15",
+    "bg-emerald-500/20",
+    "bg-gradient-to-b",
+    "bg-gradient-to-br",
+    "bg-gradient-to-r",
+    "bg-gradient-to-t",
+    "bg-gradient-to-tr",
+    "bg-indigo-500/15",
+    "bg-indigo-500/20",
+    "bg-mc-bg",
+    "bg-neutral-900",
+    "bg-pink-500/10",
+    "bg-pink-500/15",
+    "bg-pink-500/20",
+    "bg-purple-500/20",
+    "bg-rose-500/10",
+    "bg-rose-500/15",
+    "bg-rose-500/20",
+    "bg-sky-500/15",
+    "bg-sky-500/20",
+    "bg-slate-500/15",
+    "bg-slate-500/20",
+    "bg-slate-900",
+    "bg-soft)",
+    "bg-soft:",
+    "bg-transparent",
+    "bg-violet-500/15",
+    "bg-violet-500/20",
+    "bg-white",
+    "bg-white/10",
+    "bg-white/15",
+    "bg-white/20",
+    "bg-white/30",
+    "bg-white/5",
+    "bg-white/70",
+    "bg-white/[0.02]",
+    "bg-white/[0.04]",
+    "border-0",
+    "border-2",
+    "border-[color:var(--mc-accent)]",
+    "border-[color:var(--mc-accent)]/30",
+    "border-[color:var(--mc-accent)]/50",
+    "border-[color:var(--mc-border)]",
+    "border-[color:var(--mc-border)]/30",
+    "border-[color:var(--mc-border)]/40",
+    "border-[color:var(--mc-border)]/60",
+    "border-[color:var(--mc-border)]/70",
+    "border-[color:var(--mc-border-soft)]",
+    "border-[color:var(--mc-primary)]",
+    "border-[color:var(--mc-primary)]/40",
+    "border-[color:var(--mc-primary)]/50",
+    "border-[color:var(--mc-primary-soft)]",
+    "border-[color:var(--mc-primary-soft)]/30",
+    "border-[color:var(--mc-primary-soft)]/40",
+    "border-amber-400/30",
+    "border-amber-500/30",
+    "border-amber-500/40",
+    "border-black/40",
+    "border-cyan-400/50",
+    "border-cyan-500/30",
+    "border-emerald-400/50",
+    "border-emerald-500/30",
+    "border-indigo-400/50",
+    "border-indigo-500/30",
+    "border-pink-400/50",
+    "border-pink-400/70",
+    "border-pink-500/30",
+    "border-purple-500/30",
+    "border-rose-400/40",
+    "border-rose-400/50",
+    "border-rose-500/30",
+    "border-rose-500/40",
+    "border-sky-400/50",
+    "border-sky-500/30",
+    "border-slate-400/50",
+    "border-slate-500/30",
+    "border-violet-400/50",
+    "border-violet-500/30",
+    "border-white",
+    "border-white/10",
+    "border-white/20",
+    "border-white/40",
+    "border-white/5",
+    "border-white/60",
+    "from-[",
+    "from-[color:var(--mc-border)]/30",
+    "from-[color:var(--mc-primary-soft)]",
+    "from-[var(--gradient-primary-start)]",
+    "from-[var(--gradient-primary-start-soft)]",
+    "from-slate-700/50",
+    "from-template-context.d.ts",
+    "from-transparent",
+    "outline-none",
+    "rgba(0,0,0,0.6)",
+    "rgba(0,0,0,0.65)",
+    "rgba(0,0,0,0.75)",
+    "rgba(13,17,27,0.82)",
+    "rgba(163, 185, 201, ${intensityForCell(bias, day)",
+    "rgba(163,185,201,0.4)",
+    "rgba(2, 6, 23, 0.75)",
+    "rgba(5,8,16,0.5)",
+    "rgba(50,80,130,0.35)",
+    "rgba(55,220,210,0.4)",
+    "ring-2",
+    "ring-[color:var(--mc-primary)]",
+    "ring-[color:var(--mc-primary-soft)]",
+    "ring-[var(--blob-layer1-ring)]",
+    "ring-[var(--blob-layer2-ring)]",
+    "shadow-2xl",
+    "shadow-[0_-18px_40px_rgba(0",
+    "shadow-[0_-25px_45px_rgba(0",
+    "shadow-[0_0_25px_rgba(163",
+    "shadow-[0_0_35px_var(--blob-layer1-shadow)]",
+    "shadow-[0_0_50px_var(--blob-layer2-shadow)]",
+    "shadow-[0_0_60px_var(--blob-layer3-shadow)]",
+    "shadow-[0_12px_30px_var(--shadow-primary-medium)]",
+    "shadow-[0_14px_30px_rgba(5",
+    "shadow-[0_18px_45px_var(--shadow-primary-medium)]",
+    "shadow-[0_20px_35px_var(--shadow-primary-medium)]",
+    "shadow-[0_20px_60px_rgba(0",
+    "shadow-[0_25px_55px_rgba(0",
+    "shadow-[0_25px_65px_rgba(50",
+    "shadow-[0_25px_65px_var(--shadow-primary-strong)]",
+    "shadow-[0_35px_60px_rgba(0",
+    "shadow-[0_4px_15px_rgba(163",
+    "shadow-[0_5px_25px_var(--shadow-primary-soft)]",
+    "shadow-[0_6px_18px_rgba(55",
+    "shadow-black/40",
+    "shadow-glow",
+    "shadow-inner",
+    "shadow-innerGlow",
+    "shadow-lg",
+    "shadow-none",
+    "shadow-sm",
+    "shadow-soft",
+    "text-[color:var(--mc-primary)]",
+    "text-[color:var(--mc-text)]",
+    "text-amber-100",
+    "text-amber-50",
+    "text-amber-50/90",
+    "text-black",
+    "text-cyan-100",
+    "text-indigo-100",
+    "text-left",
+    "text-lg",
+    "text-mc-text",
+    "text-rose-100",
+    "text-rose-200",
+    "text-sky-100",
+    "text-slate-100",
+    "text-violet-100",
+    "text-white",
+    "text-white/80",
+    "text-xl",
+    "to-[",
+    "to-[color:var(--mc-bg)]",
+    "to-[color:var(--mc-card)]",
+    "to-[var(--gradient-primary-end)]",
+    "to-[var(--gradient-primary-mid-soft)]",
+    "to-file.d.mts",
+    "to-json-schema.d.cts",
+    "to-slate-200/80",
+    "to-transparent",
+    "to-white/60",
+    "var(--blob-layer1-inner)",
+    "var(--blob-layer1-outer)",
+    "var(--blob-layer1-ring)",
+    "var(--blob-layer1-shadow)",
+    "var(--blob-layer2-inner)",
+    "var(--blob-layer2-outer)",
+    "var(--blob-layer2-ring)",
+    "var(--blob-layer2-shadow)",
+    "var(--blob-layer3-inner)",
+    "var(--blob-layer3-outer)",
+    "var(--blob-layer3-shadow)",
+    "var(--gradient-primary-end)",
+    "var(--gradient-primary-mid)",
+    "var(--gradient-primary-mid-soft)",
+    "var(--gradient-primary-start)",
+    "var(--gradient-primary-start-soft)",
+    "var(--mc-accent)",
+    "var(--mc-bg)",
+    "var(--mc-bg-elevated)",
+    "var(--mc-bg-soft)",
+    "var(--mc-border)",
+    "var(--mc-border-soft)",
+    "var(--mc-card)",
+    "var(--mc-card-soft)",
+    "var(--mc-card2)",
+    "var(--mc-danger)",
+    "var(--mc-primary)",
+    "var(--mc-primary-dark)",
+    "var(--mc-primary-soft)",
+    "var(--mc-surface)",
+    "var(--mc-surface-strong)",
+    "var(--mc-text)",
+    "var(--page-gradient)",
+    "var(--shadow-primary-medium)",
+    "var(--shadow-primary-soft)",
+    "var(--shadow-primary-strong)",
+    "via-[",
+    "via-[color:var(--mc-border)]",
+    "via-[var(--gradient-primary-mid)]"
+  ],
+  "border_colors": [
+    "#090",
+    "#1b1",
+    "#1d0",
+    "#1d1",
+    "#1d2",
+    "#1f2",
+    "#252",
+    "#271",
+    "#3a2",
+    "backdrop-blur",
+    "backdrop-blur-2xl",
+    "bg-[color:var(--mc-accent)]/80",
+    "bg-[color:var(--mc-bg-elevated)]",
+    "bg-[color:var(--mc-border)]/40",
+    "bg-[color:var(--mc-card)]",
+    "bg-[color:var(--mc-card)]/40",
+    "bg-[color:var(--mc-card)]/50",
+    "bg-[color:var(--mc-card)]/70",
+    "bg-[color:var(--mc-card)]/80",
+    "bg-[color:var(--mc-card-soft)]",
+    "bg-[color:var(--mc-card-soft)]/50",
+    "bg-[color:var(--mc-card-soft)]/60",
+    "bg-[color:var(--mc-card-soft)]/70",
+    "bg-[color:var(--mc-card-soft)]/80",
+    "bg-[color:var(--mc-card2)]",
+    "bg-[color:var(--mc-primary-soft)]/10",
+    "bg-[color:var(--mc-primary-soft)]/20",
+    "bg-[color:var(--mc-primary-soft)]/60",
+    "bg-[color:var(--mc-surface)]/60",
+    "bg-[color:var(--mc-surface)]/70",
+    "bg-[color:var(--mc-surface)]/80",
+    "bg-[color:var(--mc-surface-strong)]/80",
+    "bg-[rgba(13",
+    "bg-amber-500/10",
+    "bg-black/10",
+    "bg-black/20",
+    "bg-black/25",
+    "bg-black/30",
+    "bg-black/80",
+    "bg-cyan-500/15",
+    "bg-cyan-500/20",
+    "bg-emerald-500/15",
+    "bg-indigo-500/15",
+    "bg-indigo-500/20",
+    "bg-pink-500/10",
+    "bg-pink-500/15",
+    "bg-pink-500/20",
+    "bg-purple-500/20",
+    "bg-rose-500/10",
+    "bg-sky-500/15",
+    "bg-sky-500/20",
+    "bg-slate-500/15",
+    "bg-slate-500/20",
+    "bg-slate-900",
+    "bg-transparent",
+    "bg-violet-500/15",
+    "bg-violet-500/20",
+    "bg-white",
+    "bg-white/10",
+    "bg-white/5",
+    "bg-white/[0.02]",
+    "bg-white/[0.04]",
+    "border-0",
+    "border-2",
+    "border-[color:var(--mc-accent)]",
+    "border-[color:var(--mc-accent)]/20",
+    "border-[color:var(--mc-accent)]/30",
+    "border-[color:var(--mc-accent)]/35",
+    "border-[color:var(--mc-accent)]/40",
+    "border-[color:var(--mc-accent)]/50",
+    "border-[color:var(--mc-accent)]/60",
+    "border-[color:var(--mc-border)]",
+    "border-[color:var(--mc-border)]/30",
+    "border-[color:var(--mc-border)]/40",
+    "border-[color:var(--mc-border)]/50",
+    "border-[color:var(--mc-border)]/60",
+    "border-[color:var(--mc-border)]/70",
+    "border-[color:var(--mc-border-soft)]",
+    "border-[color:var(--mc-primary)]",
+    "border-[color:var(--mc-primary)]/40",
+    "border-[color:var(--mc-primary)]/50",
+    "border-[color:var(--mc-primary-soft)]",
+    "border-[color:var(--mc-primary-soft)]/30",
+    "border-[color:var(--mc-primary-soft)]/40",
+    "border-amber-200/20",
+    "border-amber-300/50",
+    "border-amber-400/30",
+    "border-amber-400/40",
+    "border-amber-400/50",
+    "border-amber-400/80",
+    "border-amber-500/30",
+    "border-amber-500/40",
+    "border-b",
+    "border-black/40",
+    "border-color:",
+    "border-cyan-400/50",
+    "border-cyan-500/30",
+    "border-dashed",
+    "border-emerald-300/60",
+    "border-emerald-400/50",
+    "border-emerald-500/30",
+    "border-indigo-400/50",
+    "border-indigo-500/30",
+    "border-pink-400/50",
+    "border-pink-400/70",
+    "border-pink-500/30",
+    "border-purple-500/30",
+    "border-radius:",
+    "border-rose-400/40",
+    "border-rose-400/50",
+    "border-rose-500/30",
+    "border-rose-500/40",
+    "border-sky-400/50",
+    "border-sky-500/30",
+    "border-slate-400/50",
+    "border-slate-500/30",
+    "border-soft)",
+    "border-soft:",
+    "border-t",
+    "border-violet-400/50",
+    "border-violet-500/30",
+    "border-white",
+    "border-white/10",
+    "border-white/15",
+    "border-white/20",
+    "border-white/30",
+    "border-white/40",
+    "border-white/5",
+    "border-white/60",
+    "divide-white/5",
+    "divide-y",
+    "from-[color:var(--mc-border)]/30",
+    "from-[color:var(--mc-primary-soft)]",
+    "from-transparent",
+    "outline-none",
+    "rgba(0,0,0,0.25)",
+    "rgba(0,0,0,0.6)",
+    "rgba(0,0,0,0.65)",
+    "rgba(0,0,0,0.75)",
+    "rgba(13,17,27,0.82)",
+    "rgba(163,185,201,0.4)",
+    "rgba(5,8,16,0.5)",
+    "rgba(50,80,130,0.35)",
+    "rgba(55,220,210,0.4)",
+    "ring-2",
+    "ring-[color:var(--mc-primary)]",
+    "ring-[color:var(--mc-primary-soft)]",
+    "shadow-[0_-18px_40px_rgba(0",
+    "shadow-[0_-25px_45px_rgba(0",
+    "shadow-[0_14px_30px_rgba(5",
+    "shadow-[0_20px_60px_rgba(0",
+    "shadow-[0_25px_55px_rgba(0",
+    "shadow-[0_25px_65px_rgba(50",
+    "shadow-[0_35px_60px_rgba(0",
+    "shadow-[0_4px_15px_rgba(163",
+    "shadow-[0_6px_18px_rgba(55",
+    "shadow-[0_8px_20px_rgba(0",
+    "shadow-black/40",
+    "shadow-inner",
+    "shadow-innerGlow",
+    "shadow-lg",
+    "shadow-none",
+    "shadow-sm",
+    "shadow-soft",
+    "text-[8px]",
+    "text-[9px]",
+    "text-[color:var(--mc-muted-strong)]",
+    "text-amber-100",
+    "text-amber-100/80",
+    "text-amber-50",
+    "text-amber-50/90",
+    "text-cyan-100",
+    "text-emerald-100",
+    "text-indigo-100",
+    "text-left",
+    "text-lg",
+    "text-rose-100",
+    "text-sky-100",
+    "text-slate-100",
+    "text-violet-100",
+    "text-white/70",
+    "to-[color:var(--mc-bg)]",
+    "to-transparent",
+    "to-white/60",
+    "var(--mc-accent)",
+    "var(--mc-bg-elevated)",
+    "var(--mc-border)",
+    "var(--mc-border-soft)",
+    "var(--mc-card)",
+    "var(--mc-card-soft)",
+    "var(--mc-card2)",
+    "var(--mc-muted-strong)",
+    "var(--mc-primary)",
+    "var(--mc-primary-soft)",
+    "var(--mc-surface)",
+    "var(--mc-surface-strong)",
+    "via-[",
+    "via-[color:var(--mc-border)]"
+  ],
+  "text_colors": [
+    "#050",
+    "#090",
+    "#0F1",
+    "#1b1",
+    "#1d0",
+    "#1d1",
+    "#1d2",
+    "#1f2",
+    "#252",
+    "#d3d",
+    "#ff7",
+    "accent-[color:var(--mc-primary-soft)]",
+    "backdrop-blur",
+    "bg-[",
+    "bg-[color:var(--mc-accent)]",
+    "bg-[color:var(--mc-accent)]/70",
+    "bg-[color:var(--mc-accent)]/80",
+    "bg-[color:var(--mc-bg)]",
+    "bg-[color:var(--mc-bg)]/60",
+    "bg-[color:var(--mc-bg-elevated)]",
+    "bg-[color:var(--mc-border)]/40",
+    "bg-[color:var(--mc-card)]",
+    "bg-[color:var(--mc-card)]/40",
+    "bg-[color:var(--mc-card)]/50",
+    "bg-[color:var(--mc-card)]/60",
+    "bg-[color:var(--mc-card)]/70",
+    "bg-[color:var(--mc-card)]/80",
+    "bg-[color:var(--mc-card-soft)]",
+    "bg-[color:var(--mc-card-soft)]/50",
+    "bg-[color:var(--mc-card-soft)]/60",
+    "bg-[color:var(--mc-card-soft)]/70",
+    "bg-[color:var(--mc-card-soft)]/80",
+    "bg-[color:var(--mc-card2)]",
+    "bg-[color:var(--mc-danger)]",
+    "bg-[color:var(--mc-danger)]/90",
+    "bg-[color:var(--mc-muted)]/40",
+    "bg-[color:var(--mc-primary)]",
+    "bg-[color:var(--mc-primary)]/70",
+    "bg-[color:var(--mc-primary-dark)]",
+    "bg-[color:var(--mc-primary-soft)]",
+    "bg-[color:var(--mc-primary-soft)]/10",
+    "bg-[color:var(--mc-primary-soft)]/20",
+    "bg-[color:var(--mc-primary-soft)]/60",
+    "bg-[color:var(--mc-surface)]/40",
+    "bg-[color:var(--mc-surface)]/60",
+    "bg-[color:var(--mc-surface)]/70",
+    "bg-[color:var(--mc-surface)]/80",
+    "bg-[color:var(--mc-surface-strong)]/80",
+    "bg-amber-500/10",
+    "bg-amber-500/15",
+    "bg-amber-500/20",
+    "bg-black/10",
+    "bg-black/20",
+    "bg-black/25",
+    "bg-black/80",
+    "bg-cyan-500/15",
+    "bg-cyan-500/20",
+    "bg-emerald-500/15",
+    "bg-emerald-500/20",
+    "bg-indigo-500/15",
+    "bg-indigo-500/20",
+    "bg-mc-bg",
+    "bg-neutral-900",
+    "bg-pink-500/15",
+    "bg-pink-500/20",
+    "bg-purple-500/20",
+    "bg-rose-500/10",
+    "bg-rose-500/15",
+    "bg-rose-500/20",
+    "bg-sky-500/15",
+    "bg-sky-500/20",
+    "bg-slate-500/15",
+    "bg-slate-500/20",
+    "bg-transparent",
+    "bg-violet-500/15",
+    "bg-violet-500/20",
+    "bg-white/10",
+    "bg-white/15",
+    "bg-white/20",
+    "bg-white/[0.04]",
+    "border-0",
+    "border-[color:var(--mc-accent)]",
+    "border-[color:var(--mc-accent)]/20",
+    "border-[color:var(--mc-accent)]/30",
+    "border-[color:var(--mc-accent)]/35",
+    "border-[color:var(--mc-accent)]/40",
+    "border-[color:var(--mc-accent)]/50",
+    "border-[color:var(--mc-accent)]/60",
+    "border-[color:var(--mc-border)]",
+    "border-[color:var(--mc-border)]/30",
+    "border-[color:var(--mc-border)]/40",
+    "border-[color:var(--mc-border)]/50",
+    "border-[color:var(--mc-border)]/60",
+    "border-[color:var(--mc-border)]/70",
+    "border-[color:var(--mc-border-soft)]",
+    "border-[color:var(--mc-primary)]",
+    "border-[color:var(--mc-primary)]/40",
+    "border-[color:var(--mc-primary)]/50",
+    "border-[color:var(--mc-primary-soft)]",
+    "border-[color:var(--mc-primary-soft)]/30",
+    "border-[color:var(--mc-primary-soft)]/40",
+    "border-amber-200/20",
+    "border-amber-300/50",
+    "border-amber-400/30",
+    "border-amber-400/40",
+    "border-amber-400/50",
+    "border-amber-400/80",
+    "border-amber-500/30",
+    "border-amber-500/40",
+    "border-b",
+    "border-black/40",
+    "border-color:",
+    "border-cyan-400/50",
+    "border-cyan-500/30",
+    "border-dashed",
+    "border-emerald-300/60",
+    "border-emerald-400/50",
+    "border-emerald-500/30",
+    "border-indigo-400/50",
+    "border-indigo-500/30",
+    "border-pink-400/50",
+    "border-pink-500/30",
+    "border-purple-500/30",
+    "border-rose-400/40",
+    "border-rose-400/50",
+    "border-rose-500/30",
+    "border-rose-500/40",
+    "border-sky-400/50",
+    "border-sky-500/30",
+    "border-slate-400/50",
+    "border-slate-500/30",
+    "border-t",
+    "border-violet-400/50",
+    "border-violet-500/30",
+    "border-white",
+    "border-white/10",
+    "border-white/15",
+    "border-white/20",
+    "border-white/30",
+    "border-white/40",
+    "border-white/60",
+    "drop-shadow-[0_0_10px_rgba(255",
+    "drop-shadow-glow",
+    "drop-shadow-glow-color:",
+    "drop-shadow-sm",
+    "from-[color:var(--mc-border)]/30",
+    "from-[color:var(--mc-primary-soft)]",
+    "from-[color:var(--mc-primary-soft)]/15",
+    "from-transparent",
+    "outline-none",
+    "rgba(0,0,0,0.25)",
+    "rgba(0,0,0,0.6)",
+    "rgba(0,0,0,0.65)",
+    "rgba(163, 185, 201, ${intensityForCell(bias, day)",
+    "rgba(163,185,201,0.4)",
+    "rgba(2, 6, 23, 0.75)",
+    "rgba(212, 199, 255, 0.55)",
+    "rgba(255,192,203,0.35)",
+    "rgba(255,255,255,0.3)",
+    "rgba(50,80,130,0.35)",
+    "ring-2",
+    "ring-[color:var(--mc-primary)]",
+    "ring-[color:var(--mc-primary-soft)]",
+    "shadow-[0_-25px_45px_rgba(0",
+    "shadow-[0_0_25px_rgba(163",
+    "shadow-[0_12px_30px_var(--shadow-primary-medium)]",
+    "shadow-[0_12px_35px_var(--shadow-primary-strong)]",
+    "shadow-[0_18px_45px_var(--shadow-primary-medium)]",
+    "shadow-[0_20px_35px_var(--shadow-primary-medium)]",
+    "shadow-[0_20px_60px_rgba(0",
+    "shadow-[0_25px_55px_rgba(0",
+    "shadow-[0_25px_65px_rgba(50",
+    "shadow-[0_25px_65px_var(--shadow-primary-strong)]",
+    "shadow-[0_35px_60px_rgba(0",
+    "shadow-[0_4px_15px_rgba(163",
+    "shadow-[0_5px_25px_var(--shadow-primary-soft)]",
+    "shadow-[0_8px_20px_rgba(0",
+    "shadow-black/40",
+    "shadow-glow",
+    "shadow-inner",
+    "shadow-innerGlow",
+    "shadow-lg",
+    "shadow-none",
+    "shadow-sm",
+    "shadow-soft",
+    "stroke-[color:var(--mc-muted)]",
+    "stroke-[color:var(--mc-primary-soft)]",
+    "text-2xl",
+    "text-3xl",
+    "text-5xl",
+    "text-[",
+    "text-[0.65rem]",
+    "text-[0.6em]",
+    "text-[0.72rem]",
+    "text-[0.7rem]",
+    "text-[0.95rem]",
+    "text-[1.4rem]",
+    "text-[1.65rem]",
+    "text-[10px]",
+    "text-[11px]",
+    "text-[13px]",
+    "text-[8px]",
+    "text-[9px]",
+    "text-[color:var(--mc-accent)]",
+    "text-[color:var(--mc-accent)]/80",
+    "text-[color:var(--mc-danger",
+    "text-[color:var(--mc-danger)]",
+    "text-[color:var(--mc-muted)]",
+    "text-[color:var(--mc-muted-strong",
+    "text-[color:var(--mc-muted-strong)]",
+    "text-[color:var(--mc-primary)]",
+    "text-[color:var(--mc-primary-soft)]",
+    "text-[color:var(--mc-text)]",
+    "text-[color:var(--mc-text)]/80",
+    "text-amber-100",
+    "text-amber-100/60",
+    "text-amber-100/70",
+    "text-amber-100/80",
+    "text-amber-200",
+    "text-amber-200/80",
+    "text-amber-300",
+    "text-amber-50",
+    "text-amber-50/80",
+    "text-amber-50/90",
+    "text-base",
+    "text-black",
+    "text-blue-300",
+    "text-blue-400",
+    "text-center",
+    "text-cyan-100",
+    "text-cyan-200",
+    "text-emerald-100",
+    "text-emerald-200",
+    "text-fuchsia-200",
+    "text-indigo-100",
+    "text-indigo-200",
+    "text-left",
+    "text-lg",
+    "text-mc-text",
+    "text-mode",
+    "text-pink-100",
+    "text-pink-200",
+    "text-pink-300",
+    "text-pink-400",
+    "text-purple-200",
+    "text-rose-100",
+    "text-rose-200",
+    "text-rose-300",
+    "text-sky-100",
+    "text-sky-200",
+    "text-slate-100",
+    "text-slate-200",
+    "text-slate-400",
+    "text-sm",
+    "text-violet-100",
+    "text-violet-200",
+    "text-white",
+    "text-white/40",
+    "text-white/45",
+    "text-white/50",
+    "text-white/55",
+    "text-white/60",
+    "text-white/65",
+    "text-white/70",
+    "text-white/80",
+    "text-white/85",
+    "text-white/90",
+    "text-xl",
+    "text-xs",
+    "to-[color:var(--mc-bg)]",
+    "to-[color:var(--mc-card)]",
+    "to-transparent",
+    "to-white/60",
+    "underline-offset-2",
+    "var(--gradient-primary-mid-soft)",
+    "var(--gradient-primary-start-soft)",
+    "var(--mc-accent)",
+    "var(--mc-bg)",
+    "var(--mc-bg-elevated)",
+    "var(--mc-border)",
+    "var(--mc-border-soft)",
+    "var(--mc-card)",
+    "var(--mc-card-soft)",
+    "var(--mc-card2)",
+    "var(--mc-danger)",
+    "var(--mc-danger,#ff7b7b)",
+    "var(--mc-muted)",
+    "var(--mc-muted-strong)",
+    "var(--mc-muted-strong,#d3d8e4)",
+    "var(--mc-primary)",
+    "var(--mc-primary-dark)",
+    "var(--mc-primary-soft)",
+    "var(--mc-surface)",
+    "var(--mc-surface-strong)",
+    "var(--mc-text)",
+    "var(--shadow-primary-medium)",
+    "var(--shadow-primary-soft)",
+    "var(--shadow-primary-strong)",
+    "via-[",
+    "via-[color:var(--mc-border)]"
+  ],
+  "accent_colors": [
+    "#866",
+    "#c7b",
+    "#f88",
+    "#ff5",
+    "#ff7",
+    "#ffb",
+    "accent-[color:var(--mc-primary-soft)]",
+    "accent-soft:",
+    "bg-[color:var(--mc-accent)]",
+    "bg-[color:var(--mc-accent)]/70",
+    "bg-[color:var(--mc-accent)]/80",
+    "bg-[color:var(--mc-card-soft)]/60",
+    "bg-[color:var(--mc-primary-soft)]/60",
+    "bg-gradient-to-r",
+    "bg-transparent",
+    "border-[color:var(--mc-accent)]",
+    "border-[color:var(--mc-accent)]/20",
+    "border-[color:var(--mc-accent)]/30",
+    "border-[color:var(--mc-accent)]/35",
+    "border-[color:var(--mc-accent)]/40",
+    "border-[color:var(--mc-accent)]/50",
+    "border-[color:var(--mc-accent)]/60",
+    "border-[color:var(--mc-border)]/70",
+    "from-[",
+    "from-[var(--gradient-primary-start)]",
+    "rgba(163,185,201,0.4)",
+    "shadow-[0_0_25px_rgba(163",
+    "shadow-[0_4px_15px_rgba(163",
+    "shadow-lg",
+    "text-[color:var(--mc-accent)]",
+    "text-[color:var(--mc-accent)]/80",
+    "text-xs",
+    "to-[",
+    "to-[var(--gradient-primary-end)]",
+    "underline-offset-2",
+    "var(--gradient-primary-end)",
+    "var(--gradient-primary-mid)",
+    "var(--gradient-primary-start)",
+    "var(--mc-accent)",
+    "var(--mc-primary)",
+    "var(--mc-primary-dark)",
+    "var(--mc-primary-glow)",
+    "var(--mc-primary-soft)",
+    "via-[var(--gradient-primary-mid)]"
+  ],
+  "danger_colors": [
+    "#d95",
+    "bg-[color:var(--mc-danger)]",
+    "bg-[color:var(--mc-danger)]/90",
+    "text-[color:var(--mc-danger",
+    "text-[color:var(--mc-danger)]",
+    "var(--mc-danger)",
+    "var(--mc-danger,#ff7b7b)"
+  ],
+  "success_colors": [],
+  "gradient_colors": [
+    {
+      "value": "linear-gradient(180deg, #0a0818 0%, #16102c 55%, #2b1f52 100%)",
+      "frequency": 1,
+      "files": [
+        "MOBILE/styles/globals.css:56:gradient"
+      ]
+    },
+    {
+      "value": "radial-gradient(circle_at_center,var(--blob-layer1-inner)",
+      "frequency": 1,
+      "files": [
+        "MOBILE/components/voice/LiquidVoiceStage.tsx:18:shadow"
+      ]
+    },
+    {
+      "value": "radial-gradient(circle_at_center,var(--blob-layer2-inner)",
+      "frequency": 1,
+      "files": [
+        "MOBILE/components/voice/LiquidVoiceStage.tsx:20:shadow"
+      ]
+    },
+    {
+      "value": "radial-gradient(circle_at_center,var(--blob-layer3-inner)",
+      "frequency": 1,
+      "files": [
+        "MOBILE/components/voice/LiquidVoiceStage.tsx:22:shadow"
+      ]
+    }
+  ],
+  "shadow_colors": [
+    {
+      "value": "shadow-[0_18px_45px_var(--shadow-primary-medium)]",
+      "files": [
+        "MOBILE/app/check-in/page.tsx:398:shadow"
+      ]
+    },
+    {
+      "value": "shadow-[0_25px_55px_rgba(0,0,0,0.65)]",
+      "files": [
+        "MOBILE/app/compass-mode/page.tsx:40:shadow"
+      ]
+    },
+    {
+      "value": "shadow-[0_25px_65px_var(--shadow-primary-strong)]",
+      "files": [
+        "MOBILE/app/profile/page.tsx:94:shadow"
+      ]
+    },
+    {
+      "value": "shadow-[0_5px_25px_var(--shadow-primary-soft)]",
+      "files": [
+        "MOBILE/app/session/page.tsx:1056:shadow",
+        "MOBILE/app/session/page.tsx:1197:shadow"
+      ]
+    },
+    {
+      "value": "shadow-[0_12px_30px_var(--shadow-primary-medium)]",
+      "files": [
+        "MOBILE/app/timeline/page.tsx:531:shadow"
+      ]
+    },
+    {
+      "value": "shadow-[0_6px_18px_rgba(55,220,210,0.4)]",
+      "files": [
+        "MOBILE/components/check-in/CheckInSliders.tsx:49:shadow"
+      ]
+    },
+    {
+      "value": "shadow-[0_0_15px_rgba(255,122,203,0.35)]",
+      "files": [
+        "MOBILE/components/check-in/ConnectionProgressCard.tsx:82:shadow"
+      ]
+    },
+    {
+      "value": "shadow-[0_20px_35px_var(--shadow-primary-medium)]",
+      "files": [
+        "MOBILE/components/home/HomeClientPage.tsx:433:shadow"
+      ]
+    },
+    {
+      "value": "shadow-[0_25px_65px_rgba(50,80,130,0.35)]",
+      "files": [
+        "MOBILE/components/home/PlanStatusCard.tsx:19:shadow"
+      ]
+    },
+    {
+      "value": "shadow-[0_0_25px_rgba(255,122,203,0.45)]",
+      "files": [
+        "MOBILE/components/home/QuickActionCard.tsx:70:shadow"
+      ]
+    },
+    {
+      "value": "shadow-[0_0_18px_rgba(138,92,246,0.35)]",
+      "files": [
+        "MOBILE/components/home/QuickActionCard.tsx:72:shadow"
+      ]
+    },
+    {
+      "value": "shadow-[0_0_12px_rgba(100,116,139,0.35)]",
+      "files": [
+        "MOBILE/components/home/QuickActionCard.tsx:73:shadow"
+      ]
+    },
+    {
+      "value": "shadow-[0_0_10px_rgba(255,192,203,0.35)]",
+      "files": [
+        "MOBILE/components/home/QuickActionCard.tsx:99:shadow"
+      ]
+    },
+    {
+      "value": "shadow-[0_14px_30px_rgba(5,8,16,0.5)]",
+      "files": [
+        "MOBILE/components/layout/BottomNav.tsx:22:shadow"
+      ]
+    },
+    {
+      "value": "shadow-[0_12px_35px_var(--shadow-primary-strong)]",
+      "files": [
+        "MOBILE/components/layout/BottomNav.tsx:46:shadow"
+      ]
+    },
+    {
+      "value": "shadow-[0_20px_60px_rgba(0,0,0,0.6)]",
+      "files": [
+        "MOBILE/components/modals/UpgradeGate.tsx:43:shadow"
+      ]
+    },
+    {
+      "value": "shadow-[0_0_25px_rgba(163,185,201,0.4)]",
+      "files": [
+        "MOBILE/components/ui/CompassPulse.tsx:6:shadow"
+      ]
+    },
+    {
+      "value": "shadow-[0_0_12px_rgba(255,255,255,0.35)]",
+      "files": [
+        "MOBILE/components/ui/EmotionalDisplay.tsx:86:shadow"
+      ]
+    },
+    {
+      "value": "shadow-[0_35px_60px_rgba(0,0,0,0.65)]",
+      "files": [
+        "MOBILE/components/ui/Modal.tsx:39:shadow"
+      ]
+    },
+    {
+      "value": "shadow-[0_-25px_45px_rgba(0,0,0,0.6)]",
+      "files": [
+        "MOBILE/components/ui/Sheet.tsx:38:shadow"
+      ]
+    },
+    {
+      "value": "shadow-[0_8px_20px_rgba(0,0,0,0.25)]",
+      "files": [
+        "MOBILE/components/ui/StrategyChip.tsx:133:shadow",
+        "MOBILE/components/ui/ToneSelector.tsx:25:shadow"
+      ]
+    },
+    {
+      "value": "shadow-[0_4px_15px_rgba(163,185,201,0.4)]",
+      "files": [
+        "MOBILE/components/ui/Toggle.tsx:31:shadow"
+      ]
+    },
+    {
+      "value": "shadow-[0_-18px_40px_rgba(0,0,0,0.75)]",
+      "files": [
+        "MOBILE/components/voice/AudioSheet.tsx:14:shadow"
+      ]
+    },
+    {
+      "value": "shadow-[0_0_35px_var(--blob-layer1-shadow)]",
+      "files": [
+        "MOBILE/components/voice/LiquidVoiceStage.tsx:18:shadow"
+      ]
+    },
+    {
+      "value": "shadow-[0_0_50px_var(--blob-layer2-shadow)]",
+      "files": [
+        "MOBILE/components/voice/LiquidVoiceStage.tsx:20:shadow"
+      ]
+    },
+    {
+      "value": "shadow-[0_0_60px_var(--blob-layer3-shadow)]",
+      "files": [
+        "MOBILE/components/voice/LiquidVoiceStage.tsx:22:shadow"
+      ]
+    }
+  ],
+  "css_variables": [
+    {
+      "variable": "--blob-layer1-inner",
+      "definitions": [
+        "MOBILE/styles/globals.css:44:--blob-layer1-inner: rgba(130, 112, 255, 0.4);"
+      ]
+    },
+    {
+      "variable": "--blob-layer1-outer",
+      "definitions": [
+        "MOBILE/styles/globals.css:45:--blob-layer1-outer: rgba(45, 20, 110, 0.12);"
+      ]
+    },
+    {
+      "variable": "--blob-layer1-ring",
+      "definitions": [
+        "MOBILE/styles/globals.css:46:--blob-layer1-ring: rgba(200, 180, 255, 0.55);"
+      ]
+    },
+    {
+      "variable": "--blob-layer1-shadow",
+      "definitions": [
+        "MOBILE/styles/globals.css:47:--blob-layer1-shadow: rgba(164, 140, 255, 0.5);"
+      ]
+    },
+    {
+      "variable": "--blob-layer2-inner",
+      "definitions": [
+        "MOBILE/styles/globals.css:48:--blob-layer2-inner: rgba(210, 140, 255, 0.18);"
+      ]
+    },
+    {
+      "variable": "--blob-layer2-outer",
+      "definitions": [
+        "MOBILE/styles/globals.css:49:--blob-layer2-outer: rgba(90, 30, 140, 0.16);"
+      ]
+    },
+    {
+      "variable": "--blob-layer2-ring",
+      "definitions": [
+        "MOBILE/styles/globals.css:50:--blob-layer2-ring: rgba(210, 150, 255, 0.45);"
+      ]
+    },
+    {
+      "variable": "--blob-layer2-shadow",
+      "definitions": [
+        "MOBILE/styles/globals.css:51:--blob-layer2-shadow: rgba(190, 150, 255, 0.4);"
+      ]
+    },
+    {
+      "variable": "--blob-layer3-inner",
+      "definitions": [
+        "MOBILE/styles/globals.css:52:--blob-layer3-inner: rgba(255, 190, 220, 0.15);"
+      ]
+    },
+    {
+      "variable": "--blob-layer3-outer",
+      "definitions": [
+        "MOBILE/styles/globals.css:53:--blob-layer3-outer: rgba(60, 20, 90, 0.12);"
+      ]
+    },
+    {
+      "variable": "--blob-layer3-shadow",
+      "definitions": [
+        "MOBILE/styles/globals.css:54:--blob-layer3-shadow: rgba(255, 190, 220, 0.3);"
+      ]
+    },
+    {
+      "variable": "--drop-shadow-glow-color",
+      "definitions": [
+        "MOBILE/styles/globals.css:42:--drop-shadow-glow-color: rgba(212, 199, 255, 0.55);"
+      ]
+    },
+    {
+      "variable": "--glow-primary",
+      "definitions": [
+        "MOBILE/styles/globals.css:38:--glow-primary: 0px 0px 26px rgba(164, 140, 255, 0.5), 0px 0px 55px rgba(90, 62, 255, 0.25);"
+      ]
+    },
+    {
+      "variable": "--gradient-primary-end",
+      "definitions": [
+        "MOBILE/styles/globals.css:12:--gradient-primary-end: #d2c7ff;"
+      ]
+    },
+    {
+      "variable": "--gradient-primary-end-soft",
+      "definitions": [
+        "MOBILE/styles/globals.css:15:--gradient-primary-end-soft: rgba(210, 199, 255, 0.25);"
+      ]
+    },
+    {
+      "variable": "--gradient-primary-mid",
+      "definitions": [
+        "MOBILE/styles/globals.css:11:--gradient-primary-mid: #a48cff;"
+      ]
+    },
+    {
+      "variable": "--gradient-primary-mid-soft",
+      "definitions": [
+        "MOBILE/styles/globals.css:14:--gradient-primary-mid-soft: rgba(164, 140, 255, 0.2);"
+      ]
+    },
+    {
+      "variable": "--gradient-primary-start",
+      "definitions": [
+        "MOBILE/styles/globals.css:10:--gradient-primary-start: #5a3eff;"
+      ]
+    },
+    {
+      "variable": "--gradient-primary-start-soft",
+      "definitions": [
+        "MOBILE/styles/globals.css:13:--gradient-primary-start-soft: rgba(90, 62, 255, 0.2);"
+      ]
+    },
+    {
+      "variable": "--mc-accent",
+      "definitions": [
+        "MOBILE/styles/globals.css:33:--mc-accent: #866cff;"
+      ]
+    },
+    {
+      "variable": "--mc-accent-soft",
+      "definitions": [
+        "MOBILE/styles/globals.css:34:--mc-accent-soft: #c7b5ff;"
+      ]
+    },
+    {
+      "variable": "--mc-bg",
+      "definitions": [
+        "MOBILE/styles/globals.css:17:--mc-bg: #0a0818;"
+      ]
+    },
+    {
+      "variable": "--mc-bg-elevated",
+      "definitions": [
+        "MOBILE/styles/globals.css:19:--mc-bg-elevated: #241847;"
+      ]
+    },
+    {
+      "variable": "--mc-bg-soft",
+      "definitions": [
+        "MOBILE/styles/globals.css:18:--mc-bg-soft: #16102c;"
+      ]
+    },
+    {
+      "variable": "--mc-border",
+      "definitions": [
+        "MOBILE/styles/globals.css:24:--mc-border: #3a2a62;"
+      ]
+    },
+    {
+      "variable": "--mc-border-soft",
+      "definitions": [
+        "MOBILE/styles/globals.css:25:--mc-border-soft: #271b45;"
+      ]
+    },
+    {
+      "variable": "--mc-card",
+      "definitions": [
+        "MOBILE/styles/globals.css:20:--mc-card: #16102c;"
+      ]
+    },
+    {
+      "variable": "--mc-card-soft",
+      "definitions": [
+        "MOBILE/styles/globals.css:21:--mc-card-soft: #241847;"
+      ]
+    },
+    {
+      "variable": "--mc-danger",
+      "definitions": [
+        "MOBILE/styles/globals.css:35:--mc-danger: #d9534f;"
+      ]
+    },
+    {
+      "variable": "--mc-muted",
+      "definitions": [
+        "MOBILE/styles/globals.css:31:--mc-muted: #cfc6ec;"
+      ]
+    },
+    {
+      "variable": "--mc-muted-strong",
+      "definitions": [
+        "MOBILE/styles/globals.css:32:--mc-muted-strong: #a89dd4;"
+      ]
+    },
+    {
+      "variable": "--mc-primary",
+      "definitions": [
+        "MOBILE/styles/globals.css:26:--mc-primary: #a48cff;"
+      ]
+    },
+    {
+      "variable": "--mc-primary-dark",
+      "definitions": [
+        "MOBILE/styles/globals.css:27:--mc-primary-dark: #5a3eff;"
+      ]
+    },
+    {
+      "variable": "--mc-primary-glow",
+      "definitions": [
+        "MOBILE/styles/globals.css:29:--mc-primary-glow: #c7b5ff;"
+      ]
+    },
+    {
+      "variable": "--mc-primary-soft",
+      "definitions": [
+        "MOBILE/styles/globals.css:28:--mc-primary-soft: #d2c7ff;"
+      ]
+    },
+    {
+      "variable": "--mc-success",
+      "definitions": [
+        "MOBILE/styles/globals.css:36:--mc-success: #3bb273;"
+      ]
+    },
+    {
+      "variable": "--mc-surface",
+      "definitions": [
+        "MOBILE/styles/globals.css:22:--mc-surface: #16102c;"
+      ]
+    },
+    {
+      "variable": "--mc-surface-strong",
+      "definitions": [
+        "MOBILE/styles/globals.css:23:--mc-surface-strong: #2b1f52;"
+      ]
+    },
+    {
+      "variable": "--mc-text",
+      "definitions": [
+        "MOBILE/styles/globals.css:30:--mc-text: #f5f1ff;"
+      ]
+    },
+    {
+      "variable": "--page-gradient",
+      "definitions": [
+        "MOBILE/styles/globals.css:56:--page-gradient: linear-gradient(180deg, #0a0818 0%, #16102c 55%, #2b1f52 100%);"
+      ]
+    },
+    {
+      "variable": "--shadow-primary-medium",
+      "definitions": [
+        "MOBILE/styles/globals.css:40:--shadow-primary-medium: rgba(164, 140, 255, 0.35);"
+      ]
+    },
+    {
+      "variable": "--shadow-primary-soft",
+      "definitions": [
+        "MOBILE/styles/globals.css:41:--shadow-primary-soft: rgba(164, 140, 255, 0.25);"
+      ]
+    },
+    {
+      "variable": "--shadow-primary-strong",
+      "definitions": [
+        "MOBILE/styles/globals.css:39:--shadow-primary-strong: rgba(212, 199, 255, 0.5);"
+      ]
+    }
+  ],
+  "tailwind_tokens": [
+    {
+      "token": "mc.bg.DEFAULT",
+      "value": "var(--mc-bg)"
+    },
+    {
+      "token": "mc.bg.soft",
+      "value": "var(--mc-bg-soft)"
+    },
+    {
+      "token": "mc.bg.deep",
+      "value": "var(--mc-bg-elevated)"
+    },
+    {
+      "token": "mc.card",
+      "value": "var(--mc-card)"
+    },
+    {
+      "token": "mc.card2",
+      "value": "var(--mc-card-soft)"
+    },
+    {
+      "token": "mc.border",
+      "value": "var(--mc-border)"
+    },
+    {
+      "token": "mc.borderSoft",
+      "value": "var(--mc-border-soft)"
+    },
+    {
+      "token": "mc.text.DEFAULT",
+      "value": "var(--mc-text)"
+    },
+    {
+      "token": "mc.text.muted",
+      "value": "var(--mc-muted)"
+    },
+    {
+      "token": "mc.text.subtle",
+      "value": "var(--mc-muted-strong)"
+    },
+    {
+      "token": "mc.primary.DEFAULT",
+      "value": "var(--mc-primary)"
+    },
+    {
+      "token": "mc.primary.glow",
+      "value": "var(--mc-primary-glow)"
+    },
+    {
+      "token": "mc.primary.soft",
+      "value": "var(--mc-primary-soft)"
+    },
+    {
+      "token": "mc.primary.dark",
+      "value": "var(--mc-primary-dark)"
+    }
+  ],
+  "tailwind_utilities": [
+    {
+      "value": "text-sm",
+      "frequency": 407,
+      "files": [
+        "MOBILE/app/check-in/page.tsx:303:text"
+      ]
+    },
+    {
+      "value": "text-[color:var(--mc-muted)]",
+      "frequency": 352,
+      "files": [
+        "MOBILE/app/check-in/page.tsx:303:text"
+      ]
+    },
+    {
+      "value": "text-[color:var(--mc-text)]",
+      "frequency": 242,
+      "files": [
+        "MOBILE/app/layout.tsx:33:background"
+      ]
+    },
+    {
+      "value": "text-xs",
+      "frequency": 240,
+      "files": [
+        "MOBILE/app/check-in/page.tsx:361:text"
+      ]
+    },
+    {
+      "value": "border-white/10",
+      "frequency": 72,
+      "files": [
+        "MOBILE/app/compass-mode/page.tsx:40:shadow"
+      ]
+    },
+    {
+      "value": "text-white",
+      "frequency": 59,
+      "files": [
+        "MOBILE/app/check-in/page.tsx:398:shadow"
+      ]
+    },
+    {
+      "value": "border-[color:var(--mc-border)]",
+      "frequency": 56,
+      "files": [
+        "MOBILE/app/check-in/page.tsx:374:shadow"
+      ]
+    },
+    {
+      "value": "text-[11px]",
+      "frequency": 49,
+      "files": [
+        "MOBILE/app/connection-index/page.tsx:318:text"
+      ]
+    },
+    {
+      "value": "bg-white/5",
+      "frequency": 37,
+      "files": [
+        "MOBILE/app/compass-mode/page.tsx:94:background"
+      ]
+    },
+    {
+      "value": "bg-[color:var(--mc-card)]",
+      "frequency": 36,
+      "files": [
+        "MOBILE/app/check-in/page.tsx:374:shadow"
+      ]
+    },
+    {
+      "value": "text-[10px]",
+      "frequency": 35,
+      "files": [
+        "MOBILE/app/check-in/page.tsx:427:text"
+      ]
+    },
+    {
+      "value": "shadow-soft",
+      "frequency": 34,
+      "files": [
+        "MOBILE/app/check-in/page.tsx:374:shadow"
+      ]
+    },
+    {
+      "value": "text-white/80",
+      "frequency": 33,
+      "files": [
+        "MOBILE/app/connection-index/page.tsx:245:background"
+      ]
+    },
+    {
+      "value": "text-[color:var(--mc-muted-strong)]",
+      "frequency": 29,
+      "files": [
+        "MOBILE/app/check-in/page.tsx:512:border"
+      ]
+    },
+    {
+      "value": "text-white/70",
+      "frequency": 27,
+      "files": [
+        "MOBILE/app/check-in/page.tsx:461:border"
+      ]
+    },
+    {
+      "value": "bg-white/10",
+      "frequency": 24,
+      "files": [
+        "MOBILE/app/connection-index/page.tsx:263:background"
+      ]
+    },
+    {
+      "value": "text-center",
+      "frequency": 24,
+      "files": [
+        "MOBILE/app/check-in/page.tsx:403:text"
+      ]
+    },
+    {
+      "value": "text-lg",
+      "frequency": 22,
+      "files": [
+        "MOBILE/app/compass-mode/page.tsx:44:background"
+      ]
+    },
+    {
+      "value": "border-white/15",
+      "frequency": 20,
+      "files": [
+        "MOBILE/app/check-in/page.tsx:461:border"
+      ]
+    },
+    {
+      "value": "text-base",
+      "frequency": 20,
+      "files": [
+        "MOBILE/app/check-in/page.tsx:482:text"
+      ]
+    },
+    {
+      "value": "text-rose-300",
+      "frequency": 20,
+      "files": [
+        "MOBILE/app/distortions/page.tsx:52:text"
+      ]
+    },
+    {
+      "value": "text-white/60",
+      "frequency": 19,
+      "files": [
+        "MOBILE/app/insights/page.tsx:657:text"
+      ]
+    },
+    {
+      "value": "text-amber-200",
+      "frequency": 18,
+      "files": [
+        "MOBILE/app/check-in/page.tsx:504:text"
+      ]
+    },
+    {
+      "value": "bg-[color:var(--mc-card-soft)]/70",
+      "frequency": 17,
+      "files": [
+        "MOBILE/app/check-in/page.tsx:378:shadow"
+      ]
+    },
+    {
+      "value": "border-white/5",
+      "frequency": 16,
+      "files": [
+        "MOBILE/app/compass-mode/page.tsx:94:background"
+      ]
+    },
+    {
+      "value": "outline-none",
+      "frequency": 15,
+      "files": [
+        "MOBILE/app/check-in/page.tsx:385:shadow"
+      ]
+    },
+    {
+      "value": "text-amber-100",
+      "frequency": 15,
+      "files": [
+        "MOBILE/app/check-in/page.tsx:441:background"
+      ]
+    },
+    {
+      "value": "border-white/20",
+      "frequency": 14,
+      "files": [
+        "MOBILE/app/compass-mode/page.tsx:44:background"
+      ]
+    },
+    {
+      "value": "bg-gradient-to-r",
+      "frequency": 13,
+      "files": [
+        "MOBILE/app/check-in/page.tsx:315:gradient"
+      ]
+    },
+    {
+      "value": "border-dashed",
+      "frequency": 13,
+      "files": [
+        "MOBILE/app/identity/page.tsx:79:border"
+      ]
+    },
+    {
+      "value": "text-[1.4rem]",
+      "frequency": 13,
+      "files": [
+        "MOBILE/app/distortions/page.tsx:45:text"
+      ]
+    },
+    {
+      "value": "bg-[color:var(--mc-bg)]",
+      "frequency": 11,
+      "files": [
+        "MOBILE/app/layout.tsx:33:background"
+      ]
+    },
+    {
+      "value": "border-[color:var(--mc-border)]/40",
+      "frequency": 11,
+      "files": [
+        "MOBILE/app/check-in/page.tsx:451:card"
+      ]
+    },
+    {
+      "value": "from-[var(--gradient-primary-start)]",
+      "frequency": 11,
+      "files": [
+        "MOBILE/app/check-in/page.tsx:315:gradient"
+      ]
+    },
+    {
+      "value": "text-3xl",
+      "frequency": 11,
+      "files": [
+        "MOBILE/app/check-in/page.tsx:353:text"
+      ]
+    },
+    {
+      "value": "text-[color:var(--mc-accent)]",
+      "frequency": 11,
+      "files": [
+        "MOBILE/app/check-in/page.tsx:361:text"
+      ]
+    },
+    {
+      "value": "text-rose-100",
+      "frequency": 11,
+      "files": [
+        "MOBILE/app/check-in/page.tsx:369:background"
+      ]
+    },
+    {
+      "value": "text-white/45",
+      "frequency": 11,
+      "files": [
+        "MOBILE/app/connection-index/page.tsx:250:text"
+      ]
+    },
+    {
+      "value": "text-white/50",
+      "frequency": 11,
+      "files": [
+        "MOBILE/app/growth-plan/page.tsx:195:text"
+      ]
+    },
+    {
+      "value": "to-[var(--gradient-primary-end)]",
+      "frequency": 11,
+      "files": [
+        "MOBILE/app/check-in/page.tsx:315:gradient"
+      ]
+    },
+    {
+      "value": "via-[var(--gradient-primary-mid)]",
+      "frequency": 11,
+      "files": [
+        "MOBILE/app/check-in/page.tsx:315:gradient"
+      ]
+    },
+    {
+      "value": "border-[color:var(--mc-primary-soft)]",
+      "frequency": 10,
+      "files": [
+        "MOBILE/app/onboarding/feeling/page.tsx:46:shadow"
+      ]
+    },
+    {
+      "value": "text-[0.7rem]",
+      "frequency": 10,
+      "files": [
+        "MOBILE/app/check-in/page.tsx:348:text"
+      ]
+    },
+    {
+      "value": "bg-[color:var(--mc-card-soft)]",
+      "frequency": 9,
+      "files": [
+        "MOBILE/app/compass-mode/page.tsx:62:card"
+      ]
+    },
+    {
+      "value": "bg-[color:var(--mc-card-soft)]/80",
+      "frequency": 9,
+      "files": [
+        "MOBILE/app/pricing/page.tsx:107:shadow"
+      ]
+    },
+    {
+      "value": "bg-rose-500/10",
+      "frequency": 9,
+      "files": [
+        "MOBILE/app/check-in/page.tsx:369:background"
+      ]
+    },
+    {
+      "value": "bg-transparent",
+      "frequency": 9,
+      "files": [
+        "MOBILE/app/profile/page.tsx:153:background"
+      ]
+    },
+    {
+      "value": "bg-white/[0.02]",
+      "frequency": 9,
+      "files": [
+        "MOBILE/app/connection-index/page.tsx:255:card"
+      ]
+    },
+    {
+      "value": "text-emerald-200",
+      "frequency": 9,
+      "files": [
+        "MOBILE/app/session/page.tsx:697:text"
+      ]
+    },
+    {
+      "value": "backdrop-blur",
+      "frequency": 8,
+      "files": [
+        "MOBILE/components/ui/AlertChip.tsx:56:shadow"
+      ]
+    },
+    {
+      "value": "bg-[",
+      "frequency": 8,
+      "files": [
+        "MOBILE/app/connection-index/page.tsx:239:background"
+      ]
+    },
+    {
+      "value": "bg-[color:var(--mc-card-soft)]/50",
+      "frequency": 8,
+      "files": [
+        "MOBILE/app/timeline/page.tsx:414:card"
+      ]
+    },
+    {
+      "value": "bg-[color:var(--mc-primary-soft)]",
+      "frequency": 8,
+      "files": [
+        "MOBILE/components/chat/TypingIndicator.tsx:10:background"
+      ]
+    },
+    {
+      "value": "border-[color:var(--mc-border)]/60",
+      "frequency": 8,
+      "files": [
+        "MOBILE/app/check-in/page.tsx:446:card"
+      ]
+    },
+    {
+      "value": "border-[color:var(--mc-primary)]/40",
+      "frequency": 8,
+      "files": [
+        "MOBILE/app/timeline/page.tsx:414:card"
+      ]
+    },
+    {
+      "value": "border-amber-400/40",
+      "frequency": 8,
+      "files": [
+        "MOBILE/app/connection-index/page.tsx:418:border"
+      ]
+    },
+    {
+      "value": "text-[0.65rem]",
+      "frequency": 8,
+      "files": [
+        "MOBILE/app/insights/page.tsx:672:text"
+      ]
+    },
+    {
+      "value": "text-[color:var(--mc-danger)]",
+      "frequency": 8,
+      "files": [
+        "MOBILE/app/session/page.tsx:662:text"
+      ]
+    },
+    {
+      "value": "text-emerald-100",
+      "frequency": 8,
+      "files": [
+        "MOBILE/app/check-in/page.tsx:490:border"
+      ]
+    },
+    {
+      "value": "text-left",
+      "frequency": 8,
+      "files": [
+        "MOBILE/app/onboarding/reason/page.tsx:52:shadow"
+      ]
+    },
+    {
+      "value": "bg-black/20",
+      "frequency": 7,
+      "files": [
+        "MOBILE/app/compass-mode/page.tsx:44:background"
+      ]
+    },
+    {
+      "value": "bg-black/30",
+      "frequency": 7,
+      "files": [
+        "MOBILE/app/connection-index/page.tsx:414:background"
+      ]
+    },
+    {
+      "value": "border-amber-400/50",
+      "frequency": 7,
+      "files": [
+        "MOBILE/app/check-in/page.tsx:491:border"
+      ]
+    },
+    {
+      "value": "border-white/40",
+      "frequency": 7,
+      "files": [
+        "MOBILE/app/compass-mode/page.tsx:44:background"
+      ]
+    },
+    {
+      "value": "shadow-glow",
+      "frequency": 7,
+      "files": [
+        "MOBILE/app/onboarding/done/page.tsx:32:shadow"
+      ]
+    },
+    {
+      "value": "bg-[color:var(--mc-primary-dark)]",
+      "frequency": 6,
+      "files": [
+        "MOBILE/app/onboarding/done/page.tsx:32:shadow"
+      ]
+    },
+    {
+      "value": "bg-amber-500/10",
+      "frequency": 6,
+      "files": [
+        "MOBILE/app/check-in/page.tsx:441:background"
+      ]
+    },
+    {
+      "value": "bg-white/15",
+      "frequency": 6,
+      "files": [
+        "MOBILE/app/settings/account-plan/page.tsx:702:background"
+      ]
+    },
+    {
+      "value": "border-[color:var(--mc-border-soft)]",
+      "frequency": 6,
+      "files": [
+        "MOBILE/app/onboarding/feeling/page.tsx:46:shadow"
+      ]
+    },
+    {
+      "value": "border-rose-500/30",
+      "frequency": 6,
+      "files": [
+        "MOBILE/app/check-in/page.tsx:369:background"
+      ]
+    },
+    {
+      "value": "ring-2",
+      "frequency": 6,
+      "files": [
+        "MOBILE/components/chat/ChatPanel.tsx:113:background"
+      ]
+    },
+    {
+      "value": "stroke-width",
+      "frequency": 6,
+      "files": [
+        "MOBILE/public/logo-vella.svg:3:general"
+      ]
+    },
+    {
+      "value": "text-[9px]",
+      "frequency": 6,
+      "files": [
+        "MOBILE/app/connection-index/page.tsx:418:border"
+      ]
+    },
+    {
+      "value": "text-sky-200",
+      "frequency": 6,
+      "files": [
+        "MOBILE/components/ui/StrategyChip.tsx:49:text"
+      ]
+    },
+    {
+      "value": "text-white/40",
+      "frequency": 6,
+      "files": [
+        "MOBILE/app/connection-index/page.tsx:325:text"
+      ]
+    },
+    {
+      "value": "bg-gradient-to-b",
+      "frequency": 5,
+      "files": [
+        "MOBILE/app/check-in/page.tsx:424:gradient"
+      ]
+    },
+    {
+      "value": "border-amber-500/30",
+      "frequency": 5,
+      "files": [
+        "MOBILE/app/check-in/page.tsx:441:background"
+      ]
+    },
+    {
+      "value": "border-emerald-300/60",
+      "frequency": 5,
+      "files": [
+        "MOBILE/app/check-in/page.tsx:490:border"
+      ]
+    },
+    {
+      "value": "border-white/30",
+      "frequency": 5,
+      "files": [
+        "MOBILE/components/audio/AudioLibrarySheet.tsx:111:border"
+      ]
+    },
+    {
+      "value": "from-[",
+      "frequency": 5,
+      "files": [
+        "MOBILE/app/check-in/page.tsx:323:gradient"
+      ]
+    },
+    {
+      "value": "shadow-inner",
+      "frequency": 5,
+      "files": [
+        "MOBILE/app/check-in/page.tsx:385:shadow"
+      ]
+    },
+    {
+      "value": "stroke-linecap",
+      "frequency": 5,
+      "files": [
+        "MOBILE/public/logo-vella.svg:4:general"
+      ]
+    },
+    {
+      "value": "text-2xl",
+      "frequency": 5,
+      "files": [
+        "MOBILE/app/compass-mode/page.tsx:52:text"
+      ]
+    },
+    {
+      "value": "text-slate-200",
+      "frequency": 5,
+      "files": [
+        "MOBILE/components/ui/StrategyChip.tsx:115:text"
+      ]
+    },
+    {
+      "value": "to-[",
+      "frequency": 5,
+      "files": [
+        "MOBILE/app/check-in/page.tsx:323:gradient"
+      ]
+    },
+    {
+      "value": "bg-[color:var(--mc-card)]/50",
+      "frequency": 4,
+      "files": [
+        "MOBILE/components/settings/VellaSettingsCard.tsx:64:card"
+      ]
+    },
+    {
+      "value": "bg-[color:var(--mc-card-soft)]/60",
+      "frequency": 4,
+      "files": [
+        "MOBILE/app/timeline/page.tsx:504:card"
+      ]
+    },
+    {
+      "value": "bg-black/10",
+      "frequency": 4,
+      "files": [
+        "MOBILE/app/session/page.tsx:673:background"
+      ]
+    },
+    {
+      "value": "bg-gradient-to-br",
+      "frequency": 4,
+      "files": [
+        "MOBILE/app/settings/account-plan/page.tsx:215:gradient"
+      ]
+    },
+    {
+      "value": "bg-white/20",
+      "frequency": 4,
+      "files": [
+        "MOBILE/app/profile/page.tsx:96:background"
+      ]
+    },
+    {
+      "value": "border-[color:var(--mc-accent)]",
+      "frequency": 4,
+      "files": [
+        "MOBILE/app/profile/page.tsx:153:background"
+      ]
+    },
+    {
+      "value": "border-[color:var(--mc-border)]/30",
+      "frequency": 4,
+      "files": [
+        "MOBILE/app/session/page.tsx:1162:background"
+      ]
+    },
+    {
+      "value": "border-[color:var(--mc-primary)]",
+      "frequency": 4,
+      "files": [
+        "MOBILE/app/check-in/page.tsx:385:shadow"
+      ]
+    },
+    {
+      "value": "drop-shadow-glow",
+      "frequency": 4,
+      "files": [
+        "MOBILE/components/VellaLogo.tsx:16:shadow"
+      ]
+    },
+    {
+      "value": "shadow-lg",
+      "frequency": 4,
+      "files": [
+        "MOBILE/components/inputs/SituationInput.tsx:33:shadow"
+      ]
+    },
+    {
+      "value": "text-xl",
+      "frequency": 4,
+      "files": [
+        "MOBILE/app/profile/page.tsx:96:background"
+      ]
+    },
+    {
+      "value": "to-transparent",
+      "frequency": 4,
+      "files": [
+        "MOBILE/app/timeline/page.tsx:521:gradient"
+      ]
+    },
+    {
+      "value": "bg-[color:var(--mc-bg-elevated)]",
+      "frequency": 3,
+      "files": [
+        "MOBILE/components/modals/UpgradeGate.tsx:43:shadow"
+      ]
+    },
+    {
+      "value": "bg-[color:var(--mc-card)]/60",
+      "frequency": 3,
+      "files": [
+        "MOBILE/app/compass-mode/page.tsx:98:card"
+      ]
+    },
+    {
+      "value": "bg-[radial-gradient(circle_at_center",
+      "frequency": 3,
+      "files": [
+        "MOBILE/components/voice/LiquidVoiceStage.tsx:18:shadow"
+      ]
+    },
+    {
+      "value": "bg-amber-500/15",
+      "frequency": 3,
+      "files": [
+        "MOBILE/app/settings/account-plan/page.tsx:441:background"
+      ]
+    },
+    {
+      "value": "bg-amber-500/20",
+      "frequency": 3,
+      "files": [
+        "MOBILE/app/settings/account-plan/page.tsx:705:background"
+      ]
+    },
+    {
+      "value": "bg-emerald-500/20",
+      "frequency": 3,
+      "files": [
+        "MOBILE/app/settings/account-plan/page.tsx:704:background"
+      ]
+    },
+    {
+      "value": "bg-neutral-900",
+      "frequency": 3,
+      "files": [
+        "MOBILE/app/settings/page.tsx:36:background"
+      ]
+    },
+    {
+      "value": "bg-white",
+      "frequency": 3,
+      "files": [
+        "MOBILE/components/check-in/CheckInSliders.tsx:49:shadow"
+      ]
+    },
+    {
+      "value": "border-[color:var(--mc-border)]/50",
+      "frequency": 3,
+      "files": [
+        "MOBILE/app/check-in/page.tsx:512:border"
+      ]
+    },
+    {
+      "value": "border-[color:var(--mc-border)]/70",
+      "frequency": 3,
+      "files": [
+        "MOBILE/app/timeline/page.tsx:504:card"
+      ]
+    },
+    {
+      "value": "border-b",
+      "frequency": 3,
+      "files": [
+        "MOBILE/app/session/page.tsx:904:border"
+      ]
+    },
+    {
+      "value": "border-rose-500/40",
+      "frequency": 3,
+      "files": [
+        "MOBILE/app/growth-plan/page.tsx:205:background"
+      ]
+    },
+    {
+      "value": "border-white",
+      "frequency": 3,
+      "files": [
+        "MOBILE/components/audio/AudioLibrarySheet.tsx:110:background"
+      ]
+    },
+    {
+      "value": "shadow-innerGlow",
+      "frequency": 3,
+      "files": [
+        "MOBILE/app/onboarding/name/page.tsx:38:shadow"
+      ]
+    },
+    {
+      "value": "text-[color:var(--mc-primary)]",
+      "frequency": 3,
+      "files": [
+        "MOBILE/app/settings/account-plan/page.tsx:340:gradient"
+      ]
+    },
+    {
+      "value": "text-[color:var(--mc-primary-soft)]",
+      "frequency": 3,
+      "files": [
+        "MOBILE/app/onboarding/vella/page.tsx:29:text"
+      ]
+    },
+    {
+      "value": "text-blue-400",
+      "frequency": 3,
+      "files": [
+        "MOBILE/app/growth-plan/page.tsx:335:text"
+      ]
+    },
+    {
+      "value": "text-mode",
+      "frequency": 3,
+      "files": [
+        "MOBILE/WIRING_AUDIT_JSON.json:49:text"
+      ]
+    },
+    {
+      "value": "text-pink-100",
+      "frequency": 3,
+      "files": [
+        "MOBILE/components/home/QuickActionCard.tsx:99:shadow"
+      ]
+    },
+    {
+      "value": "text-rose-200",
+      "frequency": 3,
+      "files": [
+        "MOBILE/app/settings/account-plan/page.tsx:439:background"
+      ]
+    },
+    {
+      "value": "text-violet-100",
+      "frequency": 3,
+      "files": [
+        "MOBILE/components/ui/StrategyChip.tsx:60:background"
+      ]
+    },
+    {
+      "value": "text-white/55",
+      "frequency": 3,
+      "files": [
+        "MOBILE/app/connection-index/page.tsx:318:text"
+      ]
+    },
+    {
+      "value": "underline-offset-2",
+      "frequency": 3,
+      "files": [
+        "MOBILE/app/check-in/page.tsx:361:text"
+      ]
+    },
+    {
+      "value": "accent-[color:var(--mc-primary-soft)]",
+      "frequency": 2,
+      "files": [
+        "MOBILE/app/settings/account-plan/page.tsx:521:text"
+      ]
+    },
+    {
+      "value": "bg-[color:var(--mc-accent)]",
+      "frequency": 2,
+      "files": [
+        "MOBILE/components/clarity/ClarityWalkthrough.tsx:78:background"
+      ]
+    },
+    {
+      "value": "bg-[color:var(--mc-border)]/40",
+      "frequency": 2,
+      "files": [
+        "MOBILE/app/settings/account-plan/page.tsx:458:background"
+      ]
+    },
+    {
+      "value": "bg-[color:var(--mc-card)]/40",
+      "frequency": 2,
+      "files": [
+        "MOBILE/app/insights/page.tsx:656:card"
+      ]
+    },
+    {
+      "value": "bg-[color:var(--mc-danger)]",
+      "frequency": 2,
+      "files": [
+        "MOBILE/app/session/page.tsx:702:background"
+      ]
+    },
+    {
+      "value": "bg-[color:var(--mc-primary)]",
+      "frequency": 2,
+      "files": [
+        "MOBILE/app/profile/page.tsx:138:background"
+      ]
+    },
+    {
+      "value": "bg-[color:var(--mc-surface)]/60",
+      "frequency": 2,
+      "files": [
+        "MOBILE/components/home/HomeClientPage.tsx:337:background"
+      ]
+    },
+    {
+      "value": "bg-amber-300",
+      "frequency": 2,
+      "files": [
+        "MOBILE/app/session/page.tsx:707:background"
+      ]
+    },
+    {
+      "value": "bg-black/25",
+      "frequency": 2,
+      "files": [
+        "MOBILE/app/session/page.tsx:714:background"
+      ]
+    },
+    {
+      "value": "bg-black/40",
+      "frequency": 2,
+      "files": [
+        "MOBILE/app/check-in/page.tsx:478:background"
+      ]
+    },
+    {
+      "value": "bg-black/60",
+      "frequency": 2,
+      "files": [
+        "MOBILE/components/settings/PlanSwitcherModal.tsx:86:background"
+      ]
+    },
+    {
+      "value": "bg-black/70",
+      "frequency": 2,
+      "files": [
+        "MOBILE/components/modals/UpgradeGate.tsx:42:background"
+      ]
+    },
+    {
+      "value": "bg-gradient-to-t",
+      "frequency": 2,
+      "files": [
+        "MOBILE/app/connection-index/page.tsx:355:gradient"
+      ]
+    },
+    {
+      "value": "bg-rose-500/15",
+      "frequency": 2,
+      "files": [
+        "MOBILE/app/settings/account-plan/page.tsx:439:background"
+      ]
+    },
+    {
+      "value": "bg-rose-500/20",
+      "frequency": 2,
+      "files": [
+        "MOBILE/app/settings/account-plan/page.tsx:712:background"
+      ]
+    },
+    {
+      "value": "bg-sky-500/15",
+      "frequency": 2,
+      "files": [
+        "MOBILE/components/ui/StrategyChip.tsx:48:background"
+      ]
+    },
+    {
+      "value": "bg-sky-500/20",
+      "frequency": 2,
+      "files": [
+        "MOBILE/components/voice/StrategyChip.tsx:19:background"
+      ]
+    },
+    {
+      "value": "bg-violet-500/15",
+      "frequency": 2,
+      "files": [
+        "MOBILE/components/ui/StrategyChip.tsx:60:background"
+      ]
+    },
+    {
+      "value": "border-amber-200/20",
+      "frequency": 2,
+      "files": [
+        "MOBILE/components/ui/AlertChip.tsx:72:border"
+      ]
+    },
+    {
+      "value": "border-emerald-500/30",
+      "frequency": 2,
+      "files": [
+        "MOBILE/components/voice/StrategyChip.tsx:27:background"
+      ]
+    },
+    {
+      "value": "border-radius:",
+      "frequency": 2,
+      "files": [
+        "MOBILE/styles/globals.css:109:border"
+      ]
+    },
+    {
+      "value": "border-sky-400/50",
+      "frequency": 2,
+      "files": [
+        "MOBILE/components/ui/StrategyChip.tsx:48:background"
+      ]
+    },
+    {
+      "value": "border-sky-500/30",
+      "frequency": 2,
+      "files": [
+        "MOBILE/components/voice/StrategyChip.tsx:19:background"
+      ]
+    },
+    {
+      "value": "border-t",
+      "frequency": 2,
+      "files": [
+        "MOBILE/components/insights/InsightCard.tsx:32:border"
+      ]
+    },
+    {
+      "value": "border-violet-400/50",
+      "frequency": 2,
+      "files": [
+        "MOBILE/components/ui/StrategyChip.tsx:60:background"
+      ]
+    },
+    {
+      "value": "divide-white/5",
+      "frequency": 2,
+      "files": [
+        "MOBILE/app/settings/account-plan/page.tsx:587:border"
+      ]
+    },
+    {
+      "value": "divide-y",
+      "frequency": 2,
+      "files": [
+        "MOBILE/app/settings/account-plan/page.tsx:587:border"
+      ]
+    },
+    {
+      "value": "from-[color:var(--mc-primary-soft)]",
+      "frequency": 2,
+      "files": [
+        "MOBILE/app/compass-mode/page.tsx:40:shadow"
+      ]
+    },
+    {
+      "value": "from-[var(--gradient-primary-start-soft)]",
+      "frequency": 2,
+      "files": [
+        "MOBILE/app/settings/account-plan/page.tsx:215:gradient"
+      ]
+    },
+    {
+      "value": "from-pink-400",
+      "frequency": 2,
+      "files": [
+        "MOBILE/app/connection-index/page.tsx:101:shadow"
+      ]
+    },
+    {
+      "value": "ring-[color:var(--mc-primary)]",
+      "frequency": 2,
+      "files": [
+        "MOBILE/components/chat/ChatPanel.tsx:113:background"
+      ]
+    },
+    {
+      "value": "ring-[color:var(--mc-primary-soft)]",
+      "frequency": 2,
+      "files": [
+        "MOBILE/components/settings/VellaSettingsCard.tsx:112:background"
+      ]
+    },
+    {
+      "value": "shadow-[0_5px_25px_var(--shadow-primary-soft)]",
+      "frequency": 2,
+      "files": [
+        "MOBILE/app/session/page.tsx:1056:shadow"
+      ]
+    },
+    {
+      "value": "shadow-[0_8px_20px_rgba(0",
+      "frequency": 2,
+      "files": [
+        "MOBILE/components/ui/StrategyChip.tsx:133:shadow"
+      ]
+    },
+    {
+      "value": "shadow-black/40",
+      "frequency": 2,
+      "files": [
+        "MOBILE/components/voice/NowPlayingStrip.tsx:127:shadow"
+      ]
+    },
+    {
+      "value": "shadow-pink-500/30",
+      "frequency": 2,
+      "files": [
+        "MOBILE/app/connection-index/page.tsx:103:shadow"
+      ]
+    },
+    {
+      "value": "shadow-sm",
+      "frequency": 2,
+      "files": [
+        "MOBILE/components/settings/VellaSettingsCard.tsx:55:shadow"
+      ]
+    },
+    {
+      "value": "text-[13px]",
+      "frequency": 2,
+      "files": [
+        "MOBILE/components/home/QuickActionCard.tsx:94:text"
+      ]
+    },
+    {
+      "value": "text-[color:var(--mc-text)]/80",
+      "frequency": 2,
+      "files": [
+        "MOBILE/app/session/page.tsx:1168:text"
+      ]
+    },
+    {
+      "value": "text-amber-300",
+      "frequency": 2,
+      "files": [
+        "MOBILE/components/audio/AudioLibrarySheet.tsx:162:text"
+      ]
+    },
+    {
+      "value": "text-amber-50",
+      "frequency": 2,
+      "files": [
+        "MOBILE/app/insights/page.tsx:651:background"
+      ]
+    },
+    {
+      "value": "text-amber-50/80",
+      "frequency": 2,
+      "files": [
+        "MOBILE/components/ui/AlertChip.tsx:65:text"
+      ]
+    },
+    {
+      "value": "text-cyan-100",
+      "frequency": 2,
+      "files": [
+        "MOBILE/components/ui/StrategyChip.tsx:108:background"
+      ]
+    },
+    {
+      "value": "text-fuchsia-200",
+      "frequency": 2,
+      "files": [
+        "MOBILE/components/voice/NowPlayingStrip.tsx:29:text"
+      ]
+    },
+    {
+      "value": "text-indigo-200",
+      "frequency": 2,
+      "files": [
+        "MOBILE/components/ui/StrategyChip.tsx:85:text"
+      ]
+    },
+    {
+      "value": "text-pink-200",
+      "frequency": 2,
+      "files": [
+        "MOBILE/components/home/QuickActionCard.tsx:91:text"
+      ]
+    },
+    {
+      "value": "text-purple-200",
+      "frequency": 2,
+      "files": [
+        "MOBILE/components/voice/NowPlayingStrip.tsx:30:text"
+      ]
+    },
+    {
+      "value": "text-sky-100",
+      "frequency": 2,
+      "files": [
+        "MOBILE/components/ui/StrategyChip.tsx:48:background"
+      ]
+    },
+    {
+      "value": "text-slate-100",
+      "frequency": 2,
+      "files": [
+        "MOBILE/components/ui/StrategyChip.tsx:114:background"
+      ]
+    },
+    {
+      "value": "text-slate-400",
+      "frequency": 2,
+      "files": [
+        "MOBILE/components/voice/NowPlayingStrip.tsx:131:text"
+      ]
+    },
+    {
+      "value": "text-violet-200",
+      "frequency": 2,
+      "files": [
+        "MOBILE/components/ui/StrategyChip.tsx:61:text"
+      ]
+    },
+    {
+      "value": "to-[var(--gradient-primary-mid-soft)]",
+      "frequency": 2,
+      "files": [
+        "MOBILE/app/settings/account-plan/page.tsx:215:gradient"
+      ]
+    },
+    {
+      "value": "to-emerald-300",
+      "frequency": 2,
+      "files": [
+        "MOBILE/app/connection-index/page.tsx:101:shadow"
+      ]
+    },
+    {
+      "value": "via-[",
+      "frequency": 2,
+      "files": [
+        "MOBILE/app/session/page.tsx:866:shadow"
+      ]
+    },
+    {
+      "value": "accent-soft:",
+      "frequency": 1,
+      "files": [
+        "MOBILE/styles/globals.css:34:accent"
+      ]
+    },
+    {
+      "value": "backdrop-blur-2xl",
+      "frequency": 1,
+      "files": [
+        "MOBILE/components/layout/BottomNav.tsx:22:shadow"
+      ]
+    },
+    {
+      "value": "backdrop-blur-md",
+      "frequency": 1,
+      "files": [
+        "MOBILE/components/ui/Sheet.tsx:30:background"
+      ]
+    },
+    {
+      "value": "backdrop-filter:",
+      "frequency": 1,
+      "files": [
+        "MOBILE/styles/globals.css:120:general"
+      ]
+    },
+    {
+      "value": "bg-[color:var(--mc-accent)]/70",
+      "frequency": 1,
+      "files": [
+        "MOBILE/components/ui/CompassPulse.tsx:6:shadow"
+      ]
+    },
+    {
+      "value": "bg-[color:var(--mc-accent)]/80",
+      "frequency": 1,
+      "files": [
+        "MOBILE/components/ui/Toggle.tsx:31:shadow"
+      ]
+    },
+    {
+      "value": "bg-[color:var(--mc-bg)]/60",
+      "frequency": 1,
+      "files": [
+        "MOBILE/app/settings/account-plan/page.tsx:547:background"
+      ]
+    },
+    {
+      "value": "bg-[color:var(--mc-card)]/70",
+      "frequency": 1,
+      "files": [
+        "MOBILE/components/ui/Toggle.tsx:20:card"
+      ]
+    },
+    {
+      "value": "bg-[color:var(--mc-card)]/80",
+      "frequency": 1,
+      "files": [
+        "MOBILE/app/onboarding/vella/page.tsx:19:shadow"
+      ]
+    },
+    {
+      "value": "bg-[color:var(--mc-card2)]",
+      "frequency": 1,
+      "files": [
+        "MOBILE/components/insights/InsightCard.tsx:17:shadow"
+      ]
+    },
+    {
+      "value": "bg-[color:var(--mc-danger)]/90",
+      "frequency": 1,
+      "files": [
+        "MOBILE/components/ui/Button.tsx:25:background"
+      ]
+    },
+    {
+      "value": "bg-[color:var(--mc-muted)]/40",
+      "frequency": 1,
+      "files": [
+        "MOBILE/components/clarity/ClarityWalkthrough.tsx:79:background"
+      ]
+    },
+    {
+      "value": "bg-[color:var(--mc-primary)]/70",
+      "frequency": 1,
+      "files": [
+        "MOBILE/app/pricing/page.tsx:122:background"
+      ]
+    },
+    {
+      "value": "bg-[color:var(--mc-primary-soft)]/10",
+      "frequency": 1,
+      "files": [
+        "MOBILE/components/ui/InsightsTray.tsx:87:background"
+      ]
+    },
+    {
+      "value": "bg-[color:var(--mc-primary-soft)]/20",
+      "frequency": 1,
+      "files": [
+        "MOBILE/components/ui/InsightsTray.tsx:87:background"
+      ]
+    },
+    {
+      "value": "bg-[color:var(--mc-primary-soft)]/60",
+      "frequency": 1,
+      "files": [
+        "MOBILE/app/compass-mode/page.tsx:78:background"
+      ]
+    },
+    {
+      "value": "bg-[color:var(--mc-surface)]/40",
+      "frequency": 1,
+      "files": [
+        "MOBILE/components/loops/BehaviourLoopItem.tsx:33:background"
+      ]
+    },
+    {
+      "value": "bg-[color:var(--mc-surface)]/70",
+      "frequency": 1,
+      "files": [
+        "MOBILE/components/chat/ChatPanel.tsx:141:background"
+      ]
+    },
+    {
+      "value": "bg-[color:var(--mc-surface)]/80",
+      "frequency": 1,
+      "files": [
+        "MOBILE/app/session/page.tsx:1162:background"
+      ]
+    },
+    {
+      "value": "bg-[color:var(--mc-surface-strong)]/80",
+      "frequency": 1,
+      "files": [
+        "MOBILE/components/chat/ChatPanel.tsx:141:background"
+      ]
+    },
+    {
+      "value": "bg-[rgba(13",
+      "frequency": 1,
+      "files": [
+        "MOBILE/components/layout/BottomNav.tsx:22:shadow"
+      ]
+    },
+    {
+      "value": "bg-black",
+      "frequency": 1,
+      "files": [
+        "MOBILE/components/ui/Toggle.tsx:40:background"
+      ]
+    },
+    {
+      "value": "bg-black/80",
+      "frequency": 1,
+      "files": [
+        "MOBILE/components/home/QuickActionCard.tsx:107:background"
+      ]
+    },
+    {
+      "value": "bg-cyan-500/15",
+      "frequency": 1,
+      "files": [
+        "MOBILE/components/ui/StrategyChip.tsx:108:background"
+      ]
+    },
+    {
+      "value": "bg-cyan-500/20",
+      "frequency": 1,
+      "files": [
+        "MOBILE/components/voice/StrategyChip.tsx:47:background"
+      ]
+    },
+    {
+      "value": "bg-elevated)",
+      "frequency": 1,
+      "files": [
+        "MOBILE/tailwind.config.ts:25:background"
+      ]
+    },
+    {
+      "value": "bg-elevated:",
+      "frequency": 1,
+      "files": [
+        "MOBILE/styles/globals.css:19:background"
+      ]
+    },
+    {
+      "value": "bg-emerald-400",
+      "frequency": 1,
+      "files": [
+        "MOBILE/app/session/page.tsx:696:background"
+      ]
+    },
+    {
+      "value": "bg-emerald-500/15",
+      "frequency": 1,
+      "files": [
+        "MOBILE/components/ui/StrategyChip.tsx:102:background"
+      ]
+    },
+    {
+      "value": "bg-gradient-to-tr",
+      "frequency": 1,
+      "files": [
+        "MOBILE/app/connection-index/page.tsx:306:shadow"
+      ]
+    },
+    {
+      "value": "bg-indigo-500/15",
+      "frequency": 1,
+      "files": [
+        "MOBILE/components/ui/StrategyChip.tsx:84:background"
+      ]
+    },
+    {
+      "value": "bg-indigo-500/20",
+      "frequency": 1,
+      "files": [
+        "MOBILE/components/voice/StrategyChip.tsx:15:background"
+      ]
+    },
+    {
+      "value": "bg-mc-bg",
+      "frequency": 1,
+      "files": [
+        "MOBILE/app/onboarding/layout.tsx:7:background"
+      ]
+    },
+    {
+      "value": "bg-pink-500/10",
+      "frequency": 1,
+      "files": [
+        "MOBILE/app/connection-index/page.tsx:396:background"
+      ]
+    },
+    {
+      "value": "bg-pink-500/15",
+      "frequency": 1,
+      "files": [
+        "MOBILE/components/ui/StrategyChip.tsx:90:background"
+      ]
+    },
+    {
+      "value": "bg-pink-500/20",
+      "frequency": 1,
+      "files": [
+        "MOBILE/components/voice/StrategyChip.tsx:39:background"
+      ]
+    },
+    {
+      "value": "bg-purple-500/20",
+      "frequency": 1,
+      "files": [
+        "MOBILE/components/voice/StrategyChip.tsx:63:background"
+      ]
+    },
+    {
+      "value": "bg-slate-500/15",
+      "frequency": 1,
+      "files": [
+        "MOBILE/components/ui/StrategyChip.tsx:114:background"
+      ]
+    },
+    {
+      "value": "bg-slate-500/20",
+      "frequency": 1,
+      "files": [
+        "MOBILE/components/voice/StrategyChip.tsx:51:background"
+      ]
+    },
+    {
+      "value": "bg-slate-900",
+      "frequency": 1,
+      "files": [
+        "MOBILE/components/voice/AudioSheet.tsx:14:shadow"
+      ]
+    },
+    {
+      "value": "bg-soft)",
+      "frequency": 1,
+      "files": [
+        "MOBILE/tailwind.config.ts:24:background"
+      ]
+    },
+    {
+      "value": "bg-soft:",
+      "frequency": 1,
+      "files": [
+        "MOBILE/styles/globals.css:18:background"
+      ]
+    },
+    {
+      "value": "bg-violet-500/20",
+      "frequency": 1,
+      "files": [
+        "MOBILE/components/voice/StrategyChip.tsx:31:background"
+      ]
+    },
+    {
+      "value": "bg-white/30",
+      "frequency": 1,
+      "files": [
+        "MOBILE/app/settings/account-plan/page.tsx:227:background"
+      ]
+    },
+    {
+      "value": "bg-white/70",
+      "frequency": 1,
+      "files": [
+        "MOBILE/components/settings/PlanSwitcherModal.tsx:132:background"
+      ]
+    },
+    {
+      "value": "bg-white/[0.04]",
+      "frequency": 1,
+      "files": [
+        "MOBILE/components/audio/AudioLibrarySheet.tsx:219:background"
+      ]
+    },
+    {
+      "value": "border-0",
+      "frequency": 1,
+      "files": [
+        "MOBILE/app/session/page.tsx:866:shadow"
+      ]
+    },
+    {
+      "value": "border-2",
+      "frequency": 1,
+      "files": [
+        "MOBILE/components/check-in/CheckInSliders.tsx:49:shadow"
+      ]
+    },
+    {
+      "value": "border-[color:var(--mc-accent)]/20",
+      "frequency": 1,
+      "files": [
+        "MOBILE/components/inputs/VoiceRecorder.tsx:56:border"
+      ]
+    },
+    {
+      "value": "border-[color:var(--mc-accent)]/30",
+      "frequency": 1,
+      "files": [
+        "MOBILE/app/compass-mode/page.tsx:78:background"
+      ]
+    },
+    {
+      "value": "border-[color:var(--mc-accent)]/35",
+      "frequency": 1,
+      "files": [
+        "MOBILE/components/inputs/VoiceRecorder.tsx:57:border"
+      ]
+    },
+    {
+      "value": "border-[color:var(--mc-accent)]/40",
+      "frequency": 1,
+      "files": [
+        "MOBILE/components/ui/CompassPulse.tsx:4:border"
+      ]
+    },
+    {
+      "value": "border-[color:var(--mc-accent)]/50",
+      "frequency": 1,
+      "files": [
+        "MOBILE/app/timeline/page.tsx:504:card"
+      ]
+    },
+    {
+      "value": "border-[color:var(--mc-accent)]/60",
+      "frequency": 1,
+      "files": [
+        "MOBILE/components/ui/CompassPulse.tsx:5:border"
+      ]
+    },
+    {
+      "value": "border-[color:var(--mc-primary)]/50",
+      "frequency": 1,
+      "files": [
+        "MOBILE/components/journal/JournalList.tsx:35:card"
+      ]
+    },
+    {
+      "value": "border-[color:var(--mc-primary-soft)]/30",
+      "frequency": 1,
+      "files": [
+        "MOBILE/components/chat/ChatMessage.tsx:27:card"
+      ]
+    },
+    {
+      "value": "border-[color:var(--mc-primary-soft)]/40",
+      "frequency": 1,
+      "files": [
+        "MOBILE/components/ui/InsightsTray.tsx:87:background"
+      ]
+    },
+    {
+      "value": "border-amber-300/50",
+      "frequency": 1,
+      "files": [
+        "MOBILE/app/connection-index/page.tsx:439:border"
+      ]
+    },
+    {
+      "value": "border-amber-400/30",
+      "frequency": 1,
+      "files": [
+        "MOBILE/components/ui/AlertChip.tsx:56:shadow"
+      ]
+    },
+    {
+      "value": "border-amber-400/80",
+      "frequency": 1,
+      "files": [
+        "MOBILE/app/timeline/page.tsx:366:border"
+      ]
+    },
+    {
+      "value": "border-amber-500/40",
+      "frequency": 1,
+      "files": [
+        "MOBILE/app/insights/page.tsx:742:background"
+      ]
+    },
+    {
+      "value": "border-black/40",
+      "frequency": 1,
+      "files": [
+        "MOBILE/components/ui/Toggle.tsx:32:background"
+      ]
+    },
+    {
+      "value": "border-color:",
+      "frequency": 1,
+      "files": [
+        "MOBILE/styles/voice.css:10:border"
+      ]
+    },
+    {
+      "value": "border-cyan-400/50",
+      "frequency": 1,
+      "files": [
+        "MOBILE/components/ui/StrategyChip.tsx:108:background"
+      ]
+    },
+    {
+      "value": "border-cyan-500/30",
+      "frequency": 1,
+      "files": [
+        "MOBILE/components/voice/StrategyChip.tsx:47:background"
+      ]
+    },
+    {
+      "value": "border-emerald-400/50",
+      "frequency": 1,
+      "files": [
+        "MOBILE/components/ui/StrategyChip.tsx:102:background"
+      ]
+    },
+    {
+      "value": "border-indigo-400/50",
+      "frequency": 1,
+      "files": [
+        "MOBILE/components/ui/StrategyChip.tsx:84:background"
+      ]
+    },
+    {
+      "value": "border-indigo-500/30",
+      "frequency": 1,
+      "files": [
+        "MOBILE/components/voice/StrategyChip.tsx:15:background"
+      ]
+    },
+    {
+      "value": "border-pink-400/50",
+      "frequency": 1,
+      "files": [
+        "MOBILE/components/ui/StrategyChip.tsx:90:background"
+      ]
+    },
+    {
+      "value": "border-pink-400/70",
+      "frequency": 1,
+      "files": [
+        "MOBILE/app/connection-index/page.tsx:396:background"
+      ]
+    },
+    {
+      "value": "border-pink-500/30",
+      "frequency": 1,
+      "files": [
+        "MOBILE/components/voice/StrategyChip.tsx:39:background"
+      ]
+    },
+    {
+      "value": "border-purple-500/30",
+      "frequency": 1,
+      "files": [
+        "MOBILE/components/voice/StrategyChip.tsx:63:background"
+      ]
+    },
+    {
+      "value": "border-rose-400/40",
+      "frequency": 1,
+      "files": [
+        "MOBILE/app/timeline/page.tsx:512:background"
+      ]
+    },
+    {
+      "value": "border-rose-400/50",
+      "frequency": 1,
+      "files": [
+        "MOBILE/components/ui/StrategyChip.tsx:96:background"
+      ]
+    },
+    {
+      "value": "border-slate-400/50",
+      "frequency": 1,
+      "files": [
+        "MOBILE/components/ui/StrategyChip.tsx:114:background"
+      ]
+    },
+    {
+      "value": "border-slate-500/30",
+      "frequency": 1,
+      "files": [
+        "MOBILE/components/voice/StrategyChip.tsx:51:background"
+      ]
+    },
+    {
+      "value": "border-soft)",
+      "frequency": 1,
+      "files": [
+        "MOBILE/tailwind.config.ts:30:border"
+      ]
+    },
+    {
+      "value": "border-soft:",
+      "frequency": 1,
+      "files": [
+        "MOBILE/styles/globals.css:25:border"
+      ]
+    },
+    {
+      "value": "border-violet-500/30",
+      "frequency": 1,
+      "files": [
+        "MOBILE/components/voice/StrategyChip.tsx:31:background"
+      ]
+    },
+    {
+      "value": "border-white/60",
+      "frequency": 1,
+      "files": [
+        "MOBILE/components/settings/PlanSwitcherModal.tsx:114:background"
+      ]
+    },
+    {
+      "value": "drop-shadow-[0_0_10px_rgba(255",
+      "frequency": 1,
+      "files": [
+        "MOBILE/components/home/QuickActionCard.tsx:99:shadow"
+      ]
+    },
+    {
+      "value": "drop-shadow-glow-color))",
+      "frequency": 1,
+      "files": [
+        "MOBILE/styles/globals.css:94:shadow"
+      ]
+    },
+    {
+      "value": "drop-shadow-glow-color:",
+      "frequency": 1,
+      "files": [
+        "MOBILE/styles/globals.css:42:shadow"
+      ]
+    },
+    {
+      "value": "drop-shadow-sm",
+      "frequency": 1,
+      "files": [
+        "MOBILE/components/home/QuickActionCard.tsx:89:shadow"
+      ]
+    },
+    {
+      "value": "from-[color:var(--mc-border)]/30",
+      "frequency": 1,
+      "files": [
+        "MOBILE/components/check-in/ConnectionProgressCard.tsx:81:gradient"
+      ]
+    },
+    {
+      "value": "from-[color:var(--mc-primary-soft)]/15",
+      "frequency": 1,
+      "files": [
+        "MOBILE/components/insights/InsightCard.tsx:14:text"
+      ]
+    },
+    {
+      "value": "from-emerald-400/10",
+      "frequency": 1,
+      "files": [
+        "MOBILE/components/insights/InsightCard.tsx:13:general"
+      ]
+    },
+    {
+      "value": "from-indigo-400",
+      "frequency": 1,
+      "files": [
+        "MOBILE/app/connection-index/page.tsx:107:shadow"
+      ]
+    },
+    {
+      "value": "from-pink-300",
+      "frequency": 1,
+      "files": [
+        "MOBILE/components/ui/EmotionalDisplay.tsx:13:general"
+      ]
+    },
+    {
+      "value": "from-pink-500/80",
+      "frequency": 1,
+      "files": [
+        "MOBILE/app/connection-index/page.tsx:356:shadow"
+      ]
+    },
+    {
+      "value": "from-purple-300",
+      "frequency": 1,
+      "files": [
+        "MOBILE/components/ui/EmotionalDisplay.tsx:14:general"
+      ]
+    },
+    {
+      "value": "from-purple-400",
+      "frequency": 1,
+      "files": [
+        "MOBILE/app/connection-index/page.tsx:105:shadow"
+      ]
+    },
+    {
+      "value": "from-rose-300",
+      "frequency": 1,
+      "files": [
+        "MOBILE/components/ui/EmotionalDisplay.tsx:11:general"
+      ]
+    },
+    {
+      "value": "from-rose-500/10",
+      "frequency": 1,
+      "files": [
+        "MOBILE/components/insights/InsightCard.tsx:11:general"
+      ]
+    },
+    {
+      "value": "from-sky-300",
+      "frequency": 1,
+      "files": [
+        "MOBILE/components/ui/EmotionalDisplay.tsx:12:general"
+      ]
+    },
+    {
+      "value": "from-sky-400",
+      "frequency": 1,
+      "files": [
+        "MOBILE/app/connection-index/page.tsx:109:shadow"
+      ]
+    },
+    {
+      "value": "from-slate-500",
+      "frequency": 1,
+      "files": [
+        "MOBILE/app/connection-index/page.tsx:111:shadow"
+      ]
+    },
+    {
+      "value": "from-slate-700/50",
+      "frequency": 1,
+      "files": [
+        "MOBILE/app/connection-index/page.tsx:355:gradient"
+      ]
+    },
+    {
+      "value": "from-template-context.d.ts",
+      "frequency": 1,
+      "files": [
+        "MOBILE/tsconfig.tsbuildinfo:1:card"
+      ]
+    },
+    {
+      "value": "from-transparent",
+      "frequency": 1,
+      "files": [
+        "MOBILE/app/timeline/page.tsx:521:gradient"
+      ]
+    },
+    {
+      "value": "ring-[var(--blob-layer1-ring)]",
+      "frequency": 1,
+      "files": [
+        "MOBILE/components/voice/LiquidVoiceStage.tsx:18:shadow"
+      ]
+    },
+    {
+      "value": "ring-[var(--blob-layer2-ring)]",
+      "frequency": 1,
+      "files": [
+        "MOBILE/components/voice/LiquidVoiceStage.tsx:20:shadow"
+      ]
+    },
+    {
+      "value": "shadow-2xl",
+      "frequency": 1,
+      "files": [
+        "MOBILE/app/connection-index/page.tsx:306:shadow"
+      ]
+    },
+    {
+      "value": "shadow-[0_-18px_40px_rgba(0",
+      "frequency": 1,
+      "files": [
+        "MOBILE/components/voice/AudioSheet.tsx:14:shadow"
+      ]
+    },
+    {
+      "value": "shadow-[0_-25px_45px_rgba(0",
+      "frequency": 1,
+      "files": [
+        "MOBILE/components/ui/Sheet.tsx:38:shadow"
+      ]
+    },
+    {
+      "value": "shadow-[0_0_12px_rgba(100",
+      "frequency": 1,
+      "files": [
+        "MOBILE/components/home/QuickActionCard.tsx:73:shadow"
+      ]
+    },
+    {
+      "value": "shadow-[0_0_12px_rgba(255",
+      "frequency": 1,
+      "files": [
+        "MOBILE/components/ui/EmotionalDisplay.tsx:86:shadow"
+      ]
+    },
+    {
+      "value": "shadow-[0_0_15px_rgba(255",
+      "frequency": 1,
+      "files": [
+        "MOBILE/components/check-in/ConnectionProgressCard.tsx:82:shadow"
+      ]
+    },
+    {
+      "value": "shadow-[0_0_18px_rgba(138",
+      "frequency": 1,
+      "files": [
+        "MOBILE/components/home/QuickActionCard.tsx:72:shadow"
+      ]
+    },
+    {
+      "value": "shadow-[0_0_25px_rgba(163",
+      "frequency": 1,
+      "files": [
+        "MOBILE/components/ui/CompassPulse.tsx:6:shadow"
+      ]
+    },
+    {
+      "value": "shadow-[0_0_25px_rgba(255",
+      "frequency": 1,
+      "files": [
+        "MOBILE/components/home/QuickActionCard.tsx:70:shadow"
+      ]
+    },
+    {
+      "value": "shadow-[0_0_35px_var(--blob-layer1-shadow)]",
+      "frequency": 1,
+      "files": [
+        "MOBILE/components/voice/LiquidVoiceStage.tsx:18:shadow"
+      ]
+    },
+    {
+      "value": "shadow-[0_0_50px_var(--blob-layer2-shadow)]",
+      "frequency": 1,
+      "files": [
+        "MOBILE/components/voice/LiquidVoiceStage.tsx:20:shadow"
+      ]
+    },
+    {
+      "value": "shadow-[0_0_60px_var(--blob-layer3-shadow)]",
+      "frequency": 1,
+      "files": [
+        "MOBILE/components/voice/LiquidVoiceStage.tsx:22:shadow"
+      ]
+    },
+    {
+      "value": "shadow-[0_12px_30px_var(--shadow-primary-medium)]",
+      "frequency": 1,
+      "files": [
+        "MOBILE/app/timeline/page.tsx:531:shadow"
+      ]
+    },
+    {
+      "value": "shadow-[0_12px_35px_var(--shadow-primary-strong)]",
+      "frequency": 1,
+      "files": [
+        "MOBILE/components/layout/BottomNav.tsx:46:shadow"
+      ]
+    },
+    {
+      "value": "shadow-[0_14px_30px_rgba(5",
+      "frequency": 1,
+      "files": [
+        "MOBILE/components/layout/BottomNav.tsx:22:shadow"
+      ]
+    },
+    {
+      "value": "shadow-[0_18px_45px_var(--shadow-primary-medium)]",
+      "frequency": 1,
+      "files": [
+        "MOBILE/app/check-in/page.tsx:398:shadow"
+      ]
+    },
+    {
+      "value": "shadow-[0_20px_35px_var(--shadow-primary-medium)]",
+      "frequency": 1,
+      "files": [
+        "MOBILE/components/home/HomeClientPage.tsx:433:shadow"
+      ]
+    },
+    {
+      "value": "shadow-[0_20px_60px_rgba(0",
+      "frequency": 1,
+      "files": [
+        "MOBILE/components/modals/UpgradeGate.tsx:43:shadow"
+      ]
+    },
+    {
+      "value": "shadow-[0_25px_55px_rgba(0",
+      "frequency": 1,
+      "files": [
+        "MOBILE/app/compass-mode/page.tsx:40:shadow"
+      ]
+    },
+    {
+      "value": "shadow-[0_25px_65px_rgba(50",
+      "frequency": 1,
+      "files": [
+        "MOBILE/components/home/PlanStatusCard.tsx:19:shadow"
+      ]
+    },
+    {
+      "value": "shadow-[0_25px_65px_var(--shadow-primary-strong)]",
+      "frequency": 1,
+      "files": [
+        "MOBILE/app/profile/page.tsx:94:shadow"
+      ]
+    },
+    {
+      "value": "shadow-[0_35px_60px_rgba(0",
+      "frequency": 1,
+      "files": [
+        "MOBILE/components/ui/Modal.tsx:39:shadow"
+      ]
+    },
+    {
+      "value": "shadow-[0_4px_15px_rgba(163",
+      "frequency": 1,
+      "files": [
+        "MOBILE/components/ui/Toggle.tsx:31:shadow"
+      ]
+    },
+    {
+      "value": "shadow-[0_6px_18px_rgba(55",
+      "frequency": 1,
+      "files": [
+        "MOBILE/components/check-in/CheckInSliders.tsx:49:shadow"
+      ]
+    },
+    {
+      "value": "shadow-indigo-500/25",
+      "frequency": 1,
+      "files": [
+        "MOBILE/app/connection-index/page.tsx:107:shadow"
+      ]
+    },
+    {
+      "value": "shadow-none",
+      "frequency": 1,
+      "files": [
+        "MOBILE/app/session/page.tsx:866:shadow"
+      ]
+    },
+    {
+      "value": "shadow-pink-500/40",
+      "frequency": 1,
+      "files": [
+        "MOBILE/app/connection-index/page.tsx:101:shadow"
+      ]
+    },
+    {
+      "value": "shadow-primary-medium:",
+      "frequency": 1,
+      "files": [
+        "MOBILE/styles/globals.css:40:shadow"
+      ]
+    },
+    {
+      "value": "shadow-primary-soft:",
+      "frequency": 1,
+      "files": [
+        "MOBILE/styles/globals.css:41:shadow"
+      ]
+    },
+    {
+      "value": "shadow-primary-strong:",
+      "frequency": 1,
+      "files": [
+        "MOBILE/styles/globals.css:39:shadow"
+      ]
+    },
+    {
+      "value": "shadow-purple-500/30",
+      "frequency": 1,
+      "files": [
+        "MOBILE/app/connection-index/page.tsx:105:shadow"
+      ]
+    },
+    {
+      "value": "shadow-sky-500/20",
+      "frequency": 1,
+      "files": [
+        "MOBILE/app/connection-index/page.tsx:109:shadow"
+      ]
+    },
+    {
+      "value": "shadow-slate-700/20",
+      "frequency": 1,
+      "files": [
+        "MOBILE/app/connection-index/page.tsx:111:shadow"
+      ]
+    },
+    {
+      "value": "stroke-[color:var(--mc-muted)]",
+      "frequency": 1,
+      "files": [
+        "MOBILE/components/layout/BottomNav.tsx:72:text"
+      ]
+    },
+    {
+      "value": "stroke-[color:var(--mc-primary-soft)]",
+      "frequency": 1,
+      "files": [
+        "MOBILE/components/layout/BottomNav.tsx:71:shadow"
+      ]
+    },
+    {
+      "value": "text-5xl",
+      "frequency": 1,
+      "files": [
+        "MOBILE/app/connection-index/page.tsx:314:text"
+      ]
+    },
+    {
+      "value": "text-[",
+      "frequency": 1,
+      "files": [
+        "MOBILE/components/check-in/ConnectionProgressCard.tsx:29:text"
+      ]
+    },
+    {
+      "value": "text-[0.6em]",
+      "frequency": 1,
+      "files": [
+        "MOBILE/components/voice/StrategyChip.tsx:83:text"
+      ]
+    },
+    {
+      "value": "text-[0.72rem]",
+      "frequency": 1,
+      "files": [
+        "MOBILE/styles/globals.css:86:text"
+      ]
+    },
+    {
+      "value": "text-[0.95rem]",
+      "frequency": 1,
+      "files": [
+        "MOBILE/styles/globals.css:90:text"
+      ]
+    },
+    {
+      "value": "text-[1.65rem]",
+      "frequency": 1,
+      "files": [
+        "MOBILE/styles/globals.css:82:text"
+      ]
+    },
+    {
+      "value": "text-[8px]",
+      "frequency": 1,
+      "files": [
+        "MOBILE/app/timeline/page.tsx:381:border"
+      ]
+    },
+    {
+      "value": "text-[color:var(--mc-accent)]/80",
+      "frequency": 1,
+      "files": [
+        "MOBILE/components/insights/InsightCard.tsx:24:text"
+      ]
+    },
+    {
+      "value": "text-[color:var(--mc-danger",
+      "frequency": 1,
+      "files": [
+        "MOBILE/components/ui/AlertChip.tsx:18:text"
+      ]
+    },
+    {
+      "value": "text-[color:var(--mc-muted-strong",
+      "frequency": 1,
+      "files": [
+        "MOBILE/app/session/page.tsx:958:text"
+      ]
+    },
+    {
+      "value": "text-amber-100/60",
+      "frequency": 1,
+      "files": [
+        "MOBILE/components/ui/AlertChip.tsx:93:text"
+      ]
+    },
+    {
+      "value": "text-amber-100/70",
+      "frequency": 1,
+      "files": [
+        "MOBILE/components/ui/AlertChip.tsx:77:text"
+      ]
+    },
+    {
+      "value": "text-amber-100/80",
+      "frequency": 1,
+      "files": [
+        "MOBILE/components/ui/AlertChip.tsx:72:border"
+      ]
+    },
+    {
+      "value": "text-amber-200/80",
+      "frequency": 1,
+      "files": [
+        "MOBILE/components/ui/AlertChip.tsx:60:text"
+      ]
+    },
+    {
+      "value": "text-amber-50/90",
+      "frequency": 1,
+      "files": [
+        "MOBILE/components/ui/AlertChip.tsx:56:shadow"
+      ]
+    },
+    {
+      "value": "text-black",
+      "frequency": 1,
+      "files": [
+        "MOBILE/app/profile/page.tsx:138:background"
+      ]
+    },
+    {
+      "value": "text-blue-300",
+      "frequency": 1,
+      "files": [
+        "MOBILE/components/home/QuickActionCard.tsx:117:text"
+      ]
+    },
+    {
+      "value": "text-cyan-200",
+      "frequency": 1,
+      "files": [
+        "MOBILE/components/ui/StrategyChip.tsx:109:text"
+      ]
+    },
+    {
+      "value": "text-indigo-100",
+      "frequency": 1,
+      "files": [
+        "MOBILE/components/ui/StrategyChip.tsx:84:background"
+      ]
+    },
+    {
+      "value": "text-mc-text",
+      "frequency": 1,
+      "files": [
+        "MOBILE/app/onboarding/layout.tsx:7:background"
+      ]
+    },
+    {
+      "value": "text-pink-300",
+      "frequency": 1,
+      "files": [
+        "MOBILE/app/connection-index/page.tsx:313:shadow"
+      ]
+    },
+    {
+      "value": "text-pink-400",
+      "frequency": 1,
+      "files": [
+        "MOBILE/components/home/QuickActionCard.tsx:89:shadow"
+      ]
+    },
+    {
+      "value": "text-white/65",
+      "frequency": 1,
+      "files": [
+        "MOBILE/app/connection-index/page.tsx:423:text"
+      ]
+    },
+    {
+      "value": "text-white/85",
+      "frequency": 1,
+      "files": [
+        "MOBILE/app/connection-index/page.tsx:415:text"
+      ]
+    },
+    {
+      "value": "text-white/90",
+      "frequency": 1,
+      "files": [
+        "MOBILE/app/insights/page.tsx:673:text"
+      ]
+    },
+    {
+      "value": "to-[color:var(--mc-bg)]",
+      "frequency": 1,
+      "files": [
+        "MOBILE/app/compass-mode/page.tsx:40:shadow"
+      ]
+    },
+    {
+      "value": "to-[color:var(--mc-card)]",
+      "frequency": 1,
+      "files": [
+        "MOBILE/components/strategy/StrategyView.tsx:40:gradient"
+      ]
+    },
+    {
+      "value": "to-amber-200",
+      "frequency": 1,
+      "files": [
+        "MOBILE/components/ui/EmotionalDisplay.tsx:12:general"
+      ]
+    },
+    {
+      "value": "to-amber-300/80",
+      "frequency": 1,
+      "files": [
+        "MOBILE/app/connection-index/page.tsx:356:shadow"
+      ]
+    },
+    {
+      "value": "to-back",
+      "frequency": 1,
+      "files": [
+        "MOBILE/lib/ai/intent/toneProfiles.ts:21:general"
+      ]
+    },
+    {
+      "value": "to-file.d.mts",
+      "frequency": 1,
+      "files": [
+        "MOBILE/tsconfig.tsbuildinfo:1:card"
+      ]
+    },
+    {
+      "value": "to-indigo-400",
+      "frequency": 1,
+      "files": [
+        "MOBILE/app/connection-index/page.tsx:105:shadow"
+      ]
+    },
+    {
+      "value": "to-json-schema.d.cts",
+      "frequency": 1,
+      "files": [
+        "MOBILE/tsconfig.tsbuildinfo:1:card"
+      ]
+    },
+    {
+      "value": "to-medium",
+      "frequency": 1,
+      "files": [
+        "MOBILE/lib/ai/persona/personaConfig.ts:49:general"
+      ]
+    },
+    {
+      "value": "to-orange-200",
+      "frequency": 1,
+      "files": [
+        "MOBILE/components/ui/EmotionalDisplay.tsx:13:general"
+      ]
+    },
+    {
+      "value": "to-plan",
+      "frequency": 1,
+      "files": [
+        "MOBILE/lib/tiers/tierCheck.ts:1:general"
+      ]
+    },
+    {
+      "value": "to-purple-400",
+      "frequency": 1,
+      "files": [
+        "MOBILE/app/connection-index/page.tsx:103:shadow"
+      ]
+    },
+    {
+      "value": "to-red-300",
+      "frequency": 1,
+      "files": [
+        "MOBILE/components/ui/EmotionalDisplay.tsx:14:general"
+      ]
+    },
+    {
+      "value": "to-sky-400",
+      "frequency": 1,
+      "files": [
+        "MOBILE/app/connection-index/page.tsx:107:shadow"
+      ]
+    },
+    {
+      "value": "to-slate-200/80",
+      "frequency": 1,
+      "files": [
+        "MOBILE/app/connection-index/page.tsx:355:gradient"
+      ]
+    },
+    {
+      "value": "to-slate-400",
+      "frequency": 1,
+      "files": [
+        "MOBILE/app/connection-index/page.tsx:109:shadow"
+      ]
+    },
+    {
+      "value": "to-slate-600",
+      "frequency": 1,
+      "files": [
+        "MOBILE/app/connection-index/page.tsx:111:shadow"
+      ]
+    },
+    {
+      "value": "to-white/60",
+      "frequency": 1,
+      "files": [
+        "MOBILE/components/check-in/ConnectionProgressCard.tsx:81:gradient"
+      ]
+    },
+    {
+      "value": "via-[color:var(--mc-border)]",
+      "frequency": 1,
+      "files": [
+        "MOBILE/app/timeline/page.tsx:521:gradient"
+      ]
+    },
+    {
+      "value": "via-amber-300",
+      "frequency": 1,
+      "files": [
+        "MOBILE/app/connection-index/page.tsx:101:shadow"
+      ]
+    }
+  ],
+  "recommendations": "Do NOT modify any theme assets until the migration map is approved. Use this report to plan token replacements and gradient staging."
+}

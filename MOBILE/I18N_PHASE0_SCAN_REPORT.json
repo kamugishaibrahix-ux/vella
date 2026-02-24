@@ -1,0 +1,1161 @@
+{
+  "missingKeys": [
+    {
+      "file": "components/settings/VellaSettingsCard.tsx",
+      "line": 60,
+      "english": "Vella Settings",
+      "suggestedKey": "settings.vella.title"
+    },
+    {
+      "file": "components/settings/VellaSettingsCard.tsx",
+      "line": 61,
+      "english": "Tune how Vella speaks, listens, and expresses herself.",
+      "suggestedKey": "settings.vella.description"
+    },
+    {
+      "file": "components/settings/VellaSettingsCard.tsx",
+      "line": 67,
+      "english": "Voice model",
+      "suggestedKey": "settings.vella.voiceModel.label"
+    },
+    {
+      "file": "components/settings/VellaSettingsCard.tsx",
+      "line": 68,
+      "english": "Choose the voice Vella imagines when she replies.",
+      "suggestedKey": "settings.vella.voiceModel.description"
+    },
+    {
+      "file": "components/settings/VellaSettingsCard.tsx",
+      "line": 100,
+      "english": "Relationship style",
+      "suggestedKey": "settings.vella.relationshipStyle.label"
+    },
+    {
+      "file": "components/settings/VellaSettingsCard.tsx",
+      "line": 101,
+      "english": "Shape how Vella frames her presence.",
+      "suggestedKey": "settings.vella.relationshipStyle.description"
+    },
+    {
+      "file": "components/settings/VellaSettingsCard.tsx",
+      "line": 116,
+      "english": "Best Friend",
+      "suggestedKey": "settings.vella.relationship.bestFriend"
+    },
+    {
+      "file": "components/settings/VellaSettingsCard.tsx",
+      "line": 117,
+      "english": "Mentor",
+      "suggestedKey": "settings.vella.relationship.mentor"
+    },
+    {
+      "file": "components/settings/VellaSettingsCard.tsx",
+      "line": 118,
+      "english": "Big Sister",
+      "suggestedKey": "settings.vella.relationship.bigSister"
+    },
+    {
+      "file": "components/settings/VellaSettingsCard.tsx",
+      "line": 119,
+      "english": "Little Sister",
+      "suggestedKey": "settings.vella.relationship.littleSister"
+    },
+    {
+      "file": "components/settings/VellaSettingsCard.tsx",
+      "line": 120,
+      "english": "Soft Partner",
+      "suggestedKey": "settings.vella.relationship.softPartner"
+    },
+    {
+      "file": "components/settings/VellaSettingsCard.tsx",
+      "line": 121,
+      "english": "Playful Partner",
+      "suggestedKey": "settings.vella.relationship.playfulPartner"
+    },
+    {
+      "file": "components/settings/VellaSettingsCard.tsx",
+      "line": 127,
+      "english": "Tone style",
+      "suggestedKey": "settings.vella.toneStyle.label"
+    },
+    {
+      "file": "components/settings/VellaSettingsCard.tsx",
+      "line": 128,
+      "english": "Choose how warm, direct, or soft Vella should feel by default.",
+      "suggestedKey": "settings.vella.toneStyle.description"
+    },
+    {
+      "file": "components/settings/VellaSettingsCard.tsx",
+      "line": 138,
+      "english": "Voice HUD",
+      "suggestedKey": "settings.vella.voiceHUD.label"
+    },
+    {
+      "file": "components/settings/VellaSettingsCard.tsx",
+      "line": 139,
+      "english": "Choose which realtime chips appear during voice sessions.",
+      "suggestedKey": "settings.vella.voiceHUD.description"
+    },
+    {
+      "file": "components/settings/VellaSettingsCard.tsx",
+      "line": 142,
+      "english": "Show mood chip",
+      "suggestedKey": "settings.vella.voiceHUD.mood.label"
+    },
+    {
+      "file": "components/settings/VellaSettingsCard.tsx",
+      "line": 142,
+      "english": "Display realtime mood + tension",
+      "suggestedKey": "settings.vella.voiceHUD.mood.description"
+    },
+    {
+      "file": "components/settings/VellaSettingsCard.tsx",
+      "line": 143,
+      "english": "Show session time",
+      "suggestedKey": "settings.vella.voiceHUD.sessionTime.label"
+    },
+    {
+      "file": "components/settings/VellaSettingsCard.tsx",
+      "line": 143,
+      "english": "Reveal elapsed realtime minutes",
+      "suggestedKey": "settings.vella.voiceHUD.sessionTime.description"
+    },
+    {
+      "file": "components/chat/ChatPanel.tsx",
+      "line": 207,
+      "english": "Recording…",
+      "suggestedKey": "chat.recording.label"
+    },
+    {
+      "file": "components/chat/ChatPanel.tsx",
+      "line": 214,
+      "english": "Stop",
+      "suggestedKey": "chat.recording.stop"
+    },
+    {
+      "file": "components/chat/ChatPanel.tsx",
+      "line": 239,
+      "english": "Type your message…",
+      "suggestedKey": "chat.input.placeholder"
+    },
+    {
+      "file": "components/chat/ChatPanel.tsx",
+      "line": 258,
+      "english": "💡 Ask for advice",
+      "suggestedKey": "chat.quickActions.advice.label"
+    },
+    {
+      "file": "components/chat/ChatPanel.tsx",
+      "line": 258,
+      "english": "Vella, I'd like some advice on what I just shared—what do you suggest?",
+      "suggestedKey": "chat.quickActions.advice.text"
+    },
+    {
+      "file": "components/chat/ChatPanel.tsx",
+      "line": 259,
+      "english": "📝 Summarise this",
+      "suggestedKey": "chat.quickActions.summarise.label"
+    },
+    {
+      "file": "components/chat/ChatPanel.tsx",
+      "line": 259,
+      "english": "Vella, can you summarise what I've shared so far in a few sentences?",
+      "suggestedKey": "chat.quickActions.summarise.text"
+    },
+    {
+      "file": "components/chat/ChatPanel.tsx",
+      "line": 260,
+      "english": "🪞 Help me reflect",
+      "suggestedKey": "chat.quickActions.reflect.label"
+    },
+    {
+      "file": "components/chat/ChatPanel.tsx",
+      "line": 260,
+      "english": "Vella, help me reflect on this experience and what I might learn from it.",
+      "suggestedKey": "chat.quickActions.reflect.text"
+    },
+    {
+      "file": "components/chat/ChatPanel.tsx",
+      "line": 261,
+      "english": "📖 Tell me a story",
+      "suggestedKey": "chat.quickActions.story.label"
+    },
+    {
+      "file": "components/chat/ChatPanel.tsx",
+      "line": 261,
+      "english": "Vella, tell me a short story that relates to my current mood.",
+      "suggestedKey": "chat.quickActions.story.text"
+    },
+    {
+      "file": "app/onboarding/reason/page.tsx",
+      "line": 27,
+      "english": "Relationship growth",
+      "suggestedKey": "onboarding.reason.focus.relationshipGrowth.title"
+    },
+    {
+      "file": "app/onboarding/reason/page.tsx",
+      "line": 32,
+      "english": "Mindset coaching",
+      "suggestedKey": "onboarding.reason.focus.mindsetCoaching.title"
+    },
+    {
+      "file": "app/onboarding/reason/page.tsx",
+      "line": 75,
+      "english": "Step 5 · Focus",
+      "suggestedKey": "onboarding.reason.step"
+    },
+    {
+      "file": "app/onboarding/reason/page.tsx",
+      "line": 76,
+      "english": "What do you care about most right now?",
+      "suggestedKey": "onboarding.reason.title"
+    },
+    {
+      "file": "components/check-in/InsightBloomCard.tsx",
+      "line": 74,
+      "english": "V E L L A   N O T I C E D   T H I S",
+      "suggestedKey": "insights.bloom.title"
+    },
+    {
+      "file": "app/settings/account-plan/page.tsx",
+      "line": 30,
+      "english": "Small Pack",
+      "suggestedKey": "plan.tokenPacks.small.title"
+    },
+    {
+      "file": "app/settings/account-plan/page.tsx",
+      "line": 30,
+      "english": "+5,000 tokens",
+      "suggestedKey": "plan.tokenPacks.small.tokens"
+    },
+    {
+      "file": "app/settings/account-plan/page.tsx",
+      "line": 30,
+      "english": "$4.99",
+      "suggestedKey": "plan.tokenPacks.small.price"
+    },
+    {
+      "file": "app/settings/account-plan/page.tsx",
+      "line": 31,
+      "english": "Medium Pack",
+      "suggestedKey": "plan.tokenPacks.medium.title"
+    },
+    {
+      "file": "app/settings/account-plan/page.tsx",
+      "line": 31,
+      "english": "+20,000 tokens",
+      "suggestedKey": "plan.tokenPacks.medium.tokens"
+    },
+    {
+      "file": "app/settings/account-plan/page.tsx",
+      "line": 31,
+      "english": "$14.99",
+      "suggestedKey": "plan.tokenPacks.medium.price"
+    },
+    {
+      "file": "app/settings/account-plan/page.tsx",
+      "line": 32,
+      "english": "Large Pack",
+      "suggestedKey": "plan.tokenPacks.large.title"
+    },
+    {
+      "file": "app/settings/account-plan/page.tsx",
+      "line": 32,
+      "english": "+100,000 tokens",
+      "suggestedKey": "plan.tokenPacks.large.tokens"
+    },
+    {
+      "file": "app/settings/account-plan/page.tsx",
+      "line": 32,
+      "english": "$49.99",
+      "suggestedKey": "plan.tokenPacks.large.price"
+    },
+    {
+      "file": "app/settings/account-plan/page.tsx",
+      "line": 37,
+      "english": "Free Plan",
+      "suggestedKey": "plan.labels.free"
+    },
+    {
+      "file": "app/settings/account-plan/page.tsx",
+      "line": 38,
+      "english": "Pro Plan",
+      "suggestedKey": "plan.labels.pro"
+    },
+    {
+      "file": "app/settings/account-plan/page.tsx",
+      "line": 39,
+      "english": "Elite Plan",
+      "suggestedKey": "plan.labels.elite"
+    },
+    {
+      "file": "app/settings/account-plan/page.tsx",
+      "line": 91,
+      "english": "Loading…",
+      "suggestedKey": "common.loading"
+    },
+    {
+      "file": "app/settings/account-plan/page.tsx",
+      "line": 94,
+      "english": "ACTIVE",
+      "suggestedKey": "plan.status.active"
+    },
+    {
+      "file": "components/journal/JournalEditor.tsx",
+      "line": 52,
+      "english": "Let it out. Nobody else reads this.",
+      "suggestedKey": "journal.editor.placeholder"
+    },
+    {
+      "file": "components/settings/PreferencesCard.tsx",
+      "line": 44,
+      "english": "Vella reminds you once a day to reflect on your mood and progress.",
+      "suggestedKey": "settings.preferences.dailyCheckins.helper"
+    },
+    {
+      "file": "components/settings/PreferencesCard.tsx",
+      "line": 51,
+      "english": "Vella auto-journals meaningful moments during sessions and saves them to your timeline.",
+      "suggestedKey": "settings.preferences.smartJournaling.helper"
+    },
+    {
+      "file": "components/settings/SecurityCard.tsx",
+      "line": 147,
+      "english": "This device doesn't support secure biometric unlock here.",
+      "suggestedKey": "settings.security.biometric.unsupported"
+    },
+    {
+      "file": "components/security/LockScreen.tsx",
+      "line": 156,
+      "english": "This protects your conversations, memories, and settings on this device.",
+      "suggestedKey": "security.lock.description"
+    },
+    {
+      "file": "components/settings/DataPrivacyCard.tsx",
+      "line": 41,
+      "english": "This will erase your chats, check-ins, emotional insights, and trait history on this device. ",
+      "suggestedKey": "settings.privacy.deleteHistory.warning"
+    },
+    {
+      "file": "app/insights/page.tsx",
+      "line": 220,
+      "english": "Vella reflections are part of Pro plans. Upgrade to unlock full insights.",
+      "suggestedKey": "insights.upgrade.message"
+    },
+    {
+      "file": "app/session/page.tsx",
+      "line": 379,
+      "english": "This audio preset is not available yet.",
+      "suggestedKey": "audio.preset.unavailable"
+    },
+    {
+      "file": "app/check-in/page.tsx",
+      "line": 585,
+      "english": "Quick heuristics from your check-in history while realtime sync recovers.",
+      "suggestedKey": "checkins.loading.fallback"
+    },
+    {
+      "file": "components/settings/PlanSwitcherModal.tsx",
+      "line": 30,
+      "english": "Token-based usage model with a free allowance",
+      "suggestedKey": "plan.switcher.description"
+    },
+    {
+      "file": "components/settings/PlanSwitcherModal.tsx",
+      "line": 90,
+      "english": "Choose your plan",
+      "suggestedKey": "plan.switcher.title"
+    },
+    {
+      "file": "components/settings/PlanSwitcherModal.tsx",
+      "line": 91,
+      "english": "Switch instantly — no checkout required.",
+      "suggestedKey": "plan.switcher.subtitle"
+    },
+    {
+      "file": "components/audio/AudioLibrarySheet.tsx",
+      "line": 127,
+      "english": "Vella audio",
+      "suggestedKey": "audio.library.title"
+    },
+    {
+      "file": "components/audio/AudioLibrarySheet.tsx",
+      "line": 128,
+      "english": "Soft soundscapes while we talk.",
+      "suggestedKey": "audio.library.description"
+    },
+    {
+      "file": "components/audio/AudioLibrarySheet.tsx",
+      "line": 133,
+      "english": "Quick moods",
+      "suggestedKey": "audio.library.category.quickMoods"
+    },
+    {
+      "file": "components/audio/AudioLibrarySheet.tsx",
+      "line": 134,
+      "english": "Tap once to set the room.",
+      "suggestedKey": "audio.library.quickMoods.helper"
+    },
+    {
+      "file": "components/audio/AudioLibrarySheet.tsx",
+      "line": 146,
+      "english": "More sounds",
+      "suggestedKey": "audio.library.moreSounds"
+    },
+    {
+      "file": "components/audio/AudioLibrarySheet.tsx",
+      "line": 219,
+      "english": "Audio is a Pro feature",
+      "suggestedKey": "audio.library.proFeature"
+    },
+    {
+      "file": "lib/audio/vellaAudioCatalog.ts",
+      "line": 32,
+      "english": "Calm me down",
+      "suggestedKey": "audio.preset.calm.label"
+    },
+    {
+      "file": "lib/audio/vellaAudioCatalog.ts",
+      "line": 34,
+      "english": "A soft, slow-breathing wash of gentle pads.",
+      "suggestedKey": "audio.preset.calm.description"
+    },
+    {
+      "file": "lib/audio/vellaAudioCatalog.ts",
+      "line": 62,
+      "english": "Help me focus",
+      "suggestedKey": "audio.preset.focus.label"
+    },
+    {
+      "file": "lib/audio/vellaAudioCatalog.ts",
+      "line": 64,
+      "english": "Subtle pulses that keep you in flow.",
+      "suggestedKey": "audio.preset.focus.description"
+    },
+    {
+      "file": "lib/audio/vellaAudioCatalog.ts",
+      "line": 92,
+      "english": "Sleep wind-down",
+      "suggestedKey": "audio.preset.sleep.label"
+    },
+    {
+      "file": "lib/audio/vellaAudioCatalog.ts",
+      "line": 94,
+      "english": "Night air and hush to settle your body.",
+      "suggestedKey": "audio.preset.sleep.description"
+    },
+    {
+      "file": "lib/audio/vellaAudioCatalog.ts",
+      "line": 119,
+      "english": "Lift my mood",
+      "suggestedKey": "audio.preset.uplift.label"
+    },
+    {
+      "file": "lib/audio/vellaAudioCatalog.ts",
+      "line": 121,
+      "english": "Bright, hopeful hums to ease you forward.",
+      "suggestedKey": "audio.preset.uplift.description"
+    },
+    {
+      "file": "components/ui/InsightsTray.tsx",
+      "line": 71,
+      "english": "Hide",
+      "suggestedKey": "ui.toggle.hide"
+    },
+    {
+      "file": "components/ui/InsightsTray.tsx",
+      "line": 71,
+      "english": "Show",
+      "suggestedKey": "ui.toggle.show"
+    },
+    {
+      "file": "components/ui/InsightsTray.tsx",
+      "line": 122,
+      "english": "Noticed in",
+      "suggestedKey": "insights.tray.noticedIn"
+    },
+    {
+      "file": "components/home/HomeClientPage.tsx",
+      "line": 396,
+      "english": "Vella needs a bit more time with you before patterns appear.",
+      "suggestedKey": "home.patterns.waiting"
+    },
+    {
+      "file": "components/home/HomeClientPage.tsx",
+      "line": 404,
+      "english": "Recent check-ins",
+      "suggestedKey": "home.checkins.recent"
+    },
+    {
+      "file": "components/home/HomeClientPage.tsx",
+      "line": 415,
+      "english": "No recent check-ins yet.",
+      "suggestedKey": "home.checkins.empty"
+    },
+    {
+      "file": "components/check-in/ConnectionProgressCard.tsx",
+      "line": 32,
+      "english": "Bond with Vella",
+      "suggestedKey": "checkins.connection.title"
+    },
+    {
+      "file": "components/check-in/ConnectionProgressCard.tsx",
+      "line": 57,
+      "english": "How to deepen the bond",
+      "suggestedKey": "checkins.connection.deepen.title"
+    },
+    {
+      "file": "components/check-in/ConnectionProgressCard.tsx",
+      "line": 102,
+      "english": "Gathering insights…",
+      "suggestedKey": "checkins.connection.loading"
+    },
+    {
+      "file": "components/voice/HealthChip.tsx",
+      "line": 50,
+      "english": "Vella status",
+      "suggestedKey": "voice.health.status"
+    },
+    {
+      "file": "components/voice/EmotionalStateChip.tsx",
+      "line": 30,
+      "english": "Emotional stance",
+      "suggestedKey": "voice.emotion.stance"
+    },
+    {
+      "file": "components/voice/PredictiveAlertList.tsx",
+      "line": 10,
+      "english": "Predictive alerts",
+      "suggestedKey": "voice.alerts.predictive"
+    },
+    {
+      "file": "components/ui/EmotionalDisplay.tsx",
+      "line": 67,
+      "english": "Emotional climate",
+      "suggestedKey": "ui.emotion.climate"
+    },
+    {
+      "file": "components/insights/StrengthValuesCard.tsx",
+      "line": 27,
+      "english": "What defines and supports you.",
+      "suggestedKey": "insights.strengths.description"
+    },
+    {
+      "file": "components/insights/GrowthRoadmapCard.tsx",
+      "line": 31,
+      "english": "Your personalised guidance.",
+      "suggestedKey": "insights.roadmap.description"
+    },
+    {
+      "file": "components/insights/GrowthRoadmapCard.tsx",
+      "line": 53,
+      "english": "No suggestions yet.",
+      "suggestedKey": "insights.roadmap.empty"
+    },
+    {
+      "file": "components/growth/GrowthPlanSection.tsx",
+      "line": 16,
+      "english": "No suggestions yet.",
+      "suggestedKey": "growth.plan.empty"
+    },
+    {
+      "file": "components/growth/IdentityDevelopmentBlock.tsx",
+      "line": 20,
+      "english": "The person you're becoming.",
+      "suggestedKey": "growth.identity.description"
+    },
+    {
+      "file": "components/growth/IdentityDevelopmentBlock.tsx",
+      "line": 36,
+      "english": "No values highlighted yet.",
+      "suggestedKey": "growth.identity.values.empty"
+    },
+    {
+      "file": "components/growth/IdentityDevelopmentBlock.tsx",
+      "line": 46,
+      "english": "No long-term notes yet.",
+      "suggestedKey": "growth.identity.direction.empty"
+    },
+    {
+      "file": "components/growth/ExecutionPlanBlock.tsx",
+      "line": 31,
+      "english": "Where you're heading and how you get there.",
+      "suggestedKey": "growth.execution.description"
+    },
+    {
+      "file": "components/forecast/ResilienceProjectionBlock.tsx",
+      "line": 20,
+      "english": "How well you can rebound from stress.",
+      "suggestedKey": "forecast.resilience.description"
+    },
+    {
+      "file": "components/forecast/ResilienceProjectionBlock.tsx",
+      "line": 24,
+      "english": "Resilience score",
+      "suggestedKey": "forecast.resilience.score"
+    },
+    {
+      "file": "components/forecast/FatiguePredictionBlock.tsx",
+      "line": 15,
+      "english": "Expected mental tiredness trends.",
+      "suggestedKey": "forecast.fatigue.description"
+    },
+    {
+      "file": "components/forecast/FatiguePredictionBlock.tsx",
+      "line": 19,
+      "english": "Fatigue risk",
+      "suggestedKey": "forecast.fatigue.risk"
+    },
+    {
+      "file": "components/forecast/MotivationVolatilityBlock.tsx",
+      "line": 20,
+      "english": "How stable your motivation is expected to be.",
+      "suggestedKey": "forecast.motivation.description"
+    },
+    {
+      "file": "components/forecast/MotivationVolatilityBlock.tsx",
+      "line": 24,
+      "english": "Stability index",
+      "suggestedKey": "forecast.motivation.stability"
+    },
+    {
+      "file": "components/forecast/MotivationVolatilityBlock.tsx",
+      "line": 34,
+      "english": "Suggested mitigation",
+      "suggestedKey": "forecast.motivation.mitigation"
+    },
+    {
+      "file": "components/forecast/DisciplineForecastBlock.tsx",
+      "line": 20,
+      "english": "Your ability to stay consistent with goals.",
+      "suggestedKey": "forecast.discipline.description"
+    },
+    {
+      "file": "components/forecast/DisciplineForecastBlock.tsx",
+      "line": 24,
+      "english": "Discipline score",
+      "suggestedKey": "forecast.discipline.score"
+    },
+    {
+      "file": "components/forecast/DisciplineForecastBlock.tsx",
+      "line": 34,
+      "english": "Friction points",
+      "suggestedKey": "forecast.discipline.friction"
+    },
+    {
+      "file": "components/forecast/ClarityForecastBlock.tsx",
+      "line": 16,
+      "english": "Predicted mental sharpness over the next 24 hours.",
+      "suggestedKey": "forecast.clarity.description"
+    },
+    {
+      "file": "components/forecast/ClarityForecastBlock.tsx",
+      "line": 20,
+      "english": "Clarity score",
+      "suggestedKey": "forecast.clarity.score"
+    },
+    {
+      "file": "components/forecast/ClarityForecastBlock.tsx",
+      "line": 24,
+      "english": "Peak clarity window",
+      "suggestedKey": "forecast.clarity.peakWindow"
+    },
+    {
+      "file": "components/forecast/ClarityForecastBlock.tsx",
+      "line": 28,
+      "english": "Expected dips",
+      "suggestedKey": "forecast.clarity.dips"
+    },
+    {
+      "file": "components/distortions/ReasoningBlindSpotsBlock.tsx",
+      "line": 21,
+      "english": "Where your thinking might be missing information.",
+      "suggestedKey": "distortions.blindSpots.description"
+    },
+    {
+      "file": "components/distortions/NarrativeScriptsBlock.tsx",
+      "line": 16,
+      "english": "Recurring storylines that shape identity.",
+      "suggestedKey": "distortions.narratives.description"
+    },
+    {
+      "file": "components/distortions/LimitingBeliefsBlock.tsx",
+      "line": 16,
+      "english": "Deep beliefs that hold you back.",
+      "suggestedKey": "distortions.beliefs.description"
+    },
+    {
+      "file": "components/loops/SelfSabotageBlock.tsx",
+      "line": 15,
+      "english": "Behaviours that derail progress.",
+      "suggestedKey": "loops.sabotage.description"
+    },
+    {
+      "file": "components/loops/ProductivityRhythmBlock.tsx",
+      "line": 20,
+      "english": "Your motivational and focus cycles.",
+      "suggestedKey": "loops.productivity.description"
+    },
+    {
+      "file": "components/loops/ProcrastinationBlock.tsx",
+      "line": 20,
+      "english": "Patterns behind delays and avoidance.",
+      "suggestedKey": "loops.procrastination.description"
+    },
+    {
+      "file": "components/loops/HabitLoopsBlock.tsx",
+      "line": 20,
+      "english": "Recurring habits that shape your daily behaviour.",
+      "suggestedKey": "loops.habits.description"
+    },
+    {
+      "file": "components/loops/DecisionLoopsBlock.tsx",
+      "line": 20,
+      "english": "How you navigate choices and uncertainty.",
+      "suggestedKey": "loops.decisions.description"
+    },
+    {
+      "file": "components/themes/SelfBeliefBlock.tsx",
+      "line": 16,
+      "english": "Recurring beliefs shaping your identity.",
+      "suggestedKey": "themes.belief.description"
+    },
+    {
+      "file": "components/identity/BehaviouralTendenciesBlock.tsx",
+      "line": 21,
+      "english": "How you naturally act, decide, and respond.",
+      "suggestedKey": "identity.tendencies.description"
+    },
+    {
+      "file": "components/growth/HabitMomentumBlock.tsx",
+      "line": 15,
+      "english": "Your habits that power your growth.",
+      "suggestedKey": "growth.habits.description"
+    },
+    {
+      "file": "components/growth/HabitMomentumBlock.tsx",
+      "line": 26,
+      "english": "No habits yet.",
+      "suggestedKey": "growth.habits.empty"
+    },
+    {
+      "file": "components/growth/HabitMomentumBlock.tsx",
+      "line": 38,
+      "english": "None surfaced yet.",
+      "suggestedKey": "growth.habits.surfaced.empty"
+    },
+    {
+      "file": "components/themes/LifeThemeItem.tsx",
+      "line": 26,
+      "english": "Why it matters",
+      "suggestedKey": "themes.item.matters"
+    },
+    {
+      "file": "components/identity/NarrativeIdentityBlock.tsx",
+      "line": 28,
+      "english": "Not defined yet.",
+      "suggestedKey": "identity.narrative.belief.empty"
+    },
+    {
+      "file": "components/identity/NarrativeIdentityBlock.tsx",
+      "line": 44,
+      "english": "No trajectory notes yet.",
+      "suggestedKey": "identity.narrative.trajectory.empty"
+    },
+    {
+      "file": "components/themes/LifeChapterBlock.tsx",
+      "line": 24,
+      "english": "No signals yet.",
+      "suggestedKey": "themes.chapter.signals.empty"
+    },
+    {
+      "file": "components/regulation/RegulationStrategyCard.tsx",
+      "line": 40,
+      "english": "When to use it:",
+      "suggestedKey": "regulation.strategy.whenToUse"
+    },
+    {
+      "file": "components/insights/BiasHeatmap.tsx",
+      "line": 20,
+      "english": "Elite preview",
+      "suggestedKey": "insights.bias.eliteBadge"
+    }
+  ],
+  "totalMissing": 145,
+  "dictionaryFiles": {
+    "en.ts": [
+      "common.close",
+      "nav.home",
+      "nav.checkins",
+      "nav.talk",
+      "nav.timeline",
+      "nav.settings",
+      "home.title",
+      "home.subtitle",
+      "home.greeting.lateNight",
+      "home.greeting.morning",
+      "home.greeting.afternoon",
+      "home.greeting.evening",
+      "home.greeting.night",
+      "home.mood.empty",
+      "home.mood.low",
+      "home.mood.mixed",
+      "home.mood.positive",
+      "home.weeklyInsight.empty.title",
+      "home.weeklyInsight.empty.body",
+      "home.snapshot.title",
+      "home.snapshot.withEmotion",
+      "home.snapshot.empty",
+      "home.snapshot.reason",
+      "home.actions.talk.title",
+      "home.actions.talk.subtitle",
+      "home.actions.checkin.title",
+      "home.actions.checkin.subtitle",
+      "home.actions.exercises.title",
+      "home.actions.exercises.subtitle",
+      "home.guidance.title",
+      "home.guidance.subtitle",
+      "home.guidance.timeline",
+      "home.guidance.insights",
+      "home.energy.calm",
+      "home.energy.focus",
+      "home.energy.energy",
+      "home.energy.title",
+      "home.energy.empty",
+      "home.energy.null",
+      "home.weeklyInsight.label",
+      "home.weeklyInsight.cta",
+      "checkins.title",
+      "checkins.subtitle",
+      "checkins.start",
+      "checkins.loading",
+      "checkins.sliders.mood.label",
+      "checkins.sliders.mood.min",
+      "checkins.sliders.mood.max",
+      "checkins.sliders.energy.label",
+      "checkins.sliders.stress.label",
+      "checkins.sliders.stress.min",
+      "checkins.sliders.focus.label",
+      "checkins.sliders.focus.min",
+      "checkins.sliders.focus.max",
+      "checkins.note.label",
+      "checkins.note.placeholder",
+      "checkins.stoic.title",
+      "checkins.saved",
+      "checkins.updateReminder",
+      "checkins.recent.title",
+      "checkins.recent.days",
+      "checkins.reflections.title",
+      "checkins.empty",
+      "checkins.patterns.commonEmotions",
+      "checkins.patterns.commonTriggers",
+      "checkins.patterns.commonFears",
+      "session.title",
+      "session.input.placeholder",
+      "session.subtitle",
+      "session.welcome.message",
+      "session.loading",
+      "session.plan.free.features.checkins",
+      "session.plan.free.features.insights",
+      "session.plan.free.features.timeline",
+      "session.plan.free.features.exercises",
+      "session.plan.free.features.memory",
+      "session.plan.free.title",
+      "session.plan.free.description",
+      "session.plan.free.cta",
+      "session.error.gettingReady.title",
+      "session.error.gettingReady.message",
+      "session.error.plusFeature.title",
+      "session.error.plusFeature.message",
+      "session.error.plusFeature.highlight",
+      "session.error.limitReached.title",
+      "session.error.limitReached.message",
+      "session.error.limitReached.highlight",
+      "session.error.generic",
+      "session.close.ariaLabel",
+      "session.tone.label",
+      "session.messages.remaining",
+      "session.voice.recentThread",
+      "session.message.user",
+      "session.message.assistant",
+      "session.voice.instruction",
+      "session.mode.text",
+      "session.mode.voice",
+      "session.voice.stop",
+      "session.voice.start",
+      "session.voice.disclaimer",
+      "session.actions.showPatterns",
+      "session.monitoring.stability",
+      "session.monitoring.delivery",
+      "session.monitoring.stable",
+      "session.monitoring.highDrift",
+      "session.monitoring.warmingUp",
+      "session.monitoring.systemsNominal",
+      "session.monitoring.incidentDetected",
+      "session.monitoring.restored",
+      "session.monitoring.noBackupYet",
+      "session.monitoring.tension",
+      "timeline.title",
+      "timeline.subtitle",
+      "timeline.filters.all",
+      "timeline.filters.decision",
+      "timeline.filters.relationship",
+      "timeline.filters.overthinking",
+      "timeline.filters.emotionalCalm",
+      "timeline.filters.conflict",
+      "timeline.filters.direction",
+      "timeline.time.minutes",
+      "timeline.time.hours",
+      "timeline.time.days",
+      "timeline.time.weeks",
+      "timeline.time.months",
+      "timeline.mock.entry1.title",
+      "timeline.mock.entry1.description",
+      "timeline.mock.entry2.title",
+      "timeline.mock.entry2.description",
+      "timeline.mock.entry3.title",
+      "timeline.mock.entry3.description",
+      "settings.title",
+      "settings.subtitle",
+      "settings.section.uiLanguage",
+      "settings.section.vellaLanguage",
+      "settings.section.theme",
+      "settings.section.notifications",
+      "settings.vellaLanguage.description",
+      "settings.plan.upgrade",
+      "settings.plan.change",
+      "settings.plan.viewPlans",
+      "settings.plan.billingError",
+      "settings.plan.tokenStatus.needsAttention",
+      "settings.plan.tokenStatus.runningLow",
+      "settings.plan.tokenStatus.allGood",
+      "settings.plan.metrics.monthlyAllocation",
+      "settings.plan.metrics.purchasedPacks",
+      "settings.plan.metrics.usedThisCycle",
+      "settings.plan.metrics.purchasedTokens",
+      "settings.plan.metrics.usage",
+      "settings.plan.tokensRemaining",
+      "settings.plan.outOfTokens",
+      "settings.plan.lowTokens",
+      "settings.voice.luna.description",
+      "settings.voice.aira.description",
+      "settings.voice.sol.description",
+      "settings.voice.orion.description",
+      "settings.language.title",
+      "settings.language.description",
+      "privacy.title",
+      "privacy.description",
+      "privacy.anonymize.label",
+      "privacy.training.label",
+      "privacy.encryption.info",
+      "privacy.archive.download",
+      "privacy.history.delete",
+      "tone.soft.title",
+      "tone.soft.description",
+      "tone.warm.title",
+      "tone.warm.description",
+      "tone.direct.title",
+      "tone.direct.description",
+      "tone.stoic.title",
+      "tone.stoic.description",
+      "tone.selector.helper",
+      "tone.selector.active",
+      "tone.selector.info",
+      "profile.title",
+      "profile.subtitle",
+      "profile.defaultName",
+      "profile.name.label",
+      "profile.name.placeholder",
+      "profile.vellaLanguage.label",
+      "profile.vellaLanguage.description",
+      "profile.theme.label",
+      "profile.theme.description",
+      "profile.preferences.title",
+      "profile.preferences.notifications",
+      "profile.preferences.privacy",
+      "profile.preferences.support",
+      "profile.plan.premium.title",
+      "profile.plan.premium.message",
+      "profile.plan.premium.cta",
+      "profile.plan.free.title",
+      "profile.plan.free.message",
+      "profile.plan.free.cta",
+      "pricing.title",
+      "pricing.heading",
+      "pricing.subtitle",
+      "pricing.close.ariaLabel",
+      "pricing.badge.loved",
+      "pricing.period",
+      "pricing.button.current",
+      "pricing.button.choose",
+      "insights.title",
+      "insights.loading",
+      "insights.heading",
+      "insights.subtitle",
+      "insights.empty",
+      "insights.card.kind.today",
+      "insights.card.action.prefix",
+      "insights.predictive.title",
+      "insights.predictive.badge",
+      "insights.predictive.description",
+      "compass.title",
+      "compass.close.ariaLabel",
+      "compass.heading",
+      "compass.subtitle",
+      "compass.input.placeholder",
+      "compass.cta",
+      "compass.loading",
+      "compass.results.immediateSteps",
+      "compass.results.reframe",
+      "compass.results.avoid",
+      "exercises.title",
+      "exercises.comingSoon",
+      "exercises.description",
+      "onboarding.name.step",
+      "onboarding.name.title",
+      "onboarding.name.subtitle",
+      "onboarding.name.input.placeholder",
+      "onboarding.relationship.step",
+      "onboarding.relationship.title",
+      "onboarding.relationship.subtitle",
+      "onboarding.relationship.options.bestFriend",
+      "onboarding.relationship.options.mentor",
+      "onboarding.relationship.options.bigSister",
+      "onboarding.relationship.options.littleSister",
+      "onboarding.relationship.options.softPartner",
+      "onboarding.relationship.options.playfulPartner",
+      "onboarding.relationship.options.other",
+      "onboarding.feeling.options.calm",
+      "onboarding.feeling.options.anxious",
+      "onboarding.feeling.options.sad",
+      "onboarding.feeling.options.confused",
+      "onboarding.feeling.options.stressed",
+      "onboarding.feeling.options.neutral",
+      "onboarding.feeling.step",
+      "onboarding.feeling.title",
+      "onboarding.feeling.subtitle",
+      "onboarding.reason.step",
+      "onboarding.reason.title",
+      "onboarding.reason.subtitle",
+      "onboarding.reason.focus.emotionalSupport.title",
+      "onboarding.reason.focus.emotionalSupport.subtitle",
+      "onboarding.reason.focus.selfMastery.title",
+      "onboarding.reason.focus.selfMastery.subtitle",
+      "onboarding.reason.focus.stoicWisdom.title",
+      "onboarding.reason.focus.stoicWisdom.subtitle",
+      "onboarding.reason.focus.lifeDecisions.title",
+      "onboarding.reason.focus.lifeDecisions.subtitle",
+      "onboarding.reason.custom.placeholder",
+      "onboarding.reason.presets.clarity",
+      "onboarding.reason.presets.overwhelmed",
+      "onboarding.reason.presets.understanding",
+      "onboarding.vella.step",
+      "onboarding.vella.title",
+      "onboarding.vella.body.intro",
+      "onboarding.vella.body.emotionalSupport",
+      "onboarding.vella.body.selfMastery",
+      "onboarding.vella.body.stoicWisdom",
+      "onboarding.vella.description.p1",
+      "onboarding.vella.description.p2",
+      "onboarding.vella.greeting",
+      "onboarding.vella.greetingNamed",
+      "onboarding.vella.greetingDefault",
+      "onboarding.vella.privacyNote",
+      "onboarding.vella.cta",
+      "onboarding.done.step",
+      "onboarding.done.title",
+      "onboarding.done.subtitle",
+      "onboarding.done.cta",
+      "chat.send",
+      "chat.voice.ariaLabel",
+      "voice.listening",
+      "voice.ready",
+      "voice.capture.title",
+      "voice.capture.description",
+      "voice.capture.transcribing",
+      "voice.capture.stop",
+      "voice.capture.process",
+      "voice.state.listening",
+      "voice.state.thinking",
+      "voice.state.paused",
+      "voice.state.ready",
+      "voice.startSession",
+      "voice.startSession.ariaLabel",
+      "voice.openAudioLibrary.ariaLabel",
+      "inputs.situation.placeholder",
+      "inputs.situation.voice.ariaLabel",
+      "modal.frame.title",
+      "modal.frame.description",
+      "modal.frame.save",
+      "modal.frame.fields.happened.label",
+      "modal.frame.fields.happened.helper",
+      "modal.frame.fields.feelings.label",
+      "modal.frame.fields.feelings.helper",
+      "modal.frame.fields.outcome.label",
+      "modal.frame.fields.outcome.helper",
+      "modal.frame.fields.fear.label",
+      "modal.frame.fields.fear.helper",
+      "upgrade.cta.default",
+      "upgrade.cancel.default",
+      "plan.status.label",
+      "plan.status.free",
+      "plan.status.plus",
+      "plan.status.elite",
+      "plan.status.default",
+      "plan.card.free.title",
+      "plan.card.free.subtitle",
+      "plan.card.plus.title",
+      "plan.card.plus.subtitle",
+      "plan.card.elite.title",
+      "plan.card.elite.subtitle",
+      "plan.card.default.title",
+      "plan.card.default.subtitle",
+      "plan.card.renews",
+      "plan.card.manage",
+      "common.save",
+      "common.cancel",
+      "common.today",
+      "common.yes",
+      "common.no",
+      "common.continue",
+      "common.processing",
+      "common.recently",
+      "common.synced",
+      "patterns.insight.noHistory",
+      "patterns.insight.emotions",
+      "patterns.insight.triggers",
+      "patterns.insight.fears",
+      "patterns.insight.noPatterns",
+      "patterns.insight.learning",
+      "strategy.label",
+      "strategy.reflect",
+      "strategy.summarise",
+      "strategy.summarize",
+      "strategy.askFollowup",
+      "strategy.offerReflection",
+      "strategy.giveClarity",
+      "strategy.lightenTone",
+      "strategy.probeGently",
+      "strategy.shiftTopic",
+      "strategy.stayBrief",
+      "strategy.comfort",
+      "strategy.clarify",
+      "strategy.plan",
+      "strategy.adaptive",
+      "connection.insights.liveSignals",
+      "connection.insights.recentHighlights",
+      "connection.suggestions.liveNudges",
+      "connection.suggestions.tips",
+      "connection.patterns.recurringEmotions",
+      "connection.patterns.commonTriggers",
+      "connection.patterns.underlyingFears",
+      "growth.awaitingSync"
+    ],
+    "es.ts": ["[Same keys as en.ts - partial translations]"],
+    "fr.ts": ["[Same keys as en.ts - partial translations]"],
+    "pt.ts": ["[Same keys as en.ts - partial translations]"],
+    "ar.ts": ["[Same keys as en.ts - partial translations]"],
+    "ja.ts": ["[Same keys as en.ts - partial translations]"]
+  }
+}
+

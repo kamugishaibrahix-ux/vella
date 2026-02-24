@@ -1,0 +1,13 @@
+﻿home.snapshot.reason
+onboarding.name.input.placeholder
+onboarding.name.subtitle
+onboarding.relationship.options.bestFriend
+onboarding.relationship.options.bigSister
+onboarding.relationship.options.littleSister
+onboarding.relationship.options.mentor
+onboarding.relationship.options.other
+onboarding.relationship.options.playfulPartner
+onboarding.relationship.options.softPartner
+onboarding.relationship.step
+onboarding.relationship.subtitle
+onboarding.relationship.title

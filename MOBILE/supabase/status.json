@@ -1,0 +1,25 @@
+{
+  "version": "3.0",
+  "currents": [],
+  "applied": [
+    "20241117_add_core_tables.sql",
+    "20250217_token_engine.sql",
+    "20250218_add_adaptive_traits.sql",
+    "20250218_add_checkin_metrics.sql",
+    "20250218_add_goals.sql",
+    "20250219_add_nudge_history.sql",
+    "20250220_micro_rag_cache.sql",
+    "20250220_progress_connection.sql",
+    "20250220_progress.sql",
+    "20250220_social_model.sql",
+    "20250220_vella_personality.sql",
+    "20250221_connection_depth.sql",
+    "20250221_last_active.sql",
+    "20250221_progress_connection_schema.sql",
+    "20250222_add_last_active_at.sql",
+    "20250223_remove_checkin_note.sql",
+    "20251220_add_vella_settings_language.sql",
+    "20250101_drop_sensitive_tables.sql"
+  ]
+}
+

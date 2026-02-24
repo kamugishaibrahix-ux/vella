@@ -1,0 +1,61 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  /* Light mode first – soft neutral background */
+  --vella-bg: #f5f5f4;
+  --vella-bg-card: #ffffff;
+  --vella-border: #e7e5e4;
+  --vella-text: #1c1917;
+  --vella-muted: #78716c;
+  --vella-muted-strong: #57534e;
+
+  /* Primary (signature sage from Home heart/CTA) */
+  --vella-primary: #2E6B5F;
+  --vella-primary-hover: #2B6559;
+  --vella-primary-active: #296056;
+  --vella-primary-muted: rgba(46, 107, 95, 0.15);
+
+  /* Accent derived from primary (app-wide except Session) */
+  --vella-accent: var(--vella-primary);
+  --vella-accent-soft: #e8f0ea;
+  --vella-accent-muted: #6b8f6e;
+
+  /* Layout */
+  --bottom-nav-height: calc(80px + env(safe-area-inset-bottom, 0px));
+
+  /* Surfaces */
+  --vella-radius-card: 22px;
+  --vella-radius-button: 14px;
+  --vella-radius-pill: 9999px;
+  --vella-elevation: 0 2px 8px rgba(0, 0, 0, 0.06);
+  --vella-elevation-hover: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.dark {
+  --vella-bg: #1c1917;
+  --vella-bg-card: #292524;
+  --vella-border: #44403c;
+  --vella-text: #fafaf9;
+  --vella-muted: #a8a29e;
+  --vella-muted-strong: #d6d3d1;
+  --vella-accent: var(--vella-primary);
+  --vella-accent-soft: #1a2e1f;
+  --vella-accent-muted: #6b8f6e;
+}
+
+@layer base {
+  body {
+    @apply antialiased;
+    background-color: var(--vella-bg);
+    color: var(--vella-text);
+  }
+}
+
+/* Press animation for cards/buttons */
+@layer utilities {
+  .pressable {
+    @apply transition-transform active:scale-[0.98];
+  }
+}

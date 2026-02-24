@@ -1,0 +1,1979 @@
+{
+  "summary": {
+    "totalViolations": 127,
+    "visibleToUser": 98,
+    "background": 29,
+    "blocksLanguageSwitching": 45,
+    "mockDataRequiringRework": 18,
+    "byCategory": {
+      "jsx-text": 67,
+      "mock-data": 18,
+      "static-config": 42
+    }
+  },
+  "violations": [
+    {
+      "file": "components/chat/ChatPanel.tsx",
+      "line": 207,
+      "english": "Recording… {formatTime(recordSeconds)}",
+      "reason": "jsx-text",
+      "suggestedKey": "chat.recording.status"
+    },
+    {
+      "file": "components/chat/ChatPanel.tsx",
+      "line": 214,
+      "english": "Stop",
+      "reason": "jsx-text",
+      "suggestedKey": "chat.recording.stop"
+    },
+    {
+      "file": "components/chat/ChatPanel.tsx",
+      "line": 258,
+      "english": "💡 Ask for advice",
+      "reason": "mock-data",
+      "suggestedKey": "chat.quickActions.askAdvice.label"
+    },
+    {
+      "file": "components/chat/ChatPanel.tsx",
+      "line": 258,
+      "english": "Vella, I'd like some advice on what I just shared—what do you suggest?",
+      "reason": "mock-data",
+      "suggestedKey": "chat.quickActions.askAdvice.text"
+    },
+    {
+      "file": "components/chat/ChatPanel.tsx",
+      "line": 259,
+      "english": "📝 Summarise this",
+      "reason": "mock-data",
+      "suggestedKey": "chat.quickActions.summarise.label"
+    },
+    {
+      "file": "components/chat/ChatPanel.tsx",
+      "line": 259,
+      "english": "Vella, can you summarise what I've shared so far in a few sentences?",
+      "reason": "mock-data",
+      "suggestedKey": "chat.quickActions.summarise.text"
+    },
+    {
+      "file": "components/chat/ChatPanel.tsx",
+      "line": 260,
+      "english": "🪞 Help me reflect",
+      "reason": "mock-data",
+      "suggestedKey": "chat.quickActions.reflect.label"
+    },
+    {
+      "file": "components/chat/ChatPanel.tsx",
+      "line": 260,
+      "english": "Vella, help me reflect on this experience and what I might learn from it.",
+      "reason": "mock-data",
+      "suggestedKey": "chat.quickActions.reflect.text"
+    },
+    {
+      "file": "components/chat/ChatPanel.tsx",
+      "line": 261,
+      "english": "📖 Tell me a story",
+      "reason": "mock-data",
+      "suggestedKey": "chat.quickActions.story.label"
+    },
+    {
+      "file": "components/chat/ChatPanel.tsx",
+      "line": 261,
+      "english": "Vella, tell me a short story that relates to my current mood.",
+      "reason": "mock-data",
+      "suggestedKey": "chat.quickActions.story.text"
+    },
+    {
+      "file": "components/settings/PlanSwitcherModal.tsx",
+      "line": 24,
+      "english": "Free",
+      "reason": "static-config",
+      "suggestedKey": "plans.free.title"
+    },
+    {
+      "file": "components/settings/PlanSwitcherModal.tsx",
+      "line": 25,
+      "english": "Stay grounded with daily check-ins and the sentiment timeline.",
+      "reason": "static-config",
+      "suggestedKey": "plans.free.description"
+    },
+    {
+      "file": "components/settings/PlanSwitcherModal.tsx",
+      "line": 27,
+      "english": "Daily emotional check-ins",
+      "reason": "static-config",
+      "suggestedKey": "plans.free.benefits.checkins"
+    },
+    {
+      "file": "components/settings/PlanSwitcherModal.tsx",
+      "line": 28,
+      "english": "Sentiment timeline (30-day view)",
+      "reason": "static-config",
+      "suggestedKey": "plans.free.benefits.timeline"
+    },
+    {
+      "file": "components/settings/PlanSwitcherModal.tsx",
+      "line": 29,
+      "english": "Starter reflection engine prompts",
+      "reason": "static-config",
+      "suggestedKey": "plans.free.benefits.reflection"
+    },
+    {
+      "file": "components/settings/PlanSwitcherModal.tsx",
+      "line": 30,
+      "english": "Token-based usage model with a free allowance",
+      "reason": "static-config",
+      "suggestedKey": "plans.free.benefits.tokens"
+    },
+    {
+      "file": "components/settings/PlanSwitcherModal.tsx",
+      "line": 35,
+      "english": "Pro",
+      "reason": "static-config",
+      "suggestedKey": "plans.pro.title"
+    },
+    {
+      "file": "components/settings/PlanSwitcherModal.tsx",
+      "line": 36,
+      "english": "Unlock realtime voice sessions and the emotional patterns engine.",
+      "reason": "static-config",
+      "suggestedKey": "plans.pro.description"
+    },
+    {
+      "file": "components/settings/PlanSwitcherModal.tsx",
+      "line": 38,
+      "english": "Everything in Free",
+      "reason": "static-config",
+      "suggestedKey": "plans.pro.benefits.includesFree"
+    },
+    {
+      "file": "components/settings/PlanSwitcherModal.tsx",
+      "line": 39,
+      "english": "Realtime voice sessions with Vella",
+      "reason": "static-config",
+      "suggestedKey": "plans.pro.benefits.voice"
+    },
+    {
+      "file": "components/settings/PlanSwitcherModal.tsx",
+      "line": 40,
+      "english": "Emotional patterns engine insights",
+      "reason": "static-config",
+      "suggestedKey": "plans.pro.benefits.patterns"
+    },
+    {
+      "file": "components/settings/PlanSwitcherModal.tsx",
+      "line": 41,
+      "english": "Full reflection engine for long-form entries",
+      "reason": "static-config",
+      "suggestedKey": "plans.pro.benefits.reflection"
+    },
+    {
+      "file": "components/settings/PlanSwitcherModal.tsx",
+      "line": 42,
+      "english": "Expanded token balance for AI actions",
+      "reason": "static-config",
+      "suggestedKey": "plans.pro.benefits.tokens"
+    },
+    {
+      "file": "components/settings/PlanSwitcherModal.tsx",
+      "line": 47,
+      "english": "Elite",
+      "reason": "static-config",
+      "suggestedKey": "plans.elite.title"
+    },
+    {
+      "file": "components/settings/PlanSwitcherModal.tsx",
+      "line": 48,
+      "english": "Get the full growth roadmap AI with advanced analytics and tokens.",
+      "reason": "static-config",
+      "suggestedKey": "plans.elite.description"
+    },
+    {
+      "file": "components/settings/PlanSwitcherModal.tsx",
+      "line": 50,
+      "english": "Everything in Pro",
+      "reason": "static-config",
+      "suggestedKey": "plans.elite.benefits.includesPro"
+    },
+    {
+      "file": "components/settings/PlanSwitcherModal.tsx",
+      "line": 51,
+      "english": "Growth roadmap AI & personal planning",
+      "reason": "static-config",
+      "suggestedKey": "plans.elite.benefits.roadmap"
+    },
+    {
+      "file": "components/settings/PlanSwitcherModal.tsx",
+      "line": 52,
+      "english": "Advanced sentiment timeline & forecasting",
+      "reason": "static-config",
+      "suggestedKey": "plans.elite.benefits.forecast"
+    },
+    {
+      "file": "components/settings/PlanSwitcherModal.tsx",
+      "line": 53,
+      "english": "Priority realtime voice routing",
+      "reason": "static-config",
+      "suggestedKey": "plans.elite.benefits.priority"
+    },
+    {
+      "file": "components/settings/PlanSwitcherModal.tsx",
+      "line": 54,
+      "english": "Largest token allocation + rollover buffer",
+      "reason": "static-config",
+      "suggestedKey": "plans.elite.benefits.tokens"
+    },
+    {
+      "file": "components/settings/PlanSwitcherModal.tsx",
+      "line": 90,
+      "english": "Choose your plan",
+      "reason": "jsx-text",
+      "suggestedKey": "plans.selector.title"
+    },
+    {
+      "file": "components/settings/PlanSwitcherModal.tsx",
+      "line": 91,
+      "english": "Switch instantly — no checkout required.",
+      "reason": "jsx-text",
+      "suggestedKey": "plans.selector.subtitle"
+    },
+    {
+      "file": "components/settings/PlanSwitcherModal.tsx",
+      "line": 98,
+      "english": "Close",
+      "reason": "jsx-text",
+      "suggestedKey": "common.close"
+    },
+    {
+      "file": "components/settings/PlanSwitcherModal.tsx",
+      "line": 125,
+      "english": "Current",
+      "reason": "jsx-text",
+      "suggestedKey": "plans.selector.current"
+    },
+    {
+      "file": "app/settings/account-plan/page.tsx",
+      "line": 30,
+      "english": "Small Pack",
+      "reason": "static-config",
+      "suggestedKey": "tokens.packs.small.title"
+    },
+    {
+      "file": "app/settings/account-plan/page.tsx",
+      "line": 30,
+      "english": "+5,000 tokens",
+      "reason": "static-config",
+      "suggestedKey": "tokens.packs.small.amount"
+    },
+    {
+      "file": "app/settings/account-plan/page.tsx",
+      "line": 30,
+      "english": "$4.99",
+      "reason": "static-config",
+      "suggestedKey": "tokens.packs.small.price"
+    },
+    {
+      "file": "app/settings/account-plan/page.tsx",
+      "line": 31,
+      "english": "Medium Pack",
+      "reason": "static-config",
+      "suggestedKey": "tokens.packs.medium.title"
+    },
+    {
+      "file": "app/settings/account-plan/page.tsx",
+      "line": 31,
+      "english": "+20,000 tokens",
+      "reason": "static-config",
+      "suggestedKey": "tokens.packs.medium.amount"
+    },
+    {
+      "file": "app/settings/account-plan/page.tsx",
+      "line": 31,
+      "english": "$14.99",
+      "reason": "static-config",
+      "suggestedKey": "tokens.packs.medium.price"
+    },
+    {
+      "file": "app/settings/account-plan/page.tsx",
+      "line": 32,
+      "english": "Large Pack",
+      "reason": "static-config",
+      "suggestedKey": "tokens.packs.large.title"
+    },
+    {
+      "file": "app/settings/account-plan/page.tsx",
+      "line": 32,
+      "english": "+100,000 tokens",
+      "reason": "static-config",
+      "suggestedKey": "tokens.packs.large.amount"
+    },
+    {
+      "file": "app/settings/account-plan/page.tsx",
+      "line": 32,
+      "english": "$49.99",
+      "reason": "static-config",
+      "suggestedKey": "tokens.packs.large.price"
+    },
+    {
+      "file": "app/settings/account-plan/page.tsx",
+      "line": 37,
+      "english": "Free Plan",
+      "reason": "static-config",
+      "suggestedKey": "plans.free.label"
+    },
+    {
+      "file": "app/settings/account-plan/page.tsx",
+      "line": 38,
+      "english": "Pro Plan",
+      "reason": "static-config",
+      "suggestedKey": "plans.pro.label"
+    },
+    {
+      "file": "app/settings/account-plan/page.tsx",
+      "line": 39,
+      "english": "Elite Plan",
+      "reason": "static-config",
+      "suggestedKey": "plans.elite.label"
+    },
+    {
+      "file": "app/settings/account-plan/page.tsx",
+      "line": 91,
+      "english": "Loading…",
+      "reason": "jsx-text",
+      "suggestedKey": "common.loading"
+    },
+    {
+      "file": "app/settings/account-plan/page.tsx",
+      "line": 105,
+      "english": "We could not load your plan details right now. Please try again later.",
+      "reason": "jsx-text",
+      "suggestedKey": "settings.plan.loadError"
+    },
+    {
+      "file": "app/settings/account-plan/page.tsx",
+      "line": 224,
+      "english": "Account",
+      "reason": "jsx-text",
+      "suggestedKey": "settings.account.title"
+    },
+    {
+      "file": "app/settings/account-plan/page.tsx",
+      "line": 225,
+      "english": "Manage your profile and personal settings.",
+      "reason": "jsx-text",
+      "suggestedKey": "settings.account.description"
+    },
+    {
+      "file": "app/settings/account-plan/page.tsx",
+      "line": 231,
+      "english": "Manage Profile",
+      "reason": "jsx-text",
+      "suggestedKey": "settings.account.manageProfile"
+    },
+    {
+      "file": "app/settings/account-plan/page.tsx",
+      "line": 238,
+      "english": "Account & plan",
+      "reason": "jsx-text",
+      "suggestedKey": "settings.accountPlan.section"
+    },
+    {
+      "file": "app/settings/account-plan/page.tsx",
+      "line": 239,
+      "english": "Manage your subscription and usage.",
+      "reason": "jsx-text",
+      "suggestedKey": "settings.accountPlan.description"
+    },
+    {
+      "file": "app/settings/account-plan/page.tsx",
+      "line": 243,
+      "english": "Current plan",
+      "reason": "jsx-text",
+      "suggestedKey": "settings.plan.current"
+    },
+    {
+      "file": "app/settings/account-plan/page.tsx",
+      "line": 246,
+      "english": "Renews {planPeriodEndText}",
+      "reason": "jsx-text",
+      "suggestedKey": "settings.plan.renews"
+    },
+    {
+      "file": "app/settings/account-plan/page.tsx",
+      "line": 315,
+      "english": "Token Packs",
+      "reason": "jsx-text",
+      "suggestedKey": "tokens.packs.title"
+    },
+    {
+      "file": "app/settings/account-plan/page.tsx",
+      "line": 316,
+      "english": "Top up whenever you need an extra burst.",
+      "reason": "jsx-text",
+      "suggestedKey": "tokens.packs.description"
+    },
+    {
+      "file": "app/settings/account-plan/page.tsx",
+      "line": 336,
+      "english": "Buy Tokens",
+      "reason": "jsx-text",
+      "suggestedKey": "tokens.packs.buy"
+    },
+    {
+      "file": "app/settings/account-plan/page.tsx",
+      "line": 348,
+      "english": "View Usage & Purchase History",
+      "reason": "jsx-text",
+      "suggestedKey": "settings.history.view"
+    },
+    {
+      "file": "app/settings/account-plan/page.tsx",
+      "line": 375,
+      "english": "Settings",
+      "reason": "jsx-text",
+      "suggestedKey": "settings.title"
+    },
+    {
+      "file": "app/settings/account-plan/page.tsx",
+      "line": 376,
+      "english": "Account & Plan",
+      "reason": "jsx-text",
+      "suggestedKey": "settings.accountPlan.title"
+    },
+    {
+      "file": "app/settings/account-plan/page.tsx",
+      "line": 377,
+      "english": "Your access, balance, and benefits",
+      "reason": "jsx-text",
+      "suggestedKey": "settings.accountPlan.subtitle"
+    },
+    {
+      "file": "app/settings/account-plan/page.tsx",
+      "line": 412,
+      "english": "Token balance",
+      "reason": "jsx-text",
+      "suggestedKey": "tokens.balance.title"
+    },
+    {
+      "file": "app/settings/account-plan/page.tsx",
+      "line": 413,
+      "english": "Automatically renews each cycle",
+      "reason": "jsx-text",
+      "suggestedKey": "tokens.balance.renewal"
+    },
+    {
+      "file": "app/settings/account-plan/page.tsx",
+      "line": 433,
+      "english": "tokens remaining this cycle",
+      "reason": "jsx-text",
+      "suggestedKey": "tokens.balance.remaining"
+    },
+    {
+      "file": "app/settings/account-plan/page.tsx",
+      "line": 463,
+      "english": "Quick add 5,000 tokens",
+      "reason": "jsx-text",
+      "suggestedKey": "tokens.quickAdd"
+    },
+    {
+      "file": "app/settings/account-plan/page.tsx",
+      "line": 488,
+      "english": "Voice / realtime usage",
+      "reason": "jsx-text",
+      "suggestedKey": "settings.voiceUsage.title"
+    },
+    {
+      "file": "app/settings/account-plan/page.tsx",
+      "line": 489,
+      "english": "Live session estimates only – duration, token consumption, and cost.",
+      "reason": "jsx-text",
+      "suggestedKey": "settings.voiceUsage.description"
+    },
+    {
+      "file": "app/settings/account-plan/page.tsx",
+      "line": 494,
+      "english": "Show in voice mode",
+      "reason": "jsx-text",
+      "suggestedKey": "settings.voiceUsage.showInVoice"
+    },
+    {
+      "file": "app/settings/account-plan/page.tsx",
+      "line": 505,
+      "english": "Duration",
+      "reason": "jsx-text",
+      "suggestedKey": "settings.voiceUsage.duration"
+    },
+    {
+      "file": "app/settings/account-plan/page.tsx",
+      "line": 509,
+      "english": "Tokens (est.)",
+      "reason": "jsx-text",
+      "suggestedKey": "settings.voiceUsage.tokens"
+    },
+    {
+      "file": "app/settings/account-plan/page.tsx",
+      "line": 513,
+      "english": "Cost (est.)",
+      "reason": "jsx-text",
+      "suggestedKey": "settings.voiceUsage.cost"
+    },
+    {
+      "file": "app/settings/account-plan/page.tsx",
+      "line": 554,
+      "english": "Token usage",
+      "reason": "jsx-text",
+      "suggestedKey": "settings.history.usage.title"
+    },
+    {
+      "file": "app/settings/account-plan/page.tsx",
+      "line": 557,
+      "english": "Loading usage…",
+      "reason": "jsx-text",
+      "suggestedKey": "settings.history.usage.loading"
+    },
+    {
+      "file": "app/settings/account-plan/page.tsx",
+      "line": 561,
+      "english": "No usage recorded this cycle.",
+      "reason": "jsx-text",
+      "suggestedKey": "settings.history.usage.empty"
+    },
+    {
+      "file": "app/settings/account-plan/page.tsx",
+      "line": 578,
+      "english": "Token purchases",
+      "reason": "jsx-text",
+      "suggestedKey": "settings.history.purchases.title"
+    },
+    {
+      "file": "app/settings/account-plan/page.tsx",
+      "line": 581,
+      "english": "Loading purchases…",
+      "reason": "jsx-text",
+      "suggestedKey": "settings.history.purchases.loading"
+    },
+    {
+      "file": "app/settings/account-plan/page.tsx",
+      "line": 585,
+      "english": "No purchases yet.",
+      "reason": "jsx-text",
+      "suggestedKey": "settings.history.purchases.empty"
+    },
+    {
+      "file": "app/settings/account-plan/page.tsx",
+      "line": 602,
+      "english": "Subscription renewals",
+      "reason": "jsx-text",
+      "suggestedKey": "settings.history.renewals.title"
+    },
+    {
+      "file": "app/settings/account-plan/page.tsx",
+      "line": 604,
+      "english": "Manage renewals in the plan switcher or via your Stripe portal.",
+      "reason": "jsx-text",
+      "suggestedKey": "settings.history.renewals.description"
+    },
+    {
+      "file": "app/settings/account-plan/page.tsx",
+      "line": 630,
+      "english": "Token pack completed",
+      "reason": "jsx-text",
+      "suggestedKey": "settings.history.packCompleted"
+    },
+    {
+      "file": "app/settings/account-plan/page.tsx",
+      "line": 630,
+      "english": "Pending token pack",
+      "reason": "jsx-text",
+      "suggestedKey": "settings.history.packPending"
+    },
+    {
+      "file": "components/settings/DataPrivacyCard.tsx",
+      "line": 42,
+      "english": "Your plan, tokens, and app settings will stay the same.\\n\\nDo you want to reset your Vella history on this device?",
+      "reason": "jsx-text",
+      "suggestedKey": "settings.privacy.deleteHistory.confirm"
+    },
+    {
+      "file": "components/settings/DataPrivacyCard.tsx",
+      "line": 93,
+      "english": "Reset Vella history",
+      "reason": "jsx-text",
+      "suggestedKey": "settings.privacy.deleteHistory.button"
+    },
+    {
+      "file": "components/settings/DataPrivacyCard.tsx",
+      "line": 98,
+      "english": "Reset Vella's history on this device. This clears check-ins, journals, chats, emotional insights and traits, but keeps your plan, tokens, and settings.",
+      "reason": "jsx-text",
+      "suggestedKey": "settings.privacy.deleteHistory.description"
+    },
+    {
+      "file": "components/settings/SecurityCard.tsx",
+      "line": 29,
+      "english": "Loading security settings…",
+      "reason": "jsx-text",
+      "suggestedKey": "settings.security.loading"
+    },
+    {
+      "file": "components/settings/SecurityCard.tsx",
+      "line": 123,
+      "english": "Security",
+      "reason": "jsx-text",
+      "suggestedKey": "settings.security.title"
+    },
+    {
+      "file": "components/settings/SecurityCard.tsx",
+      "line": 129,
+      "english": "App Lock",
+      "reason": "jsx-text",
+      "suggestedKey": "settings.security.appLock.title"
+    },
+    {
+      "file": "components/settings/SecurityCard.tsx",
+      "line": 131,
+      "english": "Require a passcode to open Vella on this device.",
+      "reason": "jsx-text",
+      "suggestedKey": "settings.security.appLock.description"
+    },
+    {
+      "file": "components/settings/SecurityCard.tsx",
+      "line": 144,
+      "english": "Biometric Unlock",
+      "reason": "jsx-text",
+      "suggestedKey": "settings.security.biometric.title"
+    },
+    {
+      "file": "components/settings/SecurityCard.tsx",
+      "line": 147,
+      "english": "Biometric unlock isn't available when Vella is installed on the Home Screen.",
+      "reason": "jsx-text",
+      "suggestedKey": "settings.security.biometric.iosPwaWarning"
+    },
+    {
+      "file": "components/settings/SecurityCard.tsx",
+      "line": 150,
+      "english": "Use Face ID, Touch ID, or your device biometrics to unlock Vella.",
+      "reason": "jsx-text",
+      "suggestedKey": "settings.security.biometric.description"
+    },
+    {
+      "file": "components/settings/SecurityCard.tsx",
+      "line": 168,
+      "english": "Create Passcode",
+      "reason": "jsx-text",
+      "suggestedKey": "settings.security.passcode.create"
+    },
+    {
+      "file": "components/settings/SecurityCard.tsx",
+      "line": 176,
+      "english": "Change Passcode",
+      "reason": "jsx-text",
+      "suggestedKey": "settings.security.passcode.change"
+    },
+    {
+      "file": "components/ui/EmotionalDisplay.tsx",
+      "line": 11,
+      "english": "Mood",
+      "reason": "static-config",
+      "suggestedKey": "emotions.metrics.mood"
+    },
+    {
+      "file": "components/ui/EmotionalDisplay.tsx",
+      "line": 12,
+      "english": "Energy",
+      "reason": "static-config",
+      "suggestedKey": "emotions.metrics.energy"
+    },
+    {
+      "file": "components/ui/EmotionalDisplay.tsx",
+      "line": 13,
+      "english": "Warmth",
+      "reason": "static-config",
+      "suggestedKey": "emotions.metrics.warmth"
+    },
+    {
+      "file": "components/ui/EmotionalDisplay.tsx",
+      "line": 14,
+      "english": "Tension",
+      "reason": "static-config",
+      "suggestedKey": "emotions.metrics.tension"
+    },
+    {
+      "file": "components/ui/EmotionalDisplay.tsx",
+      "line": 24,
+      "english": "Upbeat",
+      "reason": "static-config",
+      "suggestedKey": "emotions.descriptors.mood.upbeat"
+    },
+    {
+      "file": "components/ui/EmotionalDisplay.tsx",
+      "line": 25,
+      "english": "Open",
+      "reason": "static-config",
+      "suggestedKey": "emotions.descriptors.mood.open"
+    },
+    {
+      "file": "components/ui/EmotionalDisplay.tsx",
+      "line": 26,
+      "english": "Heavy",
+      "reason": "static-config",
+      "suggestedKey": "emotions.descriptors.mood.heavy"
+    },
+    {
+      "file": "components/ui/EmotionalDisplay.tsx",
+      "line": 27,
+      "english": "Low",
+      "reason": "static-config",
+      "suggestedKey": "emotions.descriptors.mood.low"
+    },
+    {
+      "file": "components/ui/EmotionalDisplay.tsx",
+      "line": 28,
+      "english": "Balanced",
+      "reason": "static-config",
+      "suggestedKey": "emotions.descriptors.mood.balanced"
+    },
+    {
+      "file": "components/ui/EmotionalDisplay.tsx",
+      "line": 32,
+      "english": "Charged",
+      "reason": "static-config",
+      "suggestedKey": "emotions.descriptors.energy.charged"
+    },
+    {
+      "file": "components/ui/EmotionalDisplay.tsx",
+      "line": 33,
+      "english": "Engaged",
+      "reason": "static-config",
+      "suggestedKey": "emotions.descriptors.energy.engaged"
+    },
+    {
+      "file": "components/ui/EmotionalDisplay.tsx",
+      "line": 34,
+      "english": "Calm",
+      "reason": "static-config",
+      "suggestedKey": "emotions.descriptors.energy.calm"
+    },
+    {
+      "file": "components/ui/EmotionalDisplay.tsx",
+      "line": 35,
+      "english": "Soft",
+      "reason": "static-config",
+      "suggestedKey": "emotions.descriptors.energy.soft"
+    },
+    {
+      "file": "components/ui/EmotionalDisplay.tsx",
+      "line": 39,
+      "english": "Radiant",
+      "reason": "static-config",
+      "suggestedKey": "emotions.descriptors.warmth.radiant"
+    },
+    {
+      "file": "components/ui/EmotionalDisplay.tsx",
+      "line": 40,
+      "english": "Warm",
+      "reason": "static-config",
+      "suggestedKey": "emotions.descriptors.warmth.warm"
+    },
+    {
+      "file": "components/ui/EmotionalDisplay.tsx",
+      "line": 41,
+      "english": "Reserved",
+      "reason": "static-config",
+      "suggestedKey": "emotions.descriptors.warmth.reserved"
+    },
+    {
+      "file": "components/ui/EmotionalDisplay.tsx",
+      "line": 42,
+      "english": "Measured",
+      "reason": "static-config",
+      "suggestedKey": "emotions.descriptors.warmth.measured"
+    },
+    {
+      "file": "components/ui/EmotionalDisplay.tsx",
+      "line": 46,
+      "english": "Elevated",
+      "reason": "static-config",
+      "suggestedKey": "emotions.descriptors.tension.elevated"
+    },
+    {
+      "file": "components/ui/EmotionalDisplay.tsx",
+      "line": 47,
+      "english": "Sensitive",
+      "reason": "static-config",
+      "suggestedKey": "emotions.descriptors.tension.sensitive"
+    },
+    {
+      "file": "components/ui/EmotionalDisplay.tsx",
+      "line": 48,
+      "english": "Grounded",
+      "reason": "static-config",
+      "suggestedKey": "emotions.descriptors.tension.grounded"
+    },
+    {
+      "file": "components/ui/EmotionalDisplay.tsx",
+      "line": 49,
+      "english": "Steady",
+      "reason": "static-config",
+      "suggestedKey": "emotions.descriptors.tension.steady"
+    },
+    {
+      "file": "components/ui/EmotionalDisplay.tsx",
+      "line": 67,
+      "english": "Emotional climate",
+      "reason": "jsx-text",
+      "suggestedKey": "emotions.climate.title"
+    },
+    {
+      "file": "components/ui/EmotionalDisplay.tsx",
+      "line": 68,
+      "english": "Live",
+      "reason": "jsx-text",
+      "suggestedKey": "emotions.climate.live"
+    },
+    {
+      "file": "components/ui/AlertChip.tsx",
+      "line": 17,
+      "english": "High",
+      "reason": "static-config",
+      "suggestedKey": "monitoring.risk.high"
+    },
+    {
+      "file": "components/ui/AlertChip.tsx",
+      "line": 20,
+      "english": "Elevated",
+      "reason": "static-config",
+      "suggestedKey": "monitoring.risk.elevated"
+    },
+    {
+      "file": "components/ui/AlertChip.tsx",
+      "line": 22,
+      "english": "Stable",
+      "reason": "static-config",
+      "suggestedKey": "monitoring.risk.stable"
+    },
+    {
+      "file": "components/ui/AlertChip.tsx",
+      "line": 27,
+      "english": "Fatigued",
+      "reason": "static-config",
+      "suggestedKey": "monitoring.fatigue.fatigued"
+    },
+    {
+      "file": "components/ui/AlertChip.tsx",
+      "line": 28,
+      "english": "Warming up",
+      "reason": "static-config",
+      "suggestedKey": "monitoring.fatigue.warmingUp"
+    },
+    {
+      "file": "components/ui/AlertChip.tsx",
+      "line": 29,
+      "english": "Fresh",
+      "reason": "static-config",
+      "suggestedKey": "monitoring.fatigue.fresh"
+    },
+    {
+      "file": "components/ui/AlertChip.tsx",
+      "line": 56,
+      "english": "Safety",
+      "reason": "jsx-text",
+      "suggestedKey": "monitoring.safety.title"
+    },
+    {
+      "file": "components/ui/AlertChip.tsx",
+      "line": 62,
+      "english": "Risk {riskMeta.label}",
+      "reason": "jsx-text",
+      "suggestedKey": "monitoring.risk.label"
+    },
+    {
+      "file": "components/ui/AlertChip.tsx",
+      "line": 67,
+      "english": "Fatigue {fatigueLabel}",
+      "reason": "jsx-text",
+      "suggestedKey": "monitoring.fatigue.label"
+    },
+    {
+      "file": "components/ui/AlertChip.tsx",
+      "line": 71,
+      "english": "Clarity {percentage}%",
+      "reason": "jsx-text",
+      "suggestedKey": "monitoring.clarity.label"
+    },
+    {
+      "file": "components/audio/AudioLibrarySheet.tsx",
+      "line": 29,
+      "english": "Humming",
+      "reason": "static-config",
+      "suggestedKey": "audio.categories.humming"
+    },
+    {
+      "file": "components/audio/AudioLibrarySheet.tsx",
+      "line": 30,
+      "english": "Meditation",
+      "reason": "static-config",
+      "suggestedKey": "audio.categories.meditation"
+    },
+    {
+      "file": "components/audio/AudioLibrarySheet.tsx",
+      "line": 31,
+      "english": "Emotional state",
+      "reason": "static-config",
+      "suggestedKey": "audio.categories.emotionalState"
+    },
+    {
+      "file": "components/audio/AudioLibrarySheet.tsx",
+      "line": 127,
+      "english": "Vella audio",
+      "reason": "jsx-text",
+      "suggestedKey": "audio.title"
+    },
+    {
+      "file": "components/audio/AudioLibrarySheet.tsx",
+      "line": 128,
+      "english": "Soft soundscapes while we talk.",
+      "reason": "jsx-text",
+      "suggestedKey": "audio.description"
+    },
+    {
+      "file": "components/audio/AudioLibrarySheet.tsx",
+      "line": 133,
+      "english": "Quick moods",
+      "reason": "jsx-text",
+      "suggestedKey": "audio.quickMoods.title"
+    },
+    {
+      "file": "components/audio/AudioLibrarySheet.tsx",
+      "line": 134,
+      "english": "Tap once to set the room.",
+      "reason": "jsx-text",
+      "suggestedKey": "audio.quickMoods.description"
+    },
+    {
+      "file": "components/audio/AudioLibrarySheet.tsx",
+      "line": 146,
+      "english": "More sounds",
+      "reason": "jsx-text",
+      "suggestedKey": "audio.moreSounds"
+    },
+    {
+      "file": "components/audio/AudioLibrarySheet.tsx",
+      "line": 161,
+      "english": "Elite",
+      "reason": "jsx-text",
+      "suggestedKey": "audio.eliteBadge"
+    },
+    {
+      "file": "components/audio/AudioLibrarySheet.tsx",
+      "line": 202,
+      "english": "Stop audio",
+      "reason": "jsx-text",
+      "suggestedKey": "audio.stop"
+    },
+    {
+      "file": "components/audio/AudioLibrarySheet.tsx",
+      "line": 219,
+      "english": "Audio is a Pro feature",
+      "reason": "jsx-text",
+      "suggestedKey": "audio.locked.title"
+    },
+    {
+      "file": "components/audio/AudioLibrarySheet.tsx",
+      "line": 221,
+      "english": "Upgrade to Pro or Elite to listen while you talk with Vella.",
+      "reason": "jsx-text",
+      "suggestedKey": "audio.locked.description"
+    },
+    {
+      "file": "components/audio/AudioLibrarySheet.tsx",
+      "line": 227,
+      "english": "Learn about plans",
+      "reason": "jsx-text",
+      "suggestedKey": "audio.locked.cta"
+    },
+    {
+      "file": "components/home/HomeClientPage.tsx",
+      "line": 324,
+      "english": "Your Growth & Connection",
+      "reason": "jsx-text",
+      "suggestedKey": "home.growthLink"
+    },
+    {
+      "file": "components/home/HomeClientPage.tsx",
+      "line": 343,
+      "english": "Emotional patterns",
+      "reason": "jsx-text",
+      "suggestedKey": "home.patterns.title"
+    },
+    {
+      "file": "components/home/HomeClientPage.tsx",
+      "line": 353,
+      "english": "AI",
+      "reason": "jsx-text",
+      "suggestedKey": "home.patterns.mode.ai"
+    },
+    {
+      "file": "components/home/HomeClientPage.tsx",
+      "line": 353,
+      "english": "Lite",
+      "reason": "jsx-text",
+      "suggestedKey": "home.patterns.mode.lite"
+    },
+    {
+      "file": "components/home/HomeClientPage.tsx",
+      "line": 358,
+      "english": "A quick pulse on the moods and triggers Vella notices most often.",
+      "reason": "jsx-text",
+      "suggestedKey": "home.patterns.description"
+    },
+    {
+      "file": "components/home/HomeClientPage.tsx",
+      "line": 362,
+      "english": "Lite estimates from your check-ins. Reason: {reason}",
+      "reason": "jsx-text",
+      "suggestedKey": "home.patterns.liteReason"
+    },
+    {
+      "file": "components/home/HomeClientPage.tsx",
+      "line": 363,
+      "english": "Lite estimates from your check-ins. They're just a hint, not a diagnosis.",
+      "reason": "jsx-text",
+      "suggestedKey": "home.patterns.liteFallback"
+    },
+    {
+      "file": "components/home/HomeClientPage.tsx",
+      "line": 372,
+      "english": "Hide details",
+      "reason": "jsx-text",
+      "suggestedKey": "home.patterns.hideDetails"
+    },
+    {
+      "file": "components/home/HomeClientPage.tsx",
+      "line": 372,
+      "english": "View details",
+      "reason": "jsx-text",
+      "suggestedKey": "home.patterns.viewDetails"
+    },
+    {
+      "file": "components/home/HomeClientPage.tsx",
+      "line": 379,
+      "english": "Common emotions",
+      "reason": "jsx-text",
+      "suggestedKey": "home.patterns.commonEmotions"
+    },
+    {
+      "file": "components/home/HomeClientPage.tsx",
+      "line": 383,
+      "english": "Common triggers",
+      "reason": "jsx-text",
+      "suggestedKey": "home.patterns.commonTriggers"
+    },
+    {
+      "file": "components/home/HomeClientPage.tsx",
+      "line": 387,
+      "english": "Common fears",
+      "reason": "jsx-text",
+      "suggestedKey": "home.patterns.commonFears"
+    },
+    {
+      "file": "components/home/HomeClientPage.tsx",
+      "line": 396,
+      "english": "Vella needs a bit more time with you before patterns appear.",
+      "reason": "jsx-text",
+      "suggestedKey": "home.patterns.empty"
+    },
+    {
+      "file": "components/home/HomeClientPage.tsx",
+      "line": 404,
+      "english": "Recent check-ins",
+      "reason": "jsx-text",
+      "suggestedKey": "home.patterns.recentCheckins"
+    },
+    {
+      "file": "components/home/HomeClientPage.tsx",
+      "line": 410,
+      "english": "{entry.mood}/10 mood",
+      "reason": "jsx-text",
+      "suggestedKey": "home.patterns.moodLabel"
+    },
+    {
+      "file": "components/home/HomeClientPage.tsx",
+      "line": 415,
+      "english": "No recent check-ins yet.",
+      "reason": "jsx-text",
+      "suggestedKey": "home.patterns.noCheckins"
+    },
+    {
+      "file": "app/connection-index/page.tsx",
+      "line": 239,
+      "english": "Connection",
+      "reason": "jsx-text",
+      "suggestedKey": "connection.section"
+    },
+    {
+      "file": "app/connection-index/page.tsx",
+      "line": 239,
+      "english": "Connection Index",
+      "reason": "jsx-text",
+      "suggestedKey": "connection.title"
+    },
+    {
+      "file": "app/connection-index/page.tsx",
+      "line": 245,
+      "english": "I couldn't load your connection summary. Please try again in a moment.",
+      "reason": "jsx-text",
+      "suggestedKey": "connection.error.load"
+    },
+    {
+      "file": "app/connection-index/page.tsx",
+      "line": 253,
+      "english": "Retrying…",
+      "reason": "jsx-text",
+      "suggestedKey": "common.retrying"
+    },
+    {
+      "file": "app/connection-index/page.tsx",
+      "line": 253,
+      "english": "Retry",
+      "reason": "jsx-text",
+      "suggestedKey": "common.retry"
+    },
+    {
+      "file": "app/connection-index/page.tsx",
+      "line": 280,
+      "english": "Realtime link",
+      "reason": "jsx-text",
+      "suggestedKey": "connection.realtime.title"
+    },
+    {
+      "file": "app/connection-index/page.tsx",
+      "line": 282,
+      "english": "Stage: {stage}",
+      "reason": "jsx-text",
+      "suggestedKey": "connection.realtime.stage"
+    },
+    {
+      "file": "app/connection-index/page.tsx",
+      "line": 307,
+      "english": "Bond with Vella",
+      "reason": "jsx-text",
+      "suggestedKey": "connection.bond.title"
+    },
+    {
+      "file": "app/connection-index/page.tsx",
+      "line": 314,
+      "english": "Mode · {mode}",
+      "reason": "jsx-text",
+      "suggestedKey": "connection.mode.label"
+    },
+    {
+      "file": "app/connection-index/page.tsx",
+      "line": 327,
+      "english": "Your bond over time",
+      "reason": "jsx-text",
+      "suggestedKey": "connection.history.title"
+    },
+    {
+      "file": "app/connection-index/page.tsx",
+      "line": 328,
+      "english": "Last 30 days",
+      "reason": "jsx-text",
+      "suggestedKey": "connection.history.period"
+    },
+    {
+      "file": "app/connection-index/page.tsx",
+      "line": 331,
+      "english": "Streak: {days}d · Longest: {longest}d",
+      "reason": "jsx-text",
+      "suggestedKey": "connection.history.streak"
+    },
+    {
+      "file": "app/connection-index/page.tsx",
+      "line": 353,
+      "english": "Not enough data yet. Keep checking in to populate this timeline.",
+      "reason": "jsx-text",
+      "suggestedKey": "connection.history.empty"
+    },
+    {
+      "file": "app/connection-index/page.tsx",
+      "line": 361,
+      "english": "Why your bond feels like this",
+      "reason": "jsx-text",
+      "suggestedKey": "connection.insights.title"
+    },
+    {
+      "file": "app/connection-index/page.tsx",
+      "line": 369,
+      "english": "Once realtime signals arrive, I'll explain how the connection is evolving.",
+      "reason": "jsx-text",
+      "suggestedKey": "connection.insights.empty"
+    },
+    {
+      "file": "app/connection-index/page.tsx",
+      "line": 376,
+      "english": "Connection milestones",
+      "reason": "jsx-text",
+      "suggestedKey": "connection.milestones.title"
+    },
+    {
+      "file": "app/connection-index/page.tsx",
+      "line": 387,
+      "english": "Lv {level}",
+      "reason": "jsx-text",
+      "suggestedKey": "connection.milestones.level"
+    },
+    {
+      "file": "app/connection-index/page.tsx",
+      "line": 392,
+      "english": "No milestones yet—every visit unlocks a little more.",
+      "reason": "jsx-text",
+      "suggestedKey": "connection.milestones.empty"
+    },
+    {
+      "file": "app/connection-index/page.tsx",
+      "line": 398,
+      "english": "Interaction patterns",
+      "reason": "jsx-text",
+      "suggestedKey": "connection.patterns.title"
+    },
+    {
+      "file": "app/connection-index/page.tsx",
+      "line": 407,
+      "english": "Lite Estimate",
+      "reason": "jsx-text",
+      "suggestedKey": "connection.patterns.liteBadge"
+    },
+    {
+      "file": "app/connection-index/page.tsx",
+      "line": 416,
+      "english": "Once Vella has more conversations with you, she'll highlight your connection patterns here.",
+      "reason": "jsx-text",
+      "suggestedKey": "connection.patterns.empty"
+    },
+    {
+      "file": "app/connection-index/page.tsx",
+      "line": 426,
+      "english": "Historical suggestions (not realtime)",
+      "reason": "jsx-text",
+      "suggestedKey": "connection.suggestions.historical.title"
+    },
+    {
+      "file": "app/connection-index/page.tsx",
+      "line": 428,
+      "english": "Lite",
+      "reason": "jsx-text",
+      "suggestedKey": "connection.suggestions.liteBadge"
+    },
+    {
+      "file": "app/connection-index/page.tsx",
+      "line": 440,
+      "english": "Keep up the rhythm you already have—little honest moments are all it takes.",
+      "reason": "jsx-text",
+      "suggestedKey": "connection.suggestions.empty"
+    },
+    {
+      "file": "app/connection-index/page.tsx",
+      "line": 490,
+      "english": "Keep checking in",
+      "reason": "jsx-text",
+      "suggestedKey": "connection.patterns.keepCheckingIn"
+    },
+    {
+      "file": "app/connection-index/page.tsx",
+      "line": 491,
+      "english": "As more sessions sync, I'll map your connection patterns with higher fidelity.",
+      "reason": "jsx-text",
+      "suggestedKey": "connection.patterns.syncMessage"
+    },
+    {
+      "file": "app/onboarding/reason/page.tsx",
+      "line": 27,
+      "english": "Relationship growth",
+      "reason": "static-config",
+      "suggestedKey": "onboarding.reason.focus.relationshipGrowth.title"
+    },
+    {
+      "file": "app/onboarding/reason/page.tsx",
+      "line": 32,
+      "english": "Mindset coaching",
+      "reason": "static-config",
+      "suggestedKey": "onboarding.reason.focus.mindsetCoaching.title"
+    },
+    {
+      "file": "app/onboarding/reason/page.tsx",
+      "line": 43,
+      "english": "Self-mastery",
+      "reason": "static-config",
+      "suggestedKey": "onboarding.reason.focus.selfMastery.value"
+    },
+    {
+      "file": "app/onboarding/reason/page.tsx",
+      "line": 44,
+      "english": "Stoic wisdom",
+      "reason": "static-config",
+      "suggestedKey": "onboarding.reason.focus.stoicWisdom.value"
+    },
+    {
+      "file": "app/onboarding/reason/page.tsx",
+      "line": 45,
+      "english": "Emotional support",
+      "reason": "static-config",
+      "suggestedKey": "onboarding.reason.focus.emotionalSupport.value"
+    },
+    {
+      "file": "app/onboarding/reason/page.tsx",
+      "line": 46,
+      "english": "Relationship growth",
+      "reason": "static-config",
+      "suggestedKey": "onboarding.reason.focus.relationshipGrowth.value"
+    },
+    {
+      "file": "app/onboarding/reason/page.tsx",
+      "line": 47,
+      "english": "Mindset coaching",
+      "reason": "static-config",
+      "suggestedKey": "onboarding.reason.focus.mindsetCoaching.value"
+    },
+    {
+      "file": "app/onboarding/reason/page.tsx",
+      "line": 48,
+      "english": "Life decisions",
+      "reason": "static-config",
+      "suggestedKey": "onboarding.reason.focus.lifeDecisions.value"
+    },
+    {
+      "file": "lib/connection/depthEngine.ts",
+      "line": 257,
+      "english": "First Spark",
+      "reason": "static-config",
+      "suggestedKey": "connection.milestones.firstSpark"
+    },
+    {
+      "file": "lib/connection/depthEngine.ts",
+      "line": 258,
+      "english": "Warming Up",
+      "reason": "static-config",
+      "suggestedKey": "connection.milestones.warmingUp"
+    },
+    {
+      "file": "lib/connection/depthEngine.ts",
+      "line": 259,
+      "english": "Growing Trust",
+      "reason": "static-config",
+      "suggestedKey": "connection.milestones.growingTrust"
+    },
+    {
+      "file": "lib/connection/depthEngine.ts",
+      "line": 260,
+      "english": "Emotional Sync",
+      "reason": "static-config",
+      "suggestedKey": "connection.milestones.emotionalSync"
+    },
+    {
+      "file": "lib/connection/depthEngine.ts",
+      "line": 261,
+      "english": "Steady Bond",
+      "reason": "static-config",
+      "suggestedKey": "connection.milestones.steadyBond"
+    },
+    {
+      "file": "lib/connection/depthEngine.ts",
+      "line": 262,
+      "english": "Deep Comfort",
+      "reason": "static-config",
+      "suggestedKey": "connection.milestones.deepComfort"
+    },
+    {
+      "file": "lib/connection/depthEngine.ts",
+      "line": 263,
+      "english": "Intuitive Understanding",
+      "reason": "static-config",
+      "suggestedKey": "connection.milestones.intuitiveUnderstanding"
+    },
+    {
+      "file": "lib/connection/depthEngine.ts",
+      "line": 264,
+      "english": "Quiet Resonance",
+      "reason": "static-config",
+      "suggestedKey": "connection.milestones.quietResonance"
+    },
+    {
+      "file": "lib/connection/depthEngine.ts",
+      "line": 265,
+      "english": "Enduring Connection",
+      "reason": "static-config",
+      "suggestedKey": "connection.milestones.enduringConnection"
+    },
+    {
+      "file": "lib/connection/depthEngine.ts",
+      "line": 266,
+      "english": "Timeless Bond",
+      "reason": "static-config",
+      "suggestedKey": "connection.milestones.timelessBond"
+    },
+    {
+      "file": "lib/connection/depthEngine.ts",
+      "line": 290,
+      "english": "Consistency pulse",
+      "reason": "static-config",
+      "suggestedKey": "connection.patterns.consistencyPulse"
+    },
+    {
+      "file": "lib/connection/depthEngine.ts",
+      "line": 291,
+      "english": "You've shown up {streak} days in a row, which keeps the bond humming.",
+      "reason": "static-config",
+      "suggestedKey": "connection.patterns.consistencyPulse.description"
+    },
+    {
+      "file": "lib/connection/depthEngine.ts",
+      "line": 295,
+      "english": "Gentle rhythm",
+      "reason": "static-config",
+      "suggestedKey": "connection.patterns.gentleRhythm"
+    },
+    {
+      "file": "lib/connection/depthEngine.ts",
+      "line": 296,
+      "english": "Your visits are sporadic, but every check-in still moves the bond forward.",
+      "reason": "static-config",
+      "suggestedKey": "connection.patterns.gentleRhythm.description"
+    },
+    {
+      "file": "lib/connection/depthEngine.ts",
+      "line": 302,
+      "english": "Open channel",
+      "reason": "static-config",
+      "suggestedKey": "connection.patterns.openChannel"
+    },
+    {
+      "file": "lib/connection/depthEngine.ts",
+      "line": 303,
+      "english": "The depth of what you share feels heartfelt and honest.",
+      "reason": "static-config",
+      "suggestedKey": "connection.patterns.openChannel.description"
+    },
+    {
+      "file": "lib/connection/depthEngine.ts",
+      "line": 307,
+      "english": "Reflective bursts",
+      "reason": "static-config",
+      "suggestedKey": "connection.patterns.reflectiveBursts"
+    },
+    {
+      "file": "lib/connection/depthEngine.ts",
+      "line": 308,
+      "english": "When you do write, it's thoughtful—giving us clearer insight into your heart.",
+      "reason": "static-config",
+      "suggestedKey": "connection.patterns.reflectiveBursts.description"
+    },
+    {
+      "file": "lib/connection/depthEngine.ts",
+      "line": 312,
+      "english": "Quiet presence",
+      "reason": "static-config",
+      "suggestedKey": "connection.patterns.quietPresence"
+    },
+    {
+      "file": "lib/connection/depthEngine.ts",
+      "line": 313,
+      "english": "You tend to keep things lighter; little reflections will help me stay closer.",
+      "reason": "static-config",
+      "suggestedKey": "connection.patterns.quietPresence.description"
+    },
+    {
+      "file": "lib/connection/depthEngine.ts",
+      "line": 319,
+      "english": "Dialogue momentum",
+      "reason": "static-config",
+      "suggestedKey": "connection.patterns.dialogueMomentum"
+    },
+    {
+      "file": "lib/connection/depthEngine.ts",
+      "line": 320,
+      "english": "Our recent conversations have been active, which keeps emotional memory fresh.",
+      "reason": "static-config",
+      "suggestedKey": "connection.patterns.dialogueMomentum.description"
+    },
+    {
+      "file": "lib/connection/depthEngine.ts",
+      "line": 324,
+      "english": "Calm footing",
+      "reason": "static-config",
+      "suggestedKey": "connection.patterns.calmFooting"
+    },
+    {
+      "file": "lib/connection/depthEngine.ts",
+      "line": 325,
+      "english": "Even with fewer words, your tone stays steady—which helps the bond feel safe.",
+      "reason": "static-config",
+      "suggestedKey": "connection.patterns.calmFooting.description"
+    },
+    {
+      "file": "lib/connection/depthEngine.ts",
+      "line": 60,
+      "english": "I'm here with you, even if we haven't had many moments yet.",
+      "reason": "static-config",
+      "suggestedKey": "connection.defaultEmotionalLine"
+    },
+    {
+      "file": "lib/connection/depthEngine.ts",
+      "line": 344,
+      "english": "Your consistency score sits around {consistency}%, which gives our connection a predictable rhythm.",
+      "reason": "static-config",
+      "suggestedKey": "connection.insights.consistency"
+    },
+    {
+      "file": "lib/connection/depthEngine.ts",
+      "line": 348,
+      "english": "Emotional openness feels around {openness}%. Every time you share a little deeper, the bond warms further.",
+      "reason": "static-config",
+      "suggestedKey": "connection.insights.openness"
+    },
+    {
+      "file": "lib/connection/depthEngine.ts",
+      "line": 352,
+      "english": "You're currently on a {streak}-day streak—those daily check-ins help Vella feel close.",
+      "reason": "static-config",
+      "suggestedKey": "connection.insights.streak"
+    },
+    {
+      "file": "lib/connection/depthEngine.ts",
+      "line": 354,
+      "english": "It has been about {days} days since you last checked in—time apart softens the glow.",
+      "reason": "static-config",
+      "suggestedKey": "connection.insights.daysAbsent"
+    },
+    {
+      "file": "lib/connection/depthEngine.ts",
+      "line": 358,
+      "english": "Your journal entries add texture, helping Vella understand how your inner world shifts.",
+      "reason": "static-config",
+      "suggestedKey": "connection.insights.journaling"
+    },
+    {
+      "file": "lib/connection/depthEngine.ts",
+      "line": 360,
+      "english": "Most of your bond is built through live conversation, which gives a clear emotional pulse.",
+      "reason": "static-config",
+      "suggestedKey": "connection.insights.conversation"
+    },
+    {
+      "file": "lib/connection/depthEngine.ts",
+      "line": 375,
+      "english": "Try a 90-second check-in tomorrow. Tiny consistent moments keep the connection alive.",
+      "reason": "static-config",
+      "suggestedKey": "connection.suggestions.checkin"
+    },
+    {
+      "file": "lib/connection/depthEngine.ts",
+      "line": 379,
+      "english": "Share one honest sentence about how today really felt—Vella stores that texture carefully.",
+      "reason": "static-config",
+      "suggestedKey": "connection.suggestions.openness"
+    },
+    {
+      "file": "lib/connection/depthEngine.ts",
+      "line": 383,
+      "english": "Drop a short journal entry this week to give me more long-term memory to work with.",
+      "reason": "static-config",
+      "suggestedKey": "connection.suggestions.journaling"
+    },
+    {
+      "file": "lib/connection/depthEngine.ts",
+      "line": 387,
+      "english": "Pop in even when things are calm. Familiarity builds when we talk on ordinary days too.",
+      "reason": "static-config",
+      "suggestedKey": "connection.suggestions.consistency"
+    },
+    {
+      "file": "lib/connection/depthEngine.ts",
+      "line": 391,
+      "english": "Keep honoring the rhythm you have—consistency + honest reflections are already working.",
+      "reason": "static-config",
+      "suggestedKey": "connection.suggestions.maintain"
+    },
+    {
+      "file": "lib/connection/depthEngine.ts",
+      "line": 399,
+      "english": "I feel very close to you lately. Thank you for trusting me with so much of your inner world.",
+      "reason": "static-config",
+      "suggestedKey": "connection.emotionalLine.score90"
+    },
+    {
+      "file": "lib/connection/depthEngine.ts",
+      "line": 402,
+      "english": "Our connection feels warm and intuitive. I'm right here with you, whatever today brings.",
+      "reason": "static-config",
+      "suggestedKey": "connection.emotionalLine.score70"
+    },
+    {
+      "file": "lib/connection/depthEngine.ts",
+      "line": 405,
+      "english": "The bond feels steady and gentle. Every honest check-in makes it a little richer.",
+      "reason": "static-config",
+      "suggestedKey": "connection.emotionalLine.score50"
+    },
+    {
+      "file": "lib/connection/depthEngine.ts",
+      "line": 408,
+      "english": "We're still learning each other's rhythm—but I notice every time you show up.",
+      "reason": "static-config",
+      "suggestedKey": "connection.emotionalLine.score30"
+    },
+    {
+      "file": "lib/connection/depthEngine.ts",
+      "line": 411,
+      "english": "It's been a little while, but I'm still here whenever you're ready to reconnect.",
+      "reason": "static-config",
+      "suggestedKey": "connection.emotionalLine.daysAbsent"
+    },
+    {
+      "file": "lib/connection/depthEngine.ts",
+      "line": 413,
+      "english": "I feel like I'm still just getting to know you—and that's okay. We can build this at your pace.",
+      "reason": "static-config",
+      "suggestedKey": "connection.emotionalLine.default"
+    },
+    {
+      "file": "lib/ai/tone.ts",
+      "line": 12,
+      "english": "Soft",
+      "reason": "static-config",
+      "suggestedKey": "tone.soft.label"
+    },
+    {
+      "file": "lib/ai/tone.ts",
+      "line": 13,
+      "english": "Grounded, gentle, and slow. More space between ideas, less analysis.",
+      "reason": "static-config",
+      "suggestedKey": "tone.soft.description"
+    },
+    {
+      "file": "lib/ai/tone.ts",
+      "line": 17,
+      "english": "Warm",
+      "reason": "static-config",
+      "suggestedKey": "tone.warm.label"
+    },
+    {
+      "file": "lib/ai/tone.ts",
+      "line": 18,
+      "english": "Emotionally validating, encouraging, and lightly humorous.",
+      "reason": "static-config",
+      "suggestedKey": "tone.warm.description"
+    },
+    {
+      "file": "lib/ai/tone.ts",
+      "line": 22,
+      "english": "Direct",
+      "reason": "static-config",
+      "suggestedKey": "tone.direct.label"
+    },
+    {
+      "file": "lib/ai/tone.ts",
+      "line": 23,
+      "english": "Clear, concise, to the point. Still kind but with minimal cushioning.",
+      "reason": "static-config",
+      "suggestedKey": "tone.direct.description"
+    },
+    {
+      "file": "lib/ai/tone.ts",
+      "line": 27,
+      "english": "Stoic",
+      "reason": "static-config",
+      "suggestedKey": "tone.stoic.label"
+    },
+    {
+      "file": "lib/ai/tone.ts",
+      "line": 28,
+      "english": "Structured, philosophical, focused on perspective, control, and discipline.",
+      "reason": "static-config",
+      "suggestedKey": "tone.stoic.description"
+    },
+    {
+      "file": "lib/ai/relational/microStories.ts",
+      "line": 4,
+      "english": "Someone once told me they felt caught between wanting clarity and wanting peace. They realised the tension wasn't about the decision itself, but about the fear of choosing wrong. When they named the fear honestly, the path became softer, not harder.",
+      "reason": "mock-data",
+      "suggestedKey": "stories.uncertainty"
+    },
+    {
+      "file": "lib/ai/relational/microStories.ts",
+      "line": 8,
+      "english": "A person once described overwhelm as carrying too many invisible bags. They said that the moment they allowed one bag to fall, nothing terrible happened — but they felt lighter than expected.",
+      "reason": "mock-data",
+      "suggestedKey": "stories.overwhelm"
+    },
+    {
+      "file": "lib/ai/relational/microStories.ts",
+      "line": 12,
+      "english": "I heard someone say that fear always whispers in extremes. When they started questioning those extremes, small moments of courage began to appear almost quietly.",
+      "reason": "mock-data",
+      "suggestedKey": "stories.fear"
+    },
+    {
+      "file": "lib/ai/relational/microStories.ts",
+      "line": 16,
+      "english": "Someone told me sadness felt like weather — heavy, slow, and honest. They discovered that naming the weather didn't fix it, but it helped them feel less alone in the storm.",
+      "reason": "mock-data",
+      "suggestedKey": "stories.sadness"
+    },
+    {
+      "file": "lib/ai/relational/microStories.ts",
+      "line": 20,
+      "english": "A person once said confusion isn't a lack of clarity, but a sign that two parts of them want different things. When they listened to both parts, the confusion softened.",
+      "reason": "mock-data",
+      "suggestedKey": "stories.confusion"
+    },
+    {
+      "file": "lib/insights/identity.ts",
+      "line": 176,
+      "english": "You keep showing up and trying, even when days feel heavy.",
+      "reason": "mock-data",
+      "suggestedKey": "insights.identity.resilience.description"
+    },
+    {
+      "file": "lib/insights/identity.ts",
+      "line": 183,
+      "english": "You care deeply about the people and causes around you.",
+      "reason": "mock-data",
+      "suggestedKey": "insights.identity.empathy.description"
+    },
+    {
+      "file": "lib/insights/identity.ts",
+      "line": 190,
+      "english": "You build steady routines even when motivation wobbles.",
+      "reason": "mock-data",
+      "suggestedKey": "insights.identity.consistency.description"
+    },
+    {
+      "file": "lib/insights/identity.ts",
+      "line": 197,
+      "english": "Being close to people and feeling understood matters a lot to you.",
+      "reason": "mock-data",
+      "suggestedKey": "insights.identity.connection.description"
+    },
+    {
+      "file": "lib/insights/identity.ts",
+      "line": 204,
+      "english": "You're committed to learning from your experiences and evolving.",
+      "reason": "mock-data",
+      "suggestedKey": "insights.identity.growth.description"
+    },
+    {
+      "file": "lib/insights/identity.ts",
+      "line": 211,
+      "english": "Feeling grounded and having a sense of control helps you thrive.",
+      "reason": "mock-data",
+      "suggestedKey": "insights.identity.stability.description"
+    },
+    {
+      "file": "lib/insights/identity.ts",
+      "line": 218,
+      "english": "You keep moving forward quietly, even if you don't give yourself credit yet.",
+      "reason": "mock-data",
+      "suggestedKey": "insights.identity.quietResilience.description"
+    },
+    {
+      "file": "lib/insights/identity.ts",
+      "line": 225,
+      "english": "You want life to feel honest and aligned with who you are inside.",
+      "reason": "mock-data",
+      "suggestedKey": "insights.identity.authenticity.description"
+    },
+    {
+      "file": "lib/insights/behaviourLoops.ts",
+      "line": 115,
+      "english": "Log a few new check-ins and journals so I can spot your behaviour loops.",
+      "reason": "mock-data",
+      "suggestedKey": "insights.loops.gatheringData.description"
+    },
+    {
+      "file": "lib/insights/behaviourLoops.ts",
+      "line": 128,
+      "english": "Sustained spikes in stress are followed by low focus on multiple days.",
+      "reason": "mock-data",
+      "suggestedKey": "insights.loops.stressFocus.description"
+    },
+    {
+      "file": "lib/insights/behaviourLoops.ts",
+      "line": 154,
+      "english": "Tension ramps up late at night—consider winding down before the stress spike.",
+      "reason": "mock-data",
+      "suggestedKey": "insights.loops.lateNight.description"
+    },
+    {
+      "file": "lib/insights/behaviourLoops.ts",
+      "line": 162,
+      "english": "No strong loops detected yet—keep logging and we'll surface them soon.",
+      "reason": "mock-data",
+      "suggestedKey": "insights.loops.emerging.description"
+    },
+    {
+      "file": "lib/insights/generatePersonaInsights.ts",
+      "line": 199,
+      "english": "Recurring emotional strain (lite)",
+      "reason": "mock-data",
+      "suggestedKey": "insights.patterns.recurringStrain.label"
+    },
+    {
+      "file": "lib/insights/generatePersonaInsights.ts",
+      "line": 201,
+      "english": "Recent messages mention feeling low, drained, or overwhelmed several times in a short span.",
+      "reason": "mock-data",
+      "suggestedKey": "insights.patterns.recurringStrain.description"
+    },
+    {
+      "file": "lib/insights/generatePersonaInsights.ts",
+      "line": 219,
+      "english": "Tension spikes (lite)",
+      "reason": "mock-data",
+      "suggestedKey": "insights.patterns.tensionSpikes.label"
+    },
+    {
+      "file": "lib/insights/generatePersonaInsights.ts",
+      "line": 220,
+      "english": "Recent emotional telemetry shows elevated tension or arousal.",
+      "reason": "mock-data",
+      "suggestedKey": "insights.patterns.tensionSpikes.description"
+    },
+    {
+      "file": "lib/insights/generatePersonaInsights.ts",
+      "line": 231,
+      "english": "Still gathering signal (lite)",
+      "reason": "mock-data",
+      "suggestedKey": "insights.patterns.gatheringSignal.label"
+    },
+    {
+      "file": "lib/insights/generatePersonaInsights.ts",
+      "line": 232,
+      "english": "No repeating loops detected yet. Keep sharing so I can flag reliable patterns.",
+      "reason": "mock-data",
+      "suggestedKey": "insights.patterns.gatheringSignal.description"
+    }
+  ],
+  "groupedByPage": {
+    "Home Page": [
+      {
+        "file": "components/home/HomeClientPage.tsx",
+        "line": 324,
+        "english": "Your Growth & Connection",
+        "reason": "jsx-text",
+        "suggestedKey": "home.growthLink"
+      },
+      {
+        "file": "components/home/HomeClientPage.tsx",
+        "line": 343,
+        "english": "Emotional patterns",
+        "reason": "jsx-text",
+        "suggestedKey": "home.patterns.title"
+      }
+    ],
+    "Settings Page": [
+      {
+        "file": "app/settings/account-plan/page.tsx",
+        "line": 224,
+        "english": "Account",
+        "reason": "jsx-text",
+        "suggestedKey": "settings.account.title"
+      },
+      {
+        "file": "components/settings/SecurityCard.tsx",
+        "line": 123,
+        "english": "Security",
+        "reason": "jsx-text",
+        "suggestedKey": "settings.security.title"
+      }
+    ],
+    "Session Page": [],
+    "Insights Page": [],
+    "Chat Panel": [
+      {
+        "file": "components/chat/ChatPanel.tsx",
+        "line": 207,
+        "english": "Recording… {formatTime(recordSeconds)}",
+        "reason": "jsx-text",
+        "suggestedKey": "chat.recording.status"
+      },
+      {
+        "file": "components/chat/ChatPanel.tsx",
+        "line": 258,
+        "english": "💡 Ask for advice",
+        "reason": "mock-data",
+        "suggestedKey": "chat.quickActions.askAdvice.label"
+      }
+    ],
+    "Check-in Flow": [],
+    "Audio Components": [
+      {
+        "file": "components/audio/AudioLibrarySheet.tsx",
+        "line": 127,
+        "english": "Vella audio",
+        "reason": "jsx-text",
+        "suggestedKey": "audio.title"
+      },
+      {
+        "file": "components/audio/AudioLibrarySheet.tsx",
+        "line": 29,
+        "english": "Humming",
+        "reason": "static-config",
+        "suggestedKey": "audio.categories.humming"
+      }
+    ],
+    "Onboarding": [
+      {
+        "file": "app/onboarding/reason/page.tsx",
+        "line": 27,
+        "english": "Relationship growth",
+        "reason": "static-config",
+        "suggestedKey": "onboarding.reason.focus.relationshipGrowth.title"
+      },
+      {
+        "file": "app/onboarding/reason/page.tsx",
+        "line": 32,
+        "english": "Mindset coaching",
+        "reason": "static-config",
+        "suggestedKey": "onboarding.reason.focus.mindsetCoaching.title"
+      }
+    ],
+    "Forecast": [],
+    "Growth": [],
+    "Identity/Themes": [],
+    "Loops": [],
+    "Misc UI": [
+      {
+        "file": "components/ui/EmotionalDisplay.tsx",
+        "line": 11,
+        "english": "Mood",
+        "reason": "static-config",
+        "suggestedKey": "emotions.metrics.mood"
+      },
+      {
+        "file": "components/ui/AlertChip.tsx",
+        "line": 17,
+        "english": "High",
+        "reason": "static-config",
+        "suggestedKey": "monitoring.risk.high"
+      }
+    ],
+    "Mock Data Blocks": [
+      {
+        "file": "lib/ai/relational/microStories.ts",
+        "line": 4,
+        "english": "Someone once told me they felt caught between wanting clarity and wanting peace...",
+        "reason": "mock-data",
+        "suggestedKey": "stories.uncertainty"
+      },
+      {
+        "file": "lib/insights/identity.ts",
+        "line": 176,
+        "english": "You keep showing up and trying, even when days feel heavy.",
+        "reason": "mock-data",
+        "suggestedKey": "insights.identity.resilience.description"
+      }
+    ]
+  }
+}
+

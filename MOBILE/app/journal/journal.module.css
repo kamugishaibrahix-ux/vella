@@ -1,0 +1,206 @@
+/* Resolution Journal – clarity-first, matches reference exactly */
+/* 8px spacing scale, neutral palette, no clutter */
+
+.container {
+  width: 100%;
+  max-width: 672px; /* max-w-2xl */
+  margin: 0 auto;
+  padding: 24px 20px 120px;
+  min-height: 100vh;
+  background: #f9f9f9;
+  color: #333;
+}
+
+/* —— Header: Journal + date —— */
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 32px;
+}
+
+.title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #333;
+  margin: 0;
+}
+
+.date {
+  font-size: 0.875rem;
+  font-weight: 400;
+  color: #777;
+}
+
+/* —— Headline —— */
+.headline {
+  font-size: 2rem;
+  font-weight: 500;
+  line-height: 1.2;
+  color: #333;
+  margin: 0 0 32px 0;
+}
+
+/* —— Section label (uppercase, subtle) —— */
+.sectionLabel {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #555;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  margin: 0 0 8px 0;
+}
+
+/* —— Textareas —— */
+.textarea {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 12px 14px;
+  font-size: 1rem;
+  line-height: 1.5;
+  color: #333;
+  background: #fff;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  resize: none;
+  transition: border-color 0.15s ease;
+}
+
+.textarea::placeholder {
+  color: #aaa;
+}
+
+.textarea:focus {
+  outline: none;
+  border-color: #999;
+}
+
+.textareaMedium {
+  min-height: 100px;
+}
+
+.textareaSmall {
+  min-height: 64px;
+}
+
+.section {
+  margin-bottom: 24px;
+}
+
+/* —— Save button area —— */
+.saveZone {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 32px;
+  margin-bottom: 48px;
+}
+
+.saveBtn {
+  padding: 10px 24px;
+  font-size: 1rem;
+  font-weight: 500;
+  color: #fff;
+  background: #333;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: opacity 0.2s ease, background 0.2s ease;
+}
+
+.saveBtn:hover:not(:disabled) {
+  background: #222;
+}
+
+.saveBtn:disabled {
+  background: #ccc;
+  color: #fff;
+  cursor: not-allowed;
+}
+
+.logged {
+  font-size: 0.875rem;
+  color: #555;
+  margin-right: 12px;
+  align-self: center;
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* —— Entry history —— */
+.history {
+  margin-top: 16px;
+}
+
+.weekHeader {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #555;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  margin: 24px 0 12px 0;
+}
+
+.weekHeader:first-child {
+  margin-top: 0;
+}
+
+.entryCard {
+  background: #f0f0f0;
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 12px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+}
+
+.entryDate {
+  font-size: 0.8125rem;
+  color: #777;
+  margin: 0 0 8px 0;
+}
+
+.entryContext {
+  font-size: 0.9375rem;
+  line-height: 1.5;
+  color: #333;
+  margin: 0 0 10px 0;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.entryDivider {
+  height: 1px;
+  background: #e0e0e0;
+  margin: 10px 0;
+  border: none;
+}
+
+.entryNext {
+  font-size: 0.9375rem;
+  line-height: 1.5;
+  color: #333;
+  font-weight: 600;
+  margin: 0;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.emptyHistory {
+  font-size: 0.9375rem;
+  color: #777;
+  margin: 24px 0 0 0;
+}
+
+@media (max-width: 640px) {
+  .container {
+    padding: 20px 16px 100px;
+  }
+
+  .headline {
+    font-size: 1.75rem;
+    margin-bottom: 28px;
+  }
+}

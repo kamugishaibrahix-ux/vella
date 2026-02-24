@@ -1,0 +1,2 @@
+export { requestEmotionalPatterns } from "./requestPatternsClient";
+

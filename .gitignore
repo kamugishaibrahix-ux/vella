@@ -1,0 +1,30 @@
+# SECURITY: Prevent accidental commit of secrets. Never commit .env files.
+.env
+.env.*
+.env.local
+.env.*.local
+.env.development
+.env.production
+.env.test
+*.local
+
+# Known secret / credential files
+*.pem
+*.key
+credentials.json
+service-account*.json
+
+# Dependencies
+node_modules/
+
+# Build outputs
+.next/
+out/
+dist/
+build/
+
+# IDE / OS
+.idea/
+.vscode/
+.DS_Store
+*.log

@@ -1,0 +1,29 @@
+name: Data Safety Enforcement
+
+on:
+  pull_request:
+  push:
+    branches: ["main"]
+
+jobs:
+  data-safety:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install deps
+        run: pnpm install
+
+      - name: Check migrations safe (no destructive DDL)
+        run: node scripts/check-migrations-safe.mjs
+
+      - name: Run Data Safety Checks
+        run: pnpm check:data
+
+

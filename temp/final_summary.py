@@ -1,0 +1,71 @@
+from pathlib import Path
+import json
+
+# Files we know were modified
+files_modified = [
+    'MOBILE/app/connection-index/page.tsx',
+    'MOBILE/app/session/page.tsx',
+    'MOBILE/app/layout.tsx',
+    'MOBILE/app/check-in/page.tsx',
+    'MOBILE/components/home/QuickActionCard.tsx',
+    'MOBILE/components/home/PlanStatusCard.tsx',
+    'MOBILE/components/check-in/ConnectionProgressCard.tsx',
+    'MOBILE/components/voice/MonitoringChip.tsx',
+    'MOBILE/components/voice/EmotionalStateChip.tsx',
+    'MOBILE/components/voice/HealthChip.tsx',
+    'MOBILE/components/settings/PlanSwitcherModal.tsx',
+]
+
+# Replacement patterns applied
+replacements = {
+    'Background colors': [
+        '#050509  bg-[color:var(--mc-bg)]',
+        '#050411, #090726, #1d0d44  bg-[var(--page-gradient)]',
+        '#05040A  bg-[color:var(--mc-bg)]',
+        '#1d1d1d  bg-[color:var(--mc-card)]',
+        '#252525  bg-[color:var(--mc-card-soft)]',
+        'bg-white/[0.02]  bg-[color:var(--mc-card)]',
+        'bg-white/5  bg-[color:var(--mc-card)]',
+        'bg-white/10  bg-[color:var(--mc-card-soft)]',
+        'bg-black/20  bg-[color:var(--mc-card)]',
+    ],
+    'Text colors': [
+        'text-white/80  text-[color:var(--mc-text)]',
+        'text-white/70  text-[color:var(--mc-muted)]',
+        'text-white/60  text-[color:var(--mc-muted)]',
+        'text-white/45  text-[color:var(--mc-muted-strong)]',
+        'text-white/40  text-[color:var(--mc-muted-strong)]',
+        'text-white/50  text-[color:var(--mc-muted-strong)]',
+        'text-white/55  text-[color:var(--mc-muted)]',
+    ],
+    'Border colors': [
+        'border-white/10  border-[color:var(--mc-border)]',
+        'border-white/15  border-[color:var(--mc-border)]',
+        'border-white/20  border-[color:var(--mc-border)]',
+    ],
+    'Accent colors': [
+        '#ff7acb  var(--mc-accent)',
+        '#866cff  var(--mc-accent)',
+        '#a48cff  var(--mc-primary)',
+        '#d2c7ff  var(--mc-primary-soft)',
+        '#c7b5ff  var(--mc-accent-soft)',
+    ],
+    'Status colors': [
+        '#d9534f  var(--mc-danger)',
+        '#3bb273  var(--mc-success)',
+    ],
+    'Shadow colors': [
+        'rgba(255,122,203,0.45)  var(--shadow-primary-strong)',
+        'rgba(138,92,246,0.35)  var(--shadow-primary-medium)',
+        'rgba(100,116,139,0.35)  var(--shadow-primary-soft)',
+    ],
+}
+
+summary = {
+    'files_modified': files_modified,
+    'total_files': len(files_modified),
+    'replacements_applied': replacements,
+}
+
+Path('temp/color_migration_summary.json').write_text(json.dumps(summary, indent=2), encoding='utf-8')
+print(json.dumps(summary, indent=2))

@@ -1,0 +1,2 @@
+-- placeholder (already applied remotely)
+-- this file exists only to satisfy Supabase CLI matching rules

@@ -1,0 +1,64 @@
+from pathlib import Path
+import json
+
+# Final summary of all changes made
+summary = {
+    'files_modified': [
+        'MOBILE/app/connection-index/page.tsx',
+        'MOBILE/app/session/page.tsx',
+        'MOBILE/app/settings/account-plan/page.tsx',
+        'MOBILE/app/check-in/page.tsx',
+        'MOBILE/app/growth-plan/page.tsx',
+        'MOBILE/app/compass-mode/page.tsx',
+        'MOBILE/components/ui/EmotionalDisplay.tsx',
+        'MOBILE/components/ui/Modal.tsx',
+        'MOBILE/components/ui/Toggle.tsx',
+        'MOBILE/components/ui/Badge.tsx',
+        'MOBILE/components/ui/InsightsTray.tsx',
+        'MOBILE/components/voice/InsightsTray.tsx',
+        'MOBILE/components/voice/PredictiveAlertList.tsx',
+        'MOBILE/components/voice/NowPlayingStrip.tsx',
+        'MOBILE/components/voice/LiquidVoiceStage.tsx',
+        'MOBILE/components/voice/AudioSheet.tsx',
+        'MOBILE/components/voice/StrategyChip.tsx',
+        'MOBILE/components/settings/VellaSettingsCard.tsx',
+        'MOBILE/components/settings/AppLanguageCard.tsx',
+        'MOBILE/components/modals/UpgradeGate.tsx',
+        'MOBILE/components/insights/InsightCard.tsx',
+    ],
+    'replacements_summary': {
+        'bg-white_opacity': {
+            'pattern': 'bg-white/5, bg-white/10, bg-white/[0.02], bg-white/15, bg-white/20',
+            'replacement': 'bg-[color:var(--mc-card)] or bg-[color:var(--mc-card-soft)]',
+            'count': '50+ instances',
+        },
+        'bg-black_opacity': {
+            'pattern': 'bg-black/10, bg-black/20, bg-black/30, bg-black/40, bg-black/70',
+            'replacement': 'bg-[color:var(--mc-card)] or bg-[color:var(--mc-bg)]/70 for modals',
+            'count': '15+ instances',
+        },
+        'bg-neutral_slate': {
+            'pattern': 'bg-neutral-900, bg-slate-900',
+            'replacement': 'bg-[color:var(--mc-surface)] for inputs',
+            'count': '3 instances',
+        },
+        'border_white': {
+            'pattern': 'border-white/5, border-white/10, border-white/15, border-white/20',
+            'replacement': 'border-[color:var(--mc-border)] or border-[color:var(--mc-border-soft)]',
+            'count': '30+ instances',
+        },
+        'text_white_opacity': {
+            'pattern': 'text-white/40, text-white/50, text-white/60, text-white/70, text-white/80, text-white/90',
+            'replacement': 'text-[color:var(--mc-text)], text-[color:var(--mc-muted)], text-[color:var(--mc-muted-strong)]',
+            'count': '40+ instances',
+        },
+        'tailwind_gradients': {
+            'pattern': 'from-pink-*, from-purple-*, from-rose-*, from-sky-*, etc.',
+            'replacement': 'from-[color:var(--mc-surface)] to-[color:var(--mc-bg-soft)] or theme-based gradients',
+            'count': '15+ instances',
+        },
+    }
+}
+
+Path('temp/final_color_replacement_summary.json').write_text(json.dumps(summary, indent=2), encoding='utf-8')
+print(json.dumps(summary, indent=2))

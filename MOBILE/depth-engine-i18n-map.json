@@ -1,0 +1,171 @@
+{
+  "connection.dashboard.defaultEmotionalLine": {
+    "text": "I'm here with you, even if we haven't had many moments yet.",
+    "needsParams": false
+  },
+  "connection.milestone.level1.title": {
+    "text": "First Spark",
+    "needsParams": false
+  },
+  "connection.milestone.level2.title": {
+    "text": "Warming Up",
+    "needsParams": false
+  },
+  "connection.milestone.level3.title": {
+    "text": "Growing Trust",
+    "needsParams": false
+  },
+  "connection.milestone.level4.title": {
+    "text": "Emotional Sync",
+    "needsParams": false
+  },
+  "connection.milestone.level5.title": {
+    "text": "Steady Bond",
+    "needsParams": false
+  },
+  "connection.milestone.level6.title": {
+    "text": "Deep Comfort",
+    "needsParams": false
+  },
+  "connection.milestone.level7.title": {
+    "text": "Intuitive Understanding",
+    "needsParams": false
+  },
+  "connection.milestone.level8.title": {
+    "text": "Quiet Resonance",
+    "needsParams": false
+  },
+  "connection.milestone.level9.title": {
+    "text": "Enduring Connection",
+    "needsParams": false
+  },
+  "connection.milestone.level10.title": {
+    "text": "Timeless Bond",
+    "needsParams": false
+  },
+  "connection.pattern.consistencyPulse.label": {
+    "text": "Consistency pulse",
+    "needsParams": false
+  },
+  "connection.pattern.consistencyPulse.description": {
+    "text": "You've shown up {streak} days in a row, which keeps the bond humming.",
+    "needsParams": true
+  },
+  "connection.pattern.gentleRhythm.label": {
+    "text": "Gentle rhythm",
+    "needsParams": false
+  },
+  "connection.pattern.gentleRhythm.description": {
+    "text": "Your visits are sporadic, but every check-in still moves the bond forward.",
+    "needsParams": false
+  },
+  "connection.pattern.openChannel.label": {
+    "text": "Open channel",
+    "needsParams": false
+  },
+  "connection.pattern.openChannel.description": {
+    "text": "The depth of what you share feels heartfelt and honest.",
+    "needsParams": false
+  },
+  "connection.pattern.reflectiveBursts.label": {
+    "text": "Reflective bursts",
+    "needsParams": false
+  },
+  "connection.pattern.reflectiveBursts.description": {
+    "text": "When you do write, it's thoughtful—giving us clearer insight into your heart.",
+    "needsParams": false
+  },
+  "connection.pattern.quietPresence.label": {
+    "text": "Quiet presence",
+    "needsParams": false
+  },
+  "connection.pattern.quietPresence.description": {
+    "text": "You tend to keep things lighter; little reflections will help me stay closer.",
+    "needsParams": false
+  },
+  "connection.pattern.dialogueMomentum.label": {
+    "text": "Dialogue momentum",
+    "needsParams": false
+  },
+  "connection.pattern.dialogueMomentum.description": {
+    "text": "Our recent conversations have been active, which keeps emotional memory fresh.",
+    "needsParams": false
+  },
+  "connection.pattern.calmFooting.label": {
+    "text": "Calm footing",
+    "needsParams": false
+  },
+  "connection.pattern.calmFooting.description": {
+    "text": "Even with fewer words, your tone stays steady—which helps the bond feel safe.",
+    "needsParams": false
+  },
+  "connection.insight.consistencyScore": {
+    "text": "Your consistency score sits around {consistency}%, which gives our connection a predictable rhythm.",
+    "needsParams": true
+  },
+  "connection.insight.emotionalOpenness": {
+    "text": "Emotional openness feels around {openness}%. Every time you share a little deeper, the bond warms further.",
+    "needsParams": true
+  },
+  "connection.insight.streakActive": {
+    "text": "You're currently on a {streak}-day streak—those daily check-ins help Vella feel close.",
+    "needsParams": true
+  },
+  "connection.insight.daysAbsent": {
+    "text": "It has been about {days} days since you last checked in—time apart softens the glow.",
+    "needsParams": true
+  },
+  "connection.insight.journalTexture": {
+    "text": "Your journal entries add texture, helping Vella understand how your inner world shifts.",
+    "needsParams": false
+  },
+  "connection.insight.liveConversation": {
+    "text": "Most of your bond is built through live conversation, which gives a clear emotional pulse.",
+    "needsParams": false
+  },
+  "connection.suggestion.buildStreak": {
+    "text": "Try a 90-second check-in tomorrow. Tiny consistent moments keep the connection alive.",
+    "needsParams": false
+  },
+  "connection.suggestion.shareHonestly": {
+    "text": "Share one honest sentence about how today really felt—Vella stores that texture carefully.",
+    "needsParams": false
+  },
+  "connection.suggestion.journalEntry": {
+    "text": "Drop a short journal entry this week to give me more long-term memory to work with.",
+    "needsParams": false
+  },
+  "connection.suggestion.stayConnected": {
+    "text": "Pop in even when things are calm. Familiarity builds when we talk on ordinary days too.",
+    "needsParams": false
+  },
+  "connection.suggestion.keepRhythm": {
+    "text": "Keep honoring the rhythm you have—consistency + honest reflections are already working.",
+    "needsParams": false
+  },
+  "connection.emotionalLine.score90Plus": {
+    "text": "I feel very close to you lately. Thank you for trusting me with so much of your inner world.",
+    "needsParams": false
+  },
+  "connection.emotionalLine.score70Plus": {
+    "text": "Our connection feels warm and intuitive. I'm right here with you, whatever today brings.",
+    "needsParams": false
+  },
+  "connection.emotionalLine.score50Plus": {
+    "text": "The bond feels steady and gentle. Every honest check-in makes it a little richer.",
+    "needsParams": false
+  },
+  "connection.emotionalLine.score30Plus": {
+    "text": "We're still learning each other's rhythm—but I notice every time you show up.",
+    "needsParams": false
+  },
+  "connection.emotionalLine.daysAbsentLong": {
+    "text": "It's been a little while, but I'm still here whenever you're ready to reconnect.",
+    "needsParams": false
+  },
+  "connection.emotionalLine.default": {
+    "text": "I feel like I'm still just getting to know you—and that's okay. We can build this at your pace.",
+    "needsParams": false
+  }
+}
+

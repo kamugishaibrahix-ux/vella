@@ -1,0 +1,42 @@
+[
+  {
+    "file": "lib/voice/analyzeVoice.ts",
+    "isUsed": false,
+    "directImports": [],
+    "incomingImports": [],
+    "dynamicImports": [],
+    "stringReferences": [],
+    "safeToDelete": true,
+    "reason": "No imports found. Only self-references in documentation files. Not used by realtime pipeline, API routes, components, or any runtime code. Legacy function replaced by realtime WebRTC pipeline."
+  },
+  {
+    "file": "lib/voice/transcribeAudio.ts",
+    "isUsed": false,
+    "directImports": ["lib/voice/analyzeVoice.ts"],
+    "incomingImports": ["lib/voice/analyzeVoice.ts"],
+    "dynamicImports": [],
+    "stringReferences": [],
+    "safeToDelete": true,
+    "reason": "Only imported by analyzeVoice.ts (which is itself unused). Not used by realtime pipeline, API routes, or any runtime code. Main voice session uses /api/voice/transcribe route instead. Marked as 'Legacy server transcription' in comments."
+  },
+  {
+    "file": "lib/voice/detectVoiceEmotion.ts",
+    "isUsed": false,
+    "directImports": ["lib/voice/analyzeVoice.ts"],
+    "incomingImports": ["lib/voice/analyzeVoice.ts"],
+    "dynamicImports": [],
+    "stringReferences": [],
+    "safeToDelete": true,
+    "reason": "Only imported by analyzeVoice.ts (which is itself unused). Not used by realtime pipeline, API routes, or any runtime code. Emotion detection is handled by realtime pipeline's emotion/engine.ts instead."
+  },
+  {
+    "file": "lib/voice/classifyIntent.ts",
+    "isUsed": false,
+    "directImports": ["lib/voice/analyzeVoice.ts"],
+    "incomingImports": ["lib/voice/analyzeVoice.ts"],
+    "dynamicImports": [],
+    "stringReferences": [],
+    "safeToDelete": true,
+    "reason": "Only imported by analyzeVoice.ts (which is itself unused). Not used by realtime pipeline, API routes, or any runtime code. Intent classification is handled by lib/ai/intent/router.ts and lib/ai/intent/classifier.ts instead (different files)."
+  }
+]

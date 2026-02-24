@@ -1,0 +1,16 @@
+{
+  "summary": {
+    "totalViolations": 0,
+    "visibleToUser": 0,
+    "background": 0,
+    "blocksLanguageSwitching": 0,
+    "mockDataRequiringRework": 0,
+    "byCategory": {
+      "jsx-text": 0,
+      "mock-data": 0,
+      "static-config": 0
+    }
+  },
+  "violations": []
+}
+

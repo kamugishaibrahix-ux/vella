@@ -1,0 +1,190 @@
+{
+  "missing_wiring": [
+    {
+      "file": "app/session/page.tsx",
+      "lines": "374-390",
+      "issue": "Text mode handleSend() calls /api/conversation directly instead of routing through useRealtimeVella.sendTextMessage(). Text mode persona does not reflect realtime deliveryMeta, emotionalState, behaviourVector, or current toneStyle/language settings.",
+      "required_connection": "Route text mode messages through useRealtimeVella.sendTextMessage(). Ensure toneStyle, language, relationshipMode from userSettings.vella are consumed by realtime pipeline.",
+      "category": "A"
+    },
+    {
+      "file": "components/settings/VellaSettingsCard.tsx",
+      "lines": "191-199, 89",
+      "issue": "storyMode, cadence, variability, sarcasmSoftness are stored in VellaSettings, persisted to Supabase, displayed as 'Deprecated' placeholder, but NOT wired to personaSynth or useRealtimeVella.",
+      "required_connection": "Either remove these fields entirely from VellaSettings and database, OR wire them properly to personaSynth.buildPersonaInstruction() if they should influence delivery.",
+      "category": "A"
+    },
+    {
+      "file": "app/session/page.tsx",
+      "lines": "87, 230, 881-885, 1071-1075",
+      "issue": "selectedTone state is initialized from loadLocalMemory() on mount and updated via setSelectedTone() when ToneSelector changes, but NOT syncing with userSettings.vella?.toneStyle when settings change elsewhere.",
+      "required_connection": "Add useEffect to sync selectedTone with userSettings.vella?.toneStyle. Remove initialization from loadLocalMemory() - use userSettings.vella?.toneStyle ?? 'soft' instead.",
+      "category": "A"
+    },
+    {
+      "file": "components/settings/ToneSelector.tsx",
+      "lines": "1-85",
+      "issue": "Legacy ToneSelector component does NOT call updateVellaSettings() - it only calls optional onChange callback. There is a separate components/ui/ToneSelector.tsx that properly wires to updateVellaSettings.",
+      "required_connection": "Verify if components/settings/ToneSelector.tsx is imported anywhere. If unused, delete it. If used, ensure it calls updateVellaSettings({ toneStyle: tone }).",
+      "category": "B"
+    },
+    {
+      "file": "lib/hooks/useAudioEngine.ts",
+      "lines": "1-15",
+      "issue": "File marked @deprecated but still exports. Should be removed or replaced.",
+      "required_connection": "Search for all imports of useAudioEngine. Replace with useVellaUnifiedAudioEngine. Delete file after migration.",
+      "category": "B"
+    },
+    {
+      "file": "components/voice/AudioOrb.tsx, AudioFAB.tsx, Bubble.tsx, VoiceStage.tsx",
+      "lines": "N/A",
+      "issue": "These legacy voice component files exist but are likely not imported. Should be verified and deleted if unused.",
+      "required_connection": "Search for imports of these files. If unused, delete them. If used, mark as deprecated and document migration path to LiquidVoiceStage.",
+      "category": "B"
+    },
+    {
+      "file": "lib/ai/agents.ts",
+      "lines": "39",
+      "issue": "Imports VELLA_SYSTEM_PROMPT from @/lib/ai/systemPrompt. Need to verify if systemPrompt.ts is deprecated or if this is correct.",
+      "required_connection": "Verify if systemPrompt.ts is deprecated. If deprecated, migrate agents.ts to use personaSynth instead. If not deprecated, confirm this is intentional for text-mode only.",
+      "category": "B"
+    },
+    {
+      "file": "app/session/page.tsx",
+      "lines": "17-18",
+      "issue": "Imports updateTonePreference and updateStyleBiasFromTone from localMemory but they are never called in the file.",
+      "required_connection": "Remove unused imports OR wire them if they should be called when tone changes (but this duplicates updateVellaSettings).",
+      "category": "C"
+    },
+    {
+      "file": "app/session/page.tsx",
+      "lines": "227-231",
+      "issue": "useEffect loads tone preference from loadLocalMemory() instead of userSettings.vella?.toneStyle.",
+      "required_connection": "Initialize selectedTone from userSettings.vella?.toneStyle ?? 'soft'. Remove loadLocalMemory() call for tone preference. Only use loadLocalMemory() for memoryProfile (emotional memory, patterns, etc.).",
+      "category": "C"
+    },
+    {
+      "file": "components/settings/VellaSettingsCard.tsx",
+      "lines": "201-233",
+      "issue": "Voice HUD section shows checkboxes for moodChip, stability, deliveryHints, sessionTime but NOT tokenChip. However, tokenChip exists in VoiceHudSettings type and is used in session page.",
+      "required_connection": "Add checkbox for 'Show token usage chip' in Voice HUD settings. Wire to voiceHud.tokenChip.",
+      "category": "C"
+    }
+  ],
+  "outdated_logic": [
+    {
+      "file": "app/session/page.tsx",
+      "lines": "322-505",
+      "issue": "handleSend() calls /api/conversation with hardcoded mode/defaults. Text mode conversation does not leverage realtime pipeline's mode detection or strategy planning.",
+      "required_connection": "If text mode should stay separate, document this. If text mode should use realtime pipeline, route through useRealtimeVella.",
+      "category": "C"
+    },
+    {
+      "file": "lib/ai/agents.ts",
+      "lines": "955",
+      "issue": "Uses VELLA_SYSTEM_PROMPT from deprecated systemPrompt.ts instead of personaSynth.buildPersonaInstruction().",
+      "required_connection": "Migrate to use personaSynth.buildPersonaInstruction() or document why text mode uses separate system prompt.",
+      "category": "B"
+    }
+  ],
+  "import_mismatches": [
+    {
+      "file": "app/session/page.tsx",
+      "lines": "33",
+      "issue": "Imports type LiquidVoiceStageProps but doesn't use the type - just passes props directly.",
+      "required_connection": "Remove unused type import OR use it for prop validation.",
+      "category": "D"
+    },
+    {
+      "file": "app/session/page.tsx",
+      "lines": "28",
+      "issue": "Imports TONE_CONFIGS from @/lib/ai/tone but may not be using it (check if ToneSelector uses it internally).",
+      "required_connection": "Verify usage. Remove if unused.",
+      "category": "D"
+    }
+  ],
+  "unused_components": [
+    {
+      "file": "components/settings/ToneSelector.tsx",
+      "lines": "1-85",
+      "issue": "Legacy tone selector component - may be unused if only components/ui/ToneSelector.tsx is used.",
+      "verification_needed": "Check if this file is imported anywhere. If not, delete it.",
+      "category": "B"
+    },
+    {
+      "file": "components/voice/AudioOrb.tsx",
+      "issue": "Legacy voice component - may be unused. Replaced by LiquidVoiceStage.",
+      "verification_needed": "Check imports. Delete if unused.",
+      "category": "B"
+    },
+    {
+      "file": "components/voice/AudioFAB.tsx",
+      "issue": "Legacy voice component - may be unused. Replaced by LiquidVoiceStage.",
+      "verification_needed": "Check imports. Delete if unused.",
+      "category": "B"
+    },
+    {
+      "file": "components/voice/Bubble.tsx",
+      "issue": "Legacy voice component - may be unused. Replaced by LiquidVoiceStage.",
+      "verification_needed": "Check imports. Delete if unused.",
+      "category": "B"
+    },
+    {
+      "file": "components/voice/VoiceStage.tsx",
+      "issue": "Legacy voice component - may be unused. Replaced by LiquidVoiceStage.",
+      "verification_needed": "Check imports. Delete if unused.",
+      "category": "B"
+    }
+  ],
+  "missing_subscriptions": [
+    {
+      "file": "app/session/page.tsx",
+      "lines": "87, 122",
+      "issue": "selectedTone state is not subscribed to userSettings.vella?.toneStyle changes. If settings change in another tab or from settings page, session page doesn't update.",
+      "required_connection": "Add useEffect to subscribe selectedTone to userSettings.vella?.toneStyle changes.",
+      "category": "A"
+    }
+  ],
+  "props_unused": [
+    {
+      "file": "components/voice/LiquidVoiceStage.tsx",
+      "lines": "143-161",
+      "issue": "Props behaviourVector, monitoring are accepted but verification needed to ensure they are fully utilized in orb animation calculations.",
+      "verification_status": "Appears to be used (behaviourVector.warmthBias used on line 170, monitoring.tensionLoad used on line 172) - verify completeness.",
+      "category": "C"
+    }
+  ],
+  "correctly_wired": [
+    {
+      "feature": "relationshipMode propagation",
+      "files": ["lib/realtime/useRealtimeVella.ts", "lib/realtime/personaSynth.ts"],
+      "status": "✓ Correctly wired - relationshipMode from userSettings.vella is passed to useRealtimeVella and consumed by buildPersonaInstruction"
+    },
+    {
+      "feature": "toneStyle propagation",
+      "files": ["lib/realtime/personaSynth.ts"],
+      "status": "✓ Correctly wired - toneStyle (fallback to tone) from userSettings is read and used in buildPersonaInstruction"
+    },
+    {
+      "feature": "language propagation",
+      "files": ["lib/realtime/personaSynth.ts", "lib/realtime/useRealtimeVella.ts"],
+      "status": "✓ Correctly wired - language setting (with auto-detect) from userSettings is read and used in buildPersonaInstruction"
+    },
+    {
+      "feature": "deliveryMeta signals to LiquidVoiceStage",
+      "files": ["app/session/page.tsx", "components/voice/LiquidVoiceStage.tsx"],
+      "status": "✓ Correctly wired - emotionalState, deliveryHints, healthState, behaviourVector, monitoring, predictiveAlerts passed to LiquidVoiceStage"
+    },
+    {
+      "feature": "voiceHud toggles",
+      "files": ["components/settings/VellaSettingsCard.tsx", "app/session/page.tsx"],
+      "status": "✓ Correctly wired - voiceHud settings from VellaSettings control visibility of mood chip, stability, delivery hints, session time in session page"
+    },
+    {
+      "feature": "musicMode to NowPlayingStrip",
+      "files": ["app/session/page.tsx", "components/voice/NowPlayingStrip.tsx"],
+      "status": "✓ Correctly wired - realtimeDeliveryMeta.musicMode passed to NowPlayingStrip and integrated with useVellaUnifiedAudioEngine"
+    }
+  ]
+}
+

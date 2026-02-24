@@ -1,0 +1,63 @@
+[
+  {
+    "file": "lib/audio/useVellaAudio.ts",
+    "safeToDelete": true,
+    "reason": "No direct imports, no dynamic imports, no string references. Only found in documentation files. Replaced by useVellaUnifiedAudioEngine."
+  },
+  {
+    "file": "lib/audio/useVellaAudioEngine.ts",
+    "safeToDelete": true,
+    "reason": "No direct imports, no dynamic imports, no string references. Only found in documentation files. Replaced by useVellaUnifiedAudioEngine."
+  },
+  {
+    "file": "lib/audio/presets.ts",
+    "safeToDelete": true,
+    "reason": "No direct imports, no dynamic imports, no string references. Only found in documentation files. All preset references are to vellaAudioCatalog.ts (VellaAudioPreset), not this file. Replaced by vellaAudioCatalog.ts."
+  },
+  {
+    "file": "lib/audio/vellaAudioPrompt.ts",
+    "safeToDelete": true,
+    "reason": "No direct imports, no dynamic imports, no string references. Only found in documentation files. Functionality moved to app/api/audio/vella/route.ts (buildAudioPrompt)."
+  },
+  {
+    "file": "lib/audio/generateAudioClip.ts",
+    "safeToDelete": true,
+    "reason": "No direct imports, no dynamic imports, no string references. Only found in documentation files. Replaced by /api/audio/vella route."
+  },
+  {
+    "file": "components/inputs/VoiceRecorder.tsx",
+    "safeToDelete": true,
+    "reason": "No direct imports, no dynamic imports, no string references. Only found in documentation files. Stub component (returns null)."
+  },
+  {
+    "file": "lib/voice/analyzeVoice.ts",
+    "safeToDelete": true,
+    "reason": "ALREADY DELETED - File does not exist."
+  },
+  {
+    "file": "lib/voice/transcribeAudio.ts",
+    "safeToDelete": true,
+    "reason": "ALREADY DELETED - File does not exist."
+  },
+  {
+    "file": "lib/voice/detectVoiceEmotion.ts",
+    "safeToDelete": true,
+    "reason": "ALREADY DELETED - File does not exist."
+  },
+  {
+    "file": "lib/voice/classifyIntent.ts",
+    "safeToDelete": true,
+    "reason": "ALREADY DELETED - File does not exist."
+  },
+  {
+    "file": "app/api/conversation/route.ts",
+    "safeToDelete": true,
+    "reason": "No fetch calls found. Only found in documentation (WIRING_AUDIT_JSON.json). Returns 410 deprecated response. Replaced by realtime pipeline."
+  },
+  {
+    "file": "app/api/audio/stream/route.ts",
+    "safeToDelete": true,
+    "reason": "No fetch calls found. Only found in documentation files. Returns 410 deprecated response. Replaced by realtime WebRTC audio session."
+  }
+]
+

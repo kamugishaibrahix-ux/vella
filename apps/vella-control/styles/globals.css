@@ -1,0 +1,194 @@
+:root {
+  /* fallback light-mode variables to prevent transparency */
+  --vc-card: #ffffff;
+  --vc-bg: #ffffff;
+  --vc-border: #e5e7eb;
+
+  /* shadcn/ui base tokens used by sliders */
+  --primary: 262.1 83.3% 57.8%;
+  --muted: 210 40% 96.1%;
+}
+
+html.dark {
+  /* fallback dark-mode variables (neutral, NOT replacing UI styling) */
+  --vc-card: #1a1c24;
+  --vc-bg: #0f1117;
+  --vc-border: #2a2d36;
+
+  /* shadcn/ui base tokens used by sliders */
+  --primary: 263.4 70% 50.4%;
+  --muted: 217.2 32.6% 17.5%;
+}
+
+:root {
+  /* Backgrounds */
+  --vc-bg: #f7f9fc;
+  --vc-surface: #ffffff;
+  --vc-surface-muted: #eef2f9;
+
+  /* Sidebar */
+  --vc-sidebar-bg: #0e1428;
+  --vc-sidebar-border: #151b33;
+
+  /* Borders */
+  --vc-border-subtle: #e2e8f0;
+  --vc-border-strong: #cbd5e1;
+
+  /* Text */
+  --vc-text-primary: #0f172a;
+  --vc-text-secondary: #475569;
+  --vc-text-muted: #94a3b8;
+  --vc-text-soft: #cbd5e1;
+
+  /* Accent */
+  --vc-accent: #4b5cff;
+  --vc-accent-soft: #eef2ff;
+
+  /* Status */
+  --vc-positive-bg: #dcfce7;
+  --vc-positive-text: #166534;
+  --vc-negative-bg: #fee2e2;
+  --vc-negative-text: #b91c1c;
+
+  /* Elevation */
+  --vc-shadow-soft: 0 18px 45px rgba(15, 23, 42, 0.18);
+  --vc-radius-card: 18px;
+}
+
+html[data-theme="dark"] {
+  --vc-bg: #0b0f1d;
+  --vc-surface: #131827;
+  --vc-surface-muted: #1a2132;
+
+  --vc-sidebar-bg: #0e1428;
+  --vc-sidebar-border: #151b33;
+
+  --vc-border-subtle: #1f2433;
+  --vc-border-strong: #283041;
+
+  --vc-text-primary: #e5e9f4;
+  --vc-text-secondary: #cbd5f5;
+  --vc-text-muted: #94a3c4;
+  --vc-text-soft: #647198;
+
+  --vc-accent: #4b5cff;
+  --vc-accent-soft: rgba(75, 92, 255, 0.16);
+
+  --vc-positive-bg: #022c22;
+  --vc-positive-text: #4ade80;
+  --vc-negative-bg: #3f1515;
+  --vc-negative-text: #fecaca;
+
+  --vc-shadow-soft: 0 18px 45px rgba(0, 0, 0, 0.6);
+}
+
+:root {
+  --card: #ffffff;
+}
+
+:root[data-theme="light"] {
+  --card: #ffffff;
+}
+
+:root[data-theme="dark"] {
+  --card: #0f1118;
+}
+
+.bg-card {
+  background-color: var(--card);
+}
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  @apply antialiased;
+  background-color: var(--vc-bg);
+  color: var(--vc-text-primary);
+  transition: background-color 180ms ease, color 180ms ease;
+}
+
+.vc-shell {
+  background-color: var(--vc-bg);
+  color: var(--vc-text-primary);
+}
+
+.vc-main {
+  background-color: var(--vc-bg);
+}
+
+.vc-card {
+  background-color: var(--vc-surface);
+  border-radius: var(--vc-radius-card);
+  border: 1px solid var(--vc-border-subtle);
+  box-shadow: 0 0 0 rgba(0, 0, 0, 0);
+  transition:
+    background-color 160ms ease,
+    border-color 160ms ease,
+    box-shadow 160ms ease,
+    transform 160ms ease;
+}
+
+.vc-card:hover {
+  background-color: var(--vc-surface-muted);
+  border-color: var(--vc-border-strong);
+  box-shadow: var(--vc-shadow-soft);
+  transform: translateY(-1px);
+}
+
+.vc-heading {
+  color: var(--vc-text-primary);
+}
+
+.vc-subtitle {
+  color: var(--vc-text-secondary);
+}
+
+.vc-muted {
+  color: var(--vc-text-muted);
+}
+
+.vc-metric {
+  color: var(--vc-text-primary);
+}
+
+.vc-label-soft {
+  color: var(--vc-text-soft);
+}
+
+.vc-badge-positive {
+  background-color: var(--vc-positive-bg);
+  color: var(--vc-positive-text);
+}
+
+.vc-badge-negative {
+  background-color: var(--vc-negative-bg);
+  color: var(--vc-negative-text);
+}
+
+.vc-sidebar {
+  background-color: var(--vc-sidebar-bg);
+  border-right: 1px solid var(--vc-sidebar-border);
+}
+
+.vc-topbar {
+  background-color: var(--vc-bg);
+  border-bottom: 1px solid var(--vc-border-subtle);
+}
+
+.vc-icon-button {
+  transition: background-color 150ms ease, color 150ms ease;
+  color: var(--vc-text-secondary);
+}
+
+.vc-icon-button:hover {
+  background-color: var(--vc-surface-muted);
+  color: var(--vc-text-primary);
+}
+

@@ -1,0 +1,463 @@
+{
+  "bg_white_opacity_overrides": {
+    "MOBILE/app/settings/account-plan/page.tsx": [
+      {
+        "line": 228,
+        "class": "bg-white/10"
+      },
+      {
+        "line": 442,
+        "class": "bg-white/10"
+      },
+      {
+        "line": 702,
+        "class": "bg-white/15"
+      },
+      {
+        "line": 714,
+        "class": "bg-white/15"
+      }
+    ],
+    "MOBILE/app/session/page.tsx": [
+      {
+        "line": 886,
+        "class": "bg-white/10"
+      }
+    ],
+    "MOBILE/app/connection-index/page.tsx": [
+      {
+        "line": 371,
+        "class": "bg-white/[0.02]"
+      },
+      {
+        "line": 435,
+        "class": "bg-white/[0.02]"
+      }
+    ],
+    "MOBILE/components/ui/InsightsTray.tsx": [
+      {
+        "line": 125,
+        "class": "bg-white/5"
+      }
+    ],
+    "MOBILE/app/growth-plan/page.tsx": [
+      {
+        "line": 179,
+        "class": "bg-white/5"
+      },
+      {
+        "line": 213,
+        "class": "bg-white/5"
+      },
+      {
+        "line": 227,
+        "class": "bg-white/5"
+      }
+    ],
+    "MOBILE/components/voice/NowPlayingStrip.tsx": [
+      {
+        "line": 127,
+        "class": "bg-white/5"
+      },
+      {
+        "line": 154,
+        "class": "bg-white/5"
+      }
+    ],
+    "MOBILE/components/voice/LiquidVoiceStage.tsx": [
+      {
+        "line": 104,
+        "class": "bg-white/10, bg-white/20"
+      }
+    ],
+    "MOBILE/components/voice/InsightsTray.tsx": [
+      {
+        "line": 34,
+        "class": "bg-white/5"
+      }
+    ],
+    "MOBILE/components/voice/PredictiveAlertList.tsx": [
+      {
+        "line": 9,
+        "class": "bg-white/5"
+      }
+    ],
+    "MOBILE/components/ui/EmotionalDisplay.tsx": [
+      {
+        "line": 65,
+        "class": "bg-white/[0.02]"
+      },
+      {
+        "line": 81,
+        "class": "bg-white/10"
+      }
+    ],
+    "MOBILE/app/identity/page.tsx": [
+      {
+        "line": 69,
+        "class": "bg-white/5"
+      }
+    ],
+    "MOBILE/app/profile/page.tsx": [
+      {
+        "line": 96,
+        "class": "bg-white/20"
+      }
+    ],
+    "MOBILE/components/audio/AudioLibrarySheet.tsx": [
+      {
+        "line": 110,
+        "class": "bg-white/15"
+      },
+      {
+        "line": 177,
+        "class": "bg-white/20"
+      },
+      {
+        "line": 201,
+        "class": "hover:bg-white/10"
+      }
+    ],
+    "MOBILE/components/regulation/RegulationStrategyList.tsx": [
+      {
+        "line": 33,
+        "class": "bg-white/5"
+      }
+    ],
+    "MOBILE/components/distortions/CognitiveDistortionList.tsx": [
+      {
+        "line": 18,
+        "class": "bg-white/5"
+      }
+    ],
+    "MOBILE/components/session-insights/SessionInsightSummary.tsx": [
+      {
+        "line": 27,
+        "class": "bg-white/5"
+      }
+    ],
+    "MOBILE/components/session-insights/InsightSection.tsx": [
+      {
+        "line": 23,
+        "class": "bg-white/5"
+      }
+    ],
+    "MOBILE/components/growth/RoadmapList.tsx": [
+      {
+        "line": 27,
+        "class": "bg-white/5"
+      }
+    ],
+    "MOBILE/components/themes/LifeThemeList.tsx": [
+      {
+        "line": 22,
+        "class": "bg-white/5"
+      }
+    ],
+    "MOBILE/components/forecast/WeeklyTrend.tsx": [
+      {
+        "line": 21,
+        "class": "bg-white/10"
+      },
+      {
+        "line": 39,
+        "class": "bg-white/5"
+      }
+    ],
+    "MOBILE/components/forecast/ShortTermForecast.tsx": [
+      {
+        "line": 22,
+        "class": "bg-white/10"
+      },
+      {
+        "line": 40,
+        "class": "bg-white/5"
+      },
+      {
+        "line": 44,
+        "class": "bg-white/5"
+      },
+      {
+        "line": 48,
+        "class": "bg-white/5"
+      },
+      {
+        "line": 52,
+        "class": "bg-white/5"
+      }
+    ],
+    "MOBILE/components/loops/BehaviourLoopList.tsx": [
+      {
+        "line": 15,
+        "class": "bg-white/5"
+      }
+    ],
+    "MOBILE/app/journal/[id]/page.tsx": [
+      {
+        "line": 94,
+        "class": "bg-white/5"
+      },
+      {
+        "line": 106,
+        "class": "bg-white/5"
+      }
+    ],
+    "MOBILE/components/insights/GrowthRoadmapCard.tsx": [
+      {
+        "line": 37,
+        "class": "bg-white/10"
+      }
+    ],
+    "MOBILE/components/growth/GrowthPlanSection.tsx": [
+      {
+        "line": 10,
+        "class": "bg-white/5"
+      }
+    ],
+    "MOBILE/components/insights/StrengthValuesCard.tsx": [
+      {
+        "line": 33,
+        "class": "bg-white/10"
+      }
+    ],
+    "MOBILE/components/insights/CognitiveDistortionsCard.tsx": [
+      {
+        "line": 30,
+        "class": "bg-white/10"
+      }
+    ],
+    "MOBILE/components/insights/MoodForecastCard.tsx": [
+      {
+        "line": 41,
+        "class": "bg-white/10"
+      },
+      {
+        "line": 72,
+        "class": "bg-white/5"
+      }
+    ],
+    "MOBILE/components/home/MoodForecastMini.tsx": [
+      {
+        "line": 29,
+        "class": "bg-white/10"
+      }
+    ],
+    "MOBILE/components/insights/JournalThemesCard.tsx": [
+      {
+        "line": 30,
+        "class": "bg-white/10"
+      }
+    ],
+    "MOBILE/app/compass-mode/page.tsx": [
+      {
+        "line": 94,
+        "class": "bg-white/5"
+      }
+    ],
+    "MOBILE/components/ui/Toggle.tsx": [
+      {
+        "line": 32,
+        "class": "dark:bg-white/20"
+      }
+    ],
+    "MOBILE/components/clarity/DeepDiveModal.tsx": [
+      {
+        "line": 76,
+        "class": "bg-white/5"
+      }
+    ],
+    "MOBILE/components/strategy/StrategyView.tsx": [
+      {
+        "line": 31,
+        "class": "bg-white/5"
+      },
+      {
+        "line": 68,
+        "class": "bg-white/5"
+      }
+    ],
+    "MOBILE/components/clarity/ClarityCard.tsx": [
+      {
+        "line": 19,
+        "class": "bg-white/5"
+      }
+    ],
+    "MOBILE/components/ui/Badge.tsx": [
+      {
+        "line": 13,
+        "class": "bg-white/5"
+      }
+    ]
+  },
+  "bg_black_opacity_overrides": {
+    "MOBILE/app/check-in/page.tsx": [
+      {
+        "line": 478,
+        "class": "bg-black/40"
+      }
+    ],
+    "MOBILE/app/session/page.tsx": [
+      {
+        "line": 648,
+        "class": "bg-black/30"
+      },
+      {
+        "line": 659,
+        "class": "bg-black/20"
+      },
+      {
+        "line": 673,
+        "class": "bg-black/10"
+      },
+      {
+        "line": 899,
+        "class": "bg-black/10, hover:bg-black/30"
+      },
+      {
+        "line": 1120,
+        "class": "bg-black/10, hover:bg-black/30"
+      }
+    ],
+    "MOBILE/components/voice/InsightsTray.tsx": [
+      {
+        "line": 20,
+        "class": "bg-black/20"
+      }
+    ],
+    "MOBILE/components/voice/PredictiveAlertList.tsx": [
+      {
+        "line": 15,
+        "class": "bg-black/20"
+      }
+    ],
+    "MOBILE/components/ui/EmotionalDisplay.tsx": [
+      {
+        "line": 76,
+        "class": "bg-black/20"
+      }
+    ],
+    "MOBILE/components/modals/UpgradeGate.tsx": [
+      {
+        "line": 42,
+        "class": "bg-black/70"
+      }
+    ],
+    "MOBILE/app/compass-mode/page.tsx": [
+      {
+        "line": 44,
+        "class": "bg-black/20, hover:bg-black/40"
+      }
+    ],
+    "MOBILE/components/ui/Toggle.tsx": [
+      {
+        "line": 32,
+        "class": "bg-black/30"
+      }
+    ],
+    "MOBILE/components/ui/Modal.tsx": [
+      {
+        "line": 32,
+        "class": "bg-black/70"
+      }
+    ]
+  },
+  "bg_neutral_slate_overrides": {
+    "MOBILE/components/settings/VellaSettingsCard.tsx": [
+      {
+        "line": 112,
+        "class": "bg-neutral-900"
+      }
+    ],
+    "MOBILE/components/settings/AppLanguageCard.tsx": [
+      {
+        "line": 36,
+        "class": "bg-neutral-900"
+      }
+    ],
+    "MOBILE/components/voice/AudioSheet.tsx": [
+      {
+        "line": 14,
+        "class": "bg-slate-900"
+      }
+    ]
+  },
+  "hardcoded_hex_colors": {
+    "MOBILE/voice_realtime_scan.md": [
+      {
+        "line": 1095,
+        "class": "bg-[#101018], hover:bg-[#161624]"
+      }
+    ]
+  },
+  "tailwind_color_gradients": {
+    "MOBILE/app/connection-index/page.tsx": [
+      {
+        "line": 101,
+        "class": "from-pink-400 via-amber-300 to-emerald-300"
+      },
+      {
+        "line": 103,
+        "class": "from-pink-400 to-purple-400"
+      },
+      {
+        "line": 105,
+        "class": "from-purple-400 to-indigo-400"
+      },
+      {
+        "line": 107,
+        "class": "from-indigo-400 to-sky-400"
+      },
+      {
+        "line": 109,
+        "class": "from-sky-400 to-slate-400"
+      },
+      {
+        "line": 111,
+        "class": "from-slate-500 to-slate-600"
+      },
+      {
+        "line": 355,
+        "class": "from-slate-700/50 to-slate-200/80"
+      },
+      {
+        "line": 356,
+        "class": "from-pink-500/80 to-amber-300/80"
+      }
+    ],
+    "MOBILE/components/insights/InsightCard.tsx": [
+      {
+        "line": 11,
+        "class": "from-rose-500/10 to-transparent"
+      },
+      {
+        "line": 13,
+        "class": "from-emerald-400/10 to-transparent"
+      }
+    ],
+    "MOBILE/components/ui/EmotionalDisplay.tsx": [
+      {
+        "line": 11,
+        "class": "from-rose-300 to-emerald-300"
+      },
+      {
+        "line": 12,
+        "class": "from-sky-300 to-amber-200"
+      },
+      {
+        "line": 13,
+        "class": "from-pink-300 to-orange-200"
+      },
+      {
+        "line": 14,
+        "class": "from-purple-300 to-red-300"
+      }
+    ]
+  },
+  "summary": {
+    "total_files_with_bg_white": 36,
+    "total_files_with_bg_black": 9,
+    "total_files_with_bg_neutral": 3,
+    "total_files_with_hex_colors": 1,
+    "total_files_with_tailwind_gradients": 3
+  }
+}
