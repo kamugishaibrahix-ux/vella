@@ -825,6 +825,305 @@ Instrument from Phase 0. Never capture user content. Metrics: edge error rate, A
 
 ---
 
+## Layer 2 — Life Orchestration (Proactive Execution Engine)
+
+**Positioning:** Layer 2 expands Vella from a reactive emotional companion into an "emotionally intelligent execution partner." This is not a task manager, not a wellness gimmick, and not an intrusive notification engine. It is a consent-based, context-linked orchestration layer that helps users follow through on intentions they have already declared.
+
+**Relationship to Layer 1:** Layer 1 (Phase 1–2 MVP) establishes emotional trust through conversation, journaling, and basic commitments. Layer 2 introduces proactive execution capabilities only after that trust baseline exists. The user remains in full control; Vella offers structured support, never unsolicited surveillance.
+
+### Goal
+
+Layer 2 delivers the following value proposition:
+
+- **Insight → Commitment → Execution → Follow-up → Accountability → Adaptation** — A closed-loop system where intentions captured in conversation are structured into trackable commitments, executed with contextual support, followed up with evidence-based accountability, and adapted based on outcomes.
+- **Proactive but consent-based** — Vella initiates support only in response to explicit user commitments or user-defined triggers. No random "wellness check-ins." No behavior inference without consent.
+- **Context-linked nudges only** — Notifications and interventions are tied to specific user-defined contexts (time windows, deviation thresholds, inactivity periods) rather than algorithmic speculation about user state.
+- **Trust-first design** — Every proactive feature starts disabled. Granular opt-in per domain. Clear pause/snooze/disable controls. No surprise behaviors.
+- **Emotional intelligence meets deterministic execution** — The AI layer provides warm, appropriate framing; the Governance Spine provides deterministic orchestration logic. Neither layer blurs into the other.
+- **Accountability without shame** — Misses and relapses are logged factually. The system adapts rather than punishes. Recovery flows are prioritized over streak displays.
+- **Progressive disclosure** — Advanced orchestration features (integrations, external calendar write) are hidden until basic commitment flows are mastered.
+- **Agency preservation** — The user can override, snooze, or disable any orchestration rule at any time. The system fails closed (stops nudging) rather than failing open (spamming).
+
+### Non-negotiables
+
+These constraints are architectural and ethical invariants for Layer 2:
+
+- **No creepiness:** No unsolicited emotional check-ins. No "you seem stressed" inferences. No ambient monitoring beyond explicit commitment tracking.
+- **No OS-level control in the first iteration:** No blocking apps, no DND enforcement, no system-level interventions. Layer 2 operates within the Vella app boundary only.
+- **Granular opt-in per domain:** Sleep orchestration, focus blocking, routine nudges, abstinence accountability — each is a separate toggle. No bundled "enable all" without review.
+- **Deterministic-first orchestration logic:** All trigger conditions, escalation policies, and nudge cadences are rule-based (Governance Spine). LLMs may format messages but never decide when to send them.
+- **Clear user agency:** Every nudge includes actions: start, snooze (with time picker), skip (with optional reason), reschedule. Disable and cadence-change controls are one tap away from any nudge.
+- **No server storage of sensitive orchestration context:** Commitment descriptions, personal motivation, trigger contexts remain encrypted on-device. Server stores only commitment metadata (status, schedule windows, outcome counts).
+- **Minimal telemetry:** Orchestration analytics use only metadata (nudge delivered, action taken, outcome logged). No free-text analysis on server.
+
+### Core Primitives
+
+Layer 2 introduces four structured primitives. These are data structures, not UI components.
+
+#### Commitment
+
+A structured intention captured from user input (in-session or journal) and confirmed before activation.
+
+```typescript
+interface Commitment {
+  id: string;                    // UUID
+  domain: DomainEnum;            // sleep | focus | routine | abstinence | fitness | social | custom
+  target: TargetSpec;            // { type: "duration"|"count"|"boolean", value: number, unit: string }
+  schedule: ScheduleSpec;        // { type: "daily"|"weekly"|"window", windows: TimeWindow[], timezone: string }
+  successCriteria: Criterion[]; // [{ metric: "duration_mins"|"completed_bool", threshold: number, operator: ">="|"=" }]
+  cadence: CadenceEnum;          // daily | weekly | custom
+  escalationPolicy: Policy;      // { missThreshold: number, escalationLevels: Level[] }
+  createdBy: "user" | "ai_proposal" | "template"; // audit trail
+  status: "active" | "paused" | "completed" | "archived";
+  createdAt: timestamp;
+  // description and personal context: LOCAL ENCRYPTED ONLY
+}
+```
+
+#### Trigger
+
+A condition that evaluates to true based on deterministic rules. Triggers are the only valid cause for proactive surfaces.
+
+```typescript
+interface Trigger {
+  id: string;
+  type: "time_based" | "deviation_based" | "inactivity_based";
+  commitmentId: string;
+  guardrails: Guardrail[];       // Prevent spam: maxPerDay, quietHours, cooldownMins
+  condition: ConditionSpec;      // Deterministic rule (e.g., "now > window.start && !completedToday")
+}
+```
+
+**Guardrail examples:**
+- `maxPerDay: 3` — Never send more than 3 nudges for any commitment in 24h
+- `quietHours: [22:00, 08:00]` — Suppress all nudges during sleep window
+- `cooldownMins: 30` — After snooze, wait 30 min before re-evaluation
+
+#### Nudge
+
+A proactive surface containing a message template and required action set.
+
+```typescript
+interface Nudge {
+  id: string;
+  triggerId: string;
+  commitmentId: string;
+  template: MessageTemplate;     // { base: string, tone: "warm"|"neutral"|"firm", variables: string[] }
+  actions: Action[];             // [{ type: "start"|"snooze"|"skip"|"reschedule", payload: object }]
+  surface: SurfaceEnum;          // push_notification | in_app_inbox | inline_banner | none (silent log)
+  sentAt?: timestamp;
+  respondedAt?: timestamp;
+  responseAction?: string;
+}
+```
+
+**Action requirements:**
+- `start` — Mark commitment in-progress, surface quick-complete UI
+- `snooze` — Pause trigger for user-selected duration (15 min, 1 hr, until tomorrow)
+- `skip` — Log skip with optional enum reason (not_feeling_it, conflicting_priority, forgot, emergency)
+- `reschedule` — Shift today's window to new time without breaking streak
+
+#### Outcome
+
+Immutable record of commitment result. Append-only. Used for accountability and adaptation.
+
+```typescript
+interface Outcome {
+  id: string;
+  commitmentId: string;
+  nudgeId?: string;              // May be user-initiated without nudge
+  status: "completed" | "skipped" | "missed" | "rescheduled";
+  recordedAt: timestamp;
+  windowDate: string;            // ISO date for cadence tracking
+  // For completed:
+  actualValue?: number;          // Duration, count, etc.
+  evidenceType?: "self_report" | "session_log" | "manual"; // source of truth
+  // For skipped/missed/rescheduled:
+  reasonCode?: ReasonEnum;      // predefined enums only; no free text on server
+  // User-facing notes: LOCAL ENCRYPTED ONLY
+}
+```
+
+**Reason codes (enum, extensible):**
+- `voluntary_skip`, `not_feeling_it`, `conflicting_priority`, `external_blocker`, `forgot`, `emergency`, `technical_issue`, `paused_by_user`
+
+### Phased Roadmap (Layer 2)
+
+Layer 2 is delivered in six sub-phases (2.1–2.6), each gated by clear "done when" criteria.
+
+#### 2.1 Commitment Capture (Weeks 17–20)
+
+**Scope:** In-session commitment extraction + journal-based commitment creation + local persistence.
+
+**Deliverables:**
+- [ ] AI layer can propose commitments during conversation (user confirms before creation)
+- [ ] Journal entry type: "Commitment reflection" with structured capture
+- [ ] Commitment creation flow with schedule builder (time windows, cadence picker)
+- [ ] Local encrypted storage for commitment description and personal motivation
+- [ ] Server metadata schema for commitment (no description field)
+- [ ] Onboarding: "What area would you like Vella to help you with?" → domain selection → template proposals
+
+**Done when:**
+- User can create, view, and pause a commitment entirely within the app
+- Server commitment table contains only metadata; zero free-text columns
+- Commitments survive app restart and appear in governance state
+
+**Must NOT exist yet:**
+- Proactive nudges (no notification permission request)
+- Trigger engine
+- Outcome logging beyond manual complete/skip
+
+**Telemetry:** Metadata only (commitment created count by domain, source: session vs journal).
+
+#### 2.2 Orchestration Trigger Engine (Weeks 21–24)
+
+**Scope:** Deterministic trigger evaluation + scheduler hooks + guardrail enforcement.
+
+**Deliverables:**
+- [ ] Trigger engine (TypeScript, deterministic, client-side with server verification)
+- [ ] Time-based trigger evaluation (is now in window? has completion been logged today?)
+- [ ] Deviation-based triggers (session started but not completed within planned duration)
+- [ ] Inactivity-based triggers (no check-in for N days, commitment at risk)
+- [ ] Guardrail system: maxPerDay, quietHours, cooldownMins, per-domain caps
+- [ ] Trigger event logging to governance_events (trigger_fired, trigger_suppressed_by_guardrail)
+
+**Done when:**
+- Trigger engine produces deterministic output for all active commitments
+- Guardrails successfully suppress excess nudges (test: rapid-fire trigger conditions)
+- Server receives trigger events as metadata; no trigger logic depends on LLM
+
+**Must NOT exist yet:**
+- Push notifications (surface = in_app_inbox only)
+- Nudge templating or AI-generated message variations
+
+**Telemetry:** Trigger fired counts by type, guardrail suppression counts by reason.
+
+#### 2.3 Proactive Surfaces (Weeks 25–28)
+
+**Scope:** Push notifications with actions, in-app inbox, nudge message templating.
+
+**Deliverables:**
+- [ ] Push notification infrastructure (FCM/APNs) with action buttons
+- [ ] Nudge message templates (warm/neutral/firm) with variable substitution
+- [ ] AI layer message formatting: templates are static; AI may polish phrasing but never decides timing
+- [ ] In-app inbox: chronological nudge history with outcome badges
+- [ ] Notification permission flow: asked only after 3+ commitments created (trust-first)
+- [ ] Action handling: start, snooze (time picker), skip (reason enum), reschedule (time picker)
+
+**Done when:**
+- User receives first proactive nudge for an active commitment
+- All nudge actions work offline and sync on reconnect
+- Snooze and skip reasons are logged as enums only
+
+**Must NOT exist yet:**
+- Accountability reporting (no "you missed 3 times this week" summaries)
+- Weekly review flows
+- Adaptation logic (no auto-cadence changes)
+
+**Telemetry:** Nudge sent count by surface, action taken counts by type (start/snooze/skip/reschedule).
+
+#### 2.4 Accountability Loop + Weekly Review + Adaptation (Weeks 29–32)
+
+**Scope:** Outcome aggregation, weekly reflection UI, adaptive cadence suggestions.
+
+**Deliverables:**
+- [ ] Outcome logging UI (quick-complete, manual log, edit within 24h)
+- [ ] Weekly review surface: "This week in [domain]" — completed count, skip count, pattern highlights
+- [ ] Adaptation engine: suggests cadence or schedule changes based on miss patterns (user approves)
+- [ ] Streak calculation (deterministic, server-authoritative)
+- [ ] Relapse event handling for abstinence commitments (Section 5.4 flow)
+- [ ] Risk score integration: high miss rate modulates AI tone in related conversations
+
+**Done when:**
+- User can view weekly commitment report with outcome tallies
+- User receives adaptation suggestion ("Your evening focus sessions often get skipped. Try morning?") with approve/decline
+- Streak and miss counts display accurately; no phantom resets
+
+**Must NOT exist yet:**
+- Preference center (permissions still per-domain during creation only)
+- Third-party integrations
+- Widgets
+
+**Telemetry:** Weekly review opened count, adaptation suggestion approval rate, streak milestone reached count.
+
+#### 2.5 Permissions + Preference Centre (Weeks 33–36)
+
+**Scope:** Granular domain toggles, notification preference management, pause controls.
+
+**Deliverables:**
+- [ ] Preference centre UI: list of domains with toggle per orchestration feature
+- [ ] Notification settings: per-domain quiet hours, global quiet hours override
+- [ ] Pause modes: pause domain (retain commitments, stop triggers), pause all (emergency stop)
+- [ ] Snooze history and pattern display ("You've snoozed evening meditation 5 times")
+- [ ] Export commitment data (JSON, encrypted, user-owned)
+
+**Done when:**
+- User can disable all sleep orchestration without affecting focus orchestration
+- Pause all stops all triggers within 1 minute
+- Snooze pattern insight surfaces to user (self-awareness, not shame)
+
+**Must NOT exist yet:**
+- Calendar integrations
+- OS-level DND control
+- Wearable data ingestion
+
+**Telemetry:** Permission toggle changes by domain, pause events (count only, no reason).
+
+#### 2.6 Optional Integrations (Weeks 37+)
+
+**Scope:** Calendar read/write, widgets, future platform integrations. All behind explicit opt-in.
+
+**Deliverables:**
+- [ ] Calendar read (optional): import events to avoid commitment window conflicts
+- [ ] Calendar write (optional): write commitment blocks to external calendar (behind double opt-in)
+- [ ] Home screen widget: next commitment window, quick-complete action
+- [ ] Integration permission gate: separate toggle from core orchestration, clear data usage explanation
+
+**Done when:**
+- User can enable calendar write only after completing 10+ commitments manually
+- Widget displays accurate next window without leaking description text
+- All integrations can be revoked with one tap; revocation stops data flow immediately
+
+**Gating criteria:**
+- All 2.1–2.5 gates satisfied
+- Legal review for calendar data handling
+- 2.6 launches as "Labs" feature, not default-on
+
+**Telemetry:** Integration enabled counts by type, widget interaction counts.
+
+### Risk Controls
+
+Layer 2 introduces proactive capabilities that carry abuse and fatigue risks. These controls are mandatory:
+
+- **Notification fatigue protections:**
+  - Hard cap: max 5 push notifications per day across all domains combined
+  - Quiet hours: default 22:00–08:00, user-configurable per domain
+  - Cooldown: minimum 30 minutes between nudges for the same commitment
+  - Deduplication: if user manually completes commitment within window, suppress scheduled nudge
+  - Fatigue detection: if skip rate > 70% for 7 days, system pauses proactive surfaces for that domain and surfaces insight (not blame)
+
+- **Fail-closed permissions:**
+  - If user revokes notification permission, all time-based triggers convert to silent inbox nudges (never lost, never spam)
+  - If user disables domain, all triggers for that domain stop evaluating immediately
+  - If guardrail conflict detected (e.g., maxPerDay exceeded by rule change), system suppresses rather than sends
+
+- **Clear UX for revoke/disable:**
+  - Every nudge has visible "Manage" link to preference centre
+  - Preference centre accessible from Settings in 2 taps
+  - Pause button on every commitment detail screen
+  - Account deletion removes all orchestration metadata within 24h (standard deletion flow)
+
+- **No server storage of sensitive free text:**
+  - Commitment descriptions, personal motivation, and user notes remain encrypted on-device (existing policy)
+  - Reason codes are enums; no "other" free-text field for skip reasons on server
+  - AI-generated nudge variations are computed client-side or formatted from templates; no prompt/response storage
+
+- **Consent audit trail:**
+  - Governance events track: commitment_created (with createdBy), orchestration_enabled, domain_paused, nudge_permission_granted, integration_enabled
+  - User can request audit export of all orchestration decisions affecting them (metadata only)
+
+---
+
 ## 13. Incident Response
 
 ### 13.1 Severity Levels
@@ -882,6 +1181,10 @@ Edge 5xx spike; AI quota exhausted; DB pool exhausted; rate limit bypass; banned
 ---
 
 ## Changelog — Hardening v1.0 (Architectural Enforcement)
+
+**New Layer Added:**
+
+- **Layer 2 — Life Orchestration (Proactive Execution Engine):** New top-level expansion layer added after Section 12 (Roadmap and Phases). Defines the proactive execution partner positioning, non-negotiables (consent-based, deterministic-first, no creepiness), four core primitives (Commitment, Trigger, Nudge, Outcome), phased roadmap (2.1–2.6 with gating criteria), and risk controls (notification fatigue protection, fail-closed permissions, clear revoke UX, consent audit trail).
 
 **Sections modified:**
 

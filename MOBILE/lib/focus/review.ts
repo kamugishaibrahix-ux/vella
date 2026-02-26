@@ -173,7 +173,7 @@ export function aggregateWeeklyFocusCheckins(
 
   // Step D & E — Per event: weight by numeric_value (2→1, 1→2/3, 0→1/3); contribution = weight * itemDailyMax. Sum per day, cap day at DAILY_MAX
   let weeklyTotal = 0;
-  for (const dayEvents of byDay.values()) {
+  for (const dayEvents of Array.from(byDay.values())) {
     let daySum = 0;
     for (const e of dayEvents) {
       let ratingWeight = 0;

@@ -4,8 +4,8 @@
  */
 
 const DB_NAME = "vella_local_v2";
-const DB_VERSION = 1;
-const STORES = ["journals", "checkins", "conversations", "reports", "migration_cursors"] as const;
+const DB_VERSION = 4;
+const STORES = ["journals", "checkins", "conversations", "reports", "migration_cursors", "commitments_local", "inbox_items"] as const;
 
 function openDB(): Promise<IDBDatabase> {
   if (typeof indexedDB === "undefined") {
@@ -21,6 +21,15 @@ function openDB(): Promise<IDBDatabase> {
         if (!db.objectStoreNames.contains(name)) {
           const store = db.createObjectStore(name, { keyPath: "id" });
           if (name !== "migration_cursors") store.createIndex("userId", "userId", { unique: false });
+          if (name === "inbox_items") store.createIndex("commitment_id", "commitment_id", { unique: false });
+        }
+      }
+      // v4: add commitment_id index to inbox_items if upgrading from v3
+      if (db.objectStoreNames.contains("inbox_items")) {
+        const tx = req.transaction!;
+        const store = tx.objectStore("inbox_items");
+        if (!store.indexNames.contains("commitment_id")) {
+          store.createIndex("commitment_id", "commitment_id", { unique: false });
         }
       }
     };

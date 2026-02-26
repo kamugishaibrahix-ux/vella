@@ -53,6 +53,10 @@ export const GOVERNANCE_EVENT_TYPES = [
   "focus_end",
   "scheduler_tick",
   "weekly_focus_checkin",
+  "commitment_outcome_logged",
+  "commitment_status_changed",
+  "trigger_fired",
+  "trigger_suppressed",
 ] as const;
 
 export const GOVERNANCE_COMMITMENT_CODES = [

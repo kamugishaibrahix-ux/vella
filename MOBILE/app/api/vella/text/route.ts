@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { buildVellaTextPrompt } from "@/lib/ai/textPrompts";
 import { runVellaTextCompletion } from "@/lib/ai/textEngine";
+import type { VellaMode } from "@/lib/ai/modes";
 import { resolveMode } from "@/lib/ai/modeResolver";
 import {
   getGovernanceStateForUser,
@@ -187,7 +188,7 @@ export async function POST(req: Request) {
     await computeGovernanceState(userId).catch(() => {});
     governance = await getGovernanceStateForUser(userId);
   }
-  let finalMode = resolveMode(requestedMode ?? null, governance);
+  let finalMode = resolveMode((requestedMode ?? null) as VellaMode | null, governance);
 
   try {
   // Short-circuit for guided exercises (no OpenAI call — no quota check or charge).
@@ -259,7 +260,7 @@ export async function POST(req: Request) {
     longitudinalInput,
     activeValues ?? null
   );
-  finalMode = resolveMode(requestedMode ?? null, governance, {
+  finalMode = resolveMode((requestedMode ?? null) as VellaMode | null, governance, {
     contradictionDetected: behaviourSnapshot.contradictionDetected,
     boundarySeverity: boundarySignal.severity,
     firmnessLevel: behaviourSnapshot.guidanceSignals?.firmnessLevel,

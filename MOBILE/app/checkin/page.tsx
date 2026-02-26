@@ -1,407 +1,342 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
-import { useRouter } from "next/navigation";
-import { WeeklyFocusCard } from "@/app/components/weekly-focus/WeeklyFocusCard";
-import { ReviewPanel } from "@/app/components/weekly-focus/ReviewPanel";
-import { EmptyFocusState } from "@/app/components/weekly-focus/EmptyFocusState";
-import { InfoSheet } from "@/app/components/weekly-focus/InfoSheet";
-import { CompletionRing } from "@/app/components/weekly-focus/CompletionRing";
-import { getDisplayWeekId } from "@/app/checkin/weekIdClient";
-import { getWeeklyIntentSummary } from "@/app/checkin/intentSummary";
-import { getDevMockWeeklyFocus } from "@/lib/focus/devMock";
-import type {
-  WeeklyFocusItem,
-  FocusWeekResponse,
-  WeeklyFocusReview,
-  FocusRating,
-  RatingPayload,
-} from "@/app/checkin/types";
+import { useState, useEffect, useCallback, useRef } from "react";
+import { Plus } from "lucide-react";
+import { ContractCard } from "@/components/checkin/ContractCard";
+import { ContractModal } from "@/components/checkin/ContractModal";
+import { WeeklyCrystal } from "@/components/checkin/WeeklyCrystal";
+import { AlignmentSigil } from "@/components/checkin/AlignmentSigil";
+import type { WeeklyContract, Rating } from "@/app/checkin/types";
+import {
+  addContract,
+  deleteContract,
+  countContracts,
+  createEmptyState,
+  getWeekKey,
+  getTodayKey,
+  addCheckin,
+  hasCheckedInToday,
+  calculateDailyScore,
+} from "@/app/checkin/engine";
+import { getUserAllowed, getLimitMessage } from "@/app/checkin/limits";
 
-const MAX_ITEMS = 5;
+const STORAGE_KEY = "vella-checkin-v1";
 
-const useMockEnv = process.env.NEXT_PUBLIC_DEV_FOCUS_MOCK === "true";
-const isDev = process.env.NODE_ENV === "development";
-
-const RATING_TO_NUMERIC: Record<FocusRating, number> = {
-  strong: 2,
-  neutral: 1,
-  struggling: 0,
-};
-
-/** Alignment 0–1: strong=1, neutral=0.5, struggling=0. */
-function getAlignmentRatio(
-  items: WeeklyFocusItem[],
-  ratings: Record<string, FocusRating>
-): number {
-  const selected = items.filter((i) => ratings[i.itemId] != null);
-  if (!selected.length) return 0;
-  let sum = 0;
-  selected.forEach((i) => {
-    const r = ratings[i.itemId];
-    if (r === "strong") sum += 1;
-    else if (r === "neutral") sum += 0.5;
-  });
-  return sum / selected.length;
-}
-
-function SkeletonCards() {
-  return (
-    <div className="space-y-1.5">
-      {[1, 2, 3].map((i) => (
-        <div
-          key={i}
-          className="rounded-vella-card border border-vella-border bg-vella-bg-card p-3 animate-pulse"
-        >
-          <div className="h-4 w-3/4 rounded bg-vella-border" />
-          <div className="mt-2 h-8 w-full rounded-full bg-vella-border" />
-        </div>
-      ))}
-    </div>
-  );
+interface AppState {
+  weekKey: string;
+  contracts: WeeklyContract[];
+  todayRatings: Record<string, Rating>;
+  isLocked: boolean;
+  completedDays: number;
 }
 
 export default function CheckinPage() {
-  const [view, setView] = useState<"form" | "review">("form");
-  const [weekId, setWeekId] = useState<string | null>(null);
-  const [items, setItems] = useState<WeeklyFocusItem[]>([]);
-  const [ratings, setRatings] = useState<Record<string, FocusRating>>({});
-  const [review, setReview] = useState<WeeklyFocusReview | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [submitLoading, setSubmitLoading] = useState(false);
-  const [submitSuccess, setSubmitSuccess] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [infoOpen, setInfoOpen] = useState(false);
-  const [mockActive, setMockActive] = useState(false);
-  const [weekSoFarPercent, setWeekSoFarPercent] = useState(0);
-  const [checkinCount, setCheckinCount] = useState(0);
-  const [localRatings, setLocalRatings] = useState<Record<string, number>>({});
-  const [submittedToday, setSubmittedToday] = useState(false);
-  const [optionalNote, setOptionalNote] = useState("");
-  const [hadStrugglingThisSubmit, setHadStrugglingThisSubmit] = useState(false);
-  const router = useRouter();
+  const [state, setState] = useState<AppState>({
+    weekKey: getWeekKey(),
+    contracts: [],
+    todayRatings: {},
+    isLocked: false,
+    completedDays: 0,
+  });
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isHydrated, setIsHydrated] = useState(false);
 
-  const applyMockData = useCallback(() => {
-    const displayWeekId = getDisplayWeekId(new Date());
-    const mock = getDevMockWeeklyFocus(displayWeekId);
-    setWeekId(mock.weekId);
-    setItems(mock.items);
-    setRatings({});
-    setError(null);
-    setMockActive(true);
-    setWeekSoFarPercent(0);
-    setCheckinCount(0);
-    setLocalRatings({});
-    setSubmittedToday(false);
+  // Refs for sigil animation - detect completedDays delta
+  const prevCompletedDaysRef = useRef(state.completedDays);
+  const showSigilRef = useRef(false);
+  const sigilTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Load from localStorage on mount
+  useEffect(() => {
+    const stored = localStorage.getItem(STORAGE_KEY);
+    if (stored) {
+      try {
+        const parsed = JSON.parse(stored);
+        const currentWeek = getWeekKey();
+
+        // Check if week rolled over
+        if (parsed.weekKey === currentWeek) {
+          setState({
+            weekKey: parsed.weekKey,
+            contracts: parsed.contracts || [],
+            todayRatings: parsed.todayRatings || {},
+            isLocked: parsed.isLocked || false,
+            completedDays: parsed.completedDays || 0,
+          });
+        } else {
+          // Week changed - reset but keep vella contracts (in real app, these come from API)
+          setState({
+            weekKey: currentWeek,
+            contracts: (parsed.contracts || []).filter((c: WeeklyContract) => c.origin === "vella"),
+            todayRatings: {},
+            isLocked: false,
+            completedDays: 0,
+          });
+        }
+      } catch {
+        // Invalid storage, start fresh
+      }
+    }
+    setIsHydrated(true);
   }, []);
 
-  const fetchFocusWeek = useCallback(async () => {
-    setError(null);
-    setMockActive(false);
-    setLoading(true);
-    try {
-      const res = await fetch("/api/focus/week");
-      if (!res.ok) {
-        if (isDev) {
-          applyMockData();
-        } else {
-          const data = await res.json().catch(() => ({}));
-          setError(data?.error === "internal_error" ? "Something went wrong." : "Could not load focus.");
-          setItems([]);
-        }
-        return;
-      }
-      const data: FocusWeekResponse = await res.json();
-      setWeekId(data.weekId ?? null);
-      setItems(data.items?.slice(0, MAX_ITEMS) ?? []);
-      setRatings({});
-      setLocalRatings({});
-      setWeekSoFarPercent(data.weekSoFarPercent ?? 0);
-      setCheckinCount(data.checkinCount ?? 0);
-      setSubmittedToday(data.submittedToday ?? false);
-    } catch {
-      if (isDev) {
-        applyMockData();
-      } else {
-        setError("Could not load focus.");
-        setItems([]);
-      }
-    } finally {
-      setLoading(false);
-    }
-  }, [applyMockData]);
-
+  // Save to localStorage on change
   useEffect(() => {
-    if (useMockEnv) {
-      applyMockData();
-      setLoading(false);
+    if (!isHydrated) return;
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  }, [state, isHydrated]);
+
+  // Calculate counts
+  const { vellaCount, userCount } = countContracts(state.contracts);
+  const userAllowed = getUserAllowed(vellaCount);
+  const canAdd = userCount < userAllowed && vellaCount + userCount < 6;
+  const limitText = getLimitMessage(vellaCount, userCount);
+
+  // Handlers
+  const handleCreateContract = useCallback((data: { title: string; focusArea: string; purpose?: string }) => {
+    const engineState = createEmptyState(state.weekKey);
+    engineState.contracts = state.contracts;
+
+    const result = addContract(engineState, {
+      title: data.title,
+      focusArea: data.focusArea,
+      origin: "user",
+    });
+
+    if (result.success) {
+      setState((prev) => ({
+        ...prev,
+        contracts: result.state.contracts,
+      }));
+      setIsModalOpen(false);
+    }
+  }, [state.weekKey, state.contracts]);
+
+  const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
+
+  const handleDeleteContract = useCallback((id: string) => {
+    const contract = state.contracts.find((c) => c.id === id);
+    if (!contract) return;
+
+    // Show confirmation first
+    if (deleteConfirmId !== id) {
+      setDeleteConfirmId(id);
       return;
     }
-    fetchFocusWeek();
-  }, [useMockEnv, applyMockData, fetchFocusWeek]);
 
-  const completedCount = items.filter((i) => ratings[i.itemId] != null).length;
-  const allSelected = items.length > 0 && completedCount === items.length;
-  const alignmentRatio = getAlignmentRatio(items, ratings);
-  const showAlignmentIndicator = completedCount >= 1;
-  const intentSummary = getWeeklyIntentSummary(items);
+    // Confirmed - proceed with delete
+    const engineState = createEmptyState(state.weekKey);
+    engineState.contracts = state.contracts;
 
-  const DAILY_MAX = 100 / 7;
-  const N = items.length || 1;
-  const ITEM_DAILY_MAX = DAILY_MAX / N;
-  const todayPercent = Object.values(localRatings).reduce((sum, value) => {
-    let weight = 0;
-    if (value === 2) weight = 1;
-    if (value === 1) weight = 2 / 3;
-    if (value === 0) weight = 1 / 3;
-    return sum + weight * ITEM_DAILY_MAX;
-  }, 0);
-  const todayRounded = Math.round(todayPercent);
-  const liveWeekDisplay = Math.min(100, weekSoFarPercent + todayRounded);
-
-  const refetchWeekSoFar = useCallback(async () => {
-    try {
-      const res = await fetch("/api/focus/week");
-      if (res.ok) {
-        const data: FocusWeekResponse = await res.json();
-        setWeekSoFarPercent(data.weekSoFarPercent ?? 0);
-        setCheckinCount(data.checkinCount ?? 0);
-        setSubmittedToday(data.submittedToday ?? false);
-      }
-    } catch {
-      // ignore
+    const result = deleteContract(engineState, id);
+    if (result.success) {
+      setState((prev) => ({
+        ...prev,
+        contracts: result.state.contracts,
+        todayRatings: Object.fromEntries(
+          Object.entries(prev.todayRatings).filter(([key]) => key !== id)
+        ),
+      }));
+      setDeleteConfirmId(null);
     }
+  }, [state.weekKey, state.contracts, deleteConfirmId]);
+
+  const handleRate = useCallback((contractId: string, rating: Rating) => {
+    setState((prev) => ({
+      ...prev,
+      todayRatings: {
+        ...prev.todayRatings,
+        [contractId]: rating,
+      },
+    }));
   }, []);
 
-  useEffect(() => {
-    if (!submitSuccess) return;
-    const t = setTimeout(() => {
-      setView("review");
-      setSubmitSuccess(false);
-    }, 1200);
-    return () => clearTimeout(t);
-  }, [submitSuccess]);
+  const handleLockIn = useCallback(() => {
+    const engineState = createEmptyState(state.weekKey);
+    engineState.contracts = state.contracts;
 
-  const handleSubmit = useCallback(async () => {
-    if (!weekId || !allSelected) return;
-    setError(null);
-    setSubmitLoading(true);
-    try {
-      const dateIso = new Date().toISOString().slice(0, 10);
-      const ratingsPayload: RatingPayload[] = items.map((item) => ({
-        itemId: item.itemId,
-        subjectCode: item.subjectCode,
-        sourceType: item.sourceType,
-        rating: ratings[item.itemId]!,
+    const result = addCheckin(engineState, state.todayRatings);
+
+    if (result.success) {
+      setState((prev) => ({
+        ...prev,
+        isLocked: true,
+        completedDays: prev.completedDays + 1,
       }));
-
-      const res = await fetch("/api/check-ins/weekly-focus", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          weekId,
-          dateIso,
-          ratings: ratingsPayload,
-          ...(optionalNote.trim() && { note: optionalNote.trim().slice(0, 200) }),
-        }),
-      });
-
-      if (!res.ok) {
-        const data = await res.json().catch(() => ({}));
-        setError(data?.error === "validation_error" ? "Invalid data." : "Check-in failed.");
-        return;
-      }
-
-      let reviewData: WeeklyFocusReview;
-      const reviewRes = await fetch(`/api/focus/week/review?weekId=${encodeURIComponent(weekId)}`);
-      if (!reviewRes.ok) {
-        reviewData = {
-          weekId,
-          completionScore0to100: 0,
-          strongestSubjectCode: null,
-          weakestSubjectCode: null,
-          consistencyTier: "mixed",
-          earnedValidationEligible: false,
-          earnedValidationReasons: [],
-          suggestedNextWeek: [],
-        };
-      } else {
-        reviewData = await reviewRes.json();
-      }
-      setReview(reviewData);
-      setHadStrugglingThisSubmit(items.some((i) => ratings[i.itemId] === "struggling"));
-      setSubmitSuccess(true);
-      setLocalRatings({});
-      setOptionalNote("");
-      await refetchWeekSoFar();
-    } catch {
-      setError("Check-in failed.");
-    } finally {
-      setSubmitLoading(false);
     }
-  }, [weekId, allSelected, items, ratings, refetchWeekSoFar]);
+  }, [state.weekKey, state.contracts, state.todayRatings]);
 
-  const handleDiscuss = useCallback(
-    async (item: WeeklyFocusItem) => {
-      try {
-        await fetch("/api/vella/text", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            type: "focus_intervention",
-            subjectCode: item.subjectCode,
-            weekId: weekId ?? getDisplayWeekId(new Date()),
-            rating: localRatings[item.itemId] ?? 0,
-          }),
-        });
-      } finally {
-        router.push("/session");
+  // Check if all contracts are rated
+  const allRated = state.contracts.length > 0 &&
+    state.contracts.every((c) => state.todayRatings[c.id] !== undefined);
+
+  // Daily score
+  const dailyScore = calculateDailyScore(state.todayRatings);
+
+  // Detect completedDays change and trigger sigil animation
+  useEffect(() => {
+    const prevDays = prevCompletedDaysRef.current;
+    const currentDays = state.completedDays;
+    
+    if (currentDays > prevDays && state.isLocked) {
+      // Show sigil for 1.2 seconds
+      showSigilRef.current = true;
+      
+      if (sigilTimeoutRef.current) {
+        clearTimeout(sigilTimeoutRef.current);
       }
-    },
-    [weekId, localRatings, router]
-  );
+      
+      sigilTimeoutRef.current = setTimeout(() => {
+        showSigilRef.current = false;
+        // Force re-render to hide sigil
+        setState((prev) => ({ ...prev }));
+      }, 1200);
+    }
+    
+    prevCompletedDaysRef.current = currentDays;
+  }, [state.completedDays, state.isLocked]);
 
-  const displayWeekId = getDisplayWeekId(new Date());
+  if (!isHydrated) {
+    return (
+      <div className="min-h-screen bg-[#F3F4F6] flex items-center justify-center">
+        <div className="text-slate-500">Loading…</div>
+      </div>
+    );
+  }
 
   return (
-    <div className="min-h-[100dvh] overflow-y-auto pb-24 flex flex-col">
-      <header className="shrink-0 pt-3 pb-2">
-        <div className="flex items-start justify-between gap-2">
+    <div className="min-h-screen bg-[#F3F4F6]">
+      <div className="max-w-xl mx-auto px-6">
+      {/* Header */}
+      <header className="sticky top-0 z-40 py-4 bg-[#F3F4F6]">
+        <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-xl font-semibold text-vella-text">This Week&apos;s Contract</h1>
-            <p className="text-sm text-vella-muted mt-0.5">Week {displayWeekId}</p>
+            <h1 className="text-lg font-semibold text-slate-900">Weekly Alignment</h1>
+            <p className="text-xs text-slate-500">{state.weekKey}</p>
           </div>
-          <div className="flex items-center gap-2 shrink-0">
-            <CompletionRing
-              percent={liveWeekDisplay}
-              label="Week so far"
-              checkinCount={checkinCount}
-              size="sm"
-            />
+
+          <div className="flex items-center gap-3">
+            {/* Create button */}
             <button
-              type="button"
-              onClick={() => setInfoOpen(true)}
-              className="p-1.5 rounded-full text-vella-muted hover:text-vella-text pressable"
-              aria-label="About this week's contract"
+              onClick={() => setIsModalOpen(true)}
+              disabled={!canAdd}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
+                canAdd
+                  ? "bg-emerald-600/10 text-emerald-700 hover:bg-emerald-600/20"
+                  : "bg-slate-200 text-slate-400 cursor-not-allowed"
+              }`}
+              title={limitText || "Create contract"}
             >
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <circle cx="12" cy="12" r="10" />
-                <path d="M12 16v-4M12 8h.01" />
-              </svg>
+              <Plus className="w-3.5 h-3.5" />
+              Create
             </button>
-          </div>
-        </div>
-        {intentSummary && (
-          <p className="text-sm text-vella-muted font-light italic mt-2">
-            {intentSummary}
-          </p>
-        )}
-        {checkinCount >= 1 && (
-          <p className="text-xs text-vella-muted mt-1">
-            Based on {checkinCount} check-in{checkinCount === 1 ? "" : "s"}
-          </p>
-        )}
-        {items.length > 0 && view === "form" && (
-          <div className="mt-2 flex items-center justify-end gap-2">
-            <span className="text-xs text-vella-muted">Alignment today</span>
-            <div className="h-1.5 w-20 rounded-full bg-vella-border overflow-hidden">
-              <div
-                className="h-full rounded-full bg-vella-accent transition-all duration-200 ease-in-out"
-                style={{ width: `${Math.round(alignmentRatio * 100)}%` }}
+
+            {/* Weekly crystal indicator */}
+            <div className="scale-75 origin-right">
+              <WeeklyCrystal 
+                completedDays={state.completedDays} 
+                isLocked={state.isLocked}
               />
             </div>
           </div>
-        )}
-        {mockActive && isDev && (
-          <p className="text-[10px] text-vella-muted mt-1.5 font-medium uppercase tracking-wide">
-            Development Preview
-          </p>
-        )}
+        </div>
       </header>
 
-      <div className="flex flex-col gap-3 pb-4">
-        {!mockActive && error && (
-          <div className="rounded-vella-button border border-vella-border bg-vella-bg-card px-3 py-2 flex items-center justify-between gap-2">
-            <span className="text-sm text-vella-muted">{error}</span>
-            {view === "form" && (
-              <button
-                type="button"
-                onClick={fetchFocusWeek}
-                className="text-sm font-medium text-vella-accent pressable"
-              >
-                Retry
-              </button>
-            )}
+      {/* Main content */}
+      <main className="pb-32 pt-6">
+        {/* Sigil animation after lock-in */}
+        {showSigilRef.current ? (
+          <div className="flex justify-center py-12">
+            <AlignmentSigil 
+              completedDays={state.completedDays} 
+              isAnimating={true}
+            />
           </div>
-        )}
-
-        {submitSuccess && hadStrugglingThisSubmit && (
-          <p className="text-sm text-vella-muted">Support activated for this item.</p>
-        )}
-        {view === "review" && review ? (
-          <ReviewPanel review={review} />
-        ) : loading ? (
-          <SkeletonCards />
-        ) : items.length === 0 ? (
-          <EmptyFocusState />
+        ) : state.isLocked ? (
+          <div className="text-center py-12">
+            <p className="text-slate-500 text-sm mb-4">Today&apos;s alignment recorded.</p>
+            <div className="flex justify-center">
+              <WeeklyCrystal 
+                completedDays={state.completedDays} 
+                isLocked={true}
+              />
+            </div>
+          </div>
         ) : (
           <>
-            <div className="space-y-1.5">
-              {items.map((item) => (
-                <WeeklyFocusCard
-                  key={item.itemId}
-                  item={item}
-                  value={ratings[item.itemId] ?? null}
-                  onChange={(rating) => {
-                    setRatings((prev) => ({ ...prev, [item.itemId]: rating }));
-                    setLocalRatings((prev) => ({
-                      ...prev,
-                      [item.itemId]: RATING_TO_NUMERIC[rating],
-                    }));
-                  }}
-                  disabled={submitLoading}
-                  localRatingValue={localRatings[item.itemId]}
-                  submittedToday={submittedToday}
-                  onDiscussWithVella={handleDiscuss}
-                />
-              ))}
+            {/* Contracts list */}
+            <div className="space-y-3">
+              {state.contracts.length === 0 ? (
+                <div className="text-center py-12 text-slate-500">
+                  <p>No contracts yet.</p>
+                  <p className="text-sm mt-1">Create your first weekly commitment.</p>
+                </div>
+              ) : (
+                state.contracts.map((contract) => (
+                  <ContractCard
+                    key={contract.id}
+                    contract={contract}
+                    rating={state.todayRatings[contract.id]}
+                    onRate={(rating) => handleRate(contract.id, rating)}
+                    onEdit={() => {/* TODO */}}
+                    onDelete={() => handleDeleteContract(contract.id)}
+                    isDeleteConfirm={deleteConfirmId === contract.id}
+                    onCancelDelete={() => setDeleteConfirmId(null)}
+                  />
+                ))
+              )}
             </div>
-            {!submittedToday && Object.values(localRatings).some((v) => v === 0) && (
-              <div className="rounded-vella-card border border-vella-border bg-vella-bg-card p-3">
-                <textarea
-                  placeholder="What made this hard today? (optional)"
-                  maxLength={200}
-                  value={optionalNote}
-                  onChange={(e) => setOptionalNote(e.target.value)}
-                  className="w-full rounded-vella-button border border-vella-border bg-vella-bg px-3 py-2 text-sm text-vella-text placeholder:text-vella-muted focus:outline-none focus:ring-2 focus:ring-vella-accent"
-                  rows={2}
+
+            {/* Micro-reflection (only when struggling) */}
+            {Object.entries(state.todayRatings).some(([, r]) => r === "struggling") && !state.isLocked && (
+              <div className="mt-4 p-4 rounded-xl bg-amber-50 border border-amber-200">
+                <p className="text-sm text-amber-800 mb-2">What disrupted your edge today?</p>
+                <input
+                  type="text"
+                  placeholder="One line reflection (optional)"
+                  className="w-full bg-transparent text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none"
                 />
               </div>
             )}
-            {!submittedToday && (
-            <button
-              type="button"
-              disabled={!allSelected || submitLoading}
-              onClick={handleSubmit}
-              className="sticky bottom-4 w-full rounded-vella-button bg-vella-accent py-2.5 text-sm font-medium text-white pressable disabled:opacity-50 disabled:pointer-events-none flex items-center justify-center gap-2 transition-all duration-200 ease-in-out"
-            >
-              {submitSuccess ? (
-                "✔ Alignment Recorded"
-              ) : submitLoading ? (
-                <>
-                  <span className="inline-block h-4 w-4 rounded-full border-2 border-white border-t-transparent animate-spin" />
-                  Locking in…
-                </>
-              ) : (
-                "Lock In Today's Alignment"
-              )}
-            </button>
-            )}
           </>
         )}
-      </div>
+      </main>
 
-      <InfoSheet open={infoOpen} onClose={() => setInfoOpen(false)} />
+      {/* Lock-in button */}
+      {!state.isLocked && state.contracts.length > 0 && (
+        <div className="fixed bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-[#F3F4F6] to-transparent">
+          <div className="max-w-xl mx-auto px-6">
+            <button
+              onClick={handleLockIn}
+              disabled={!allRated}
+              className={`w-full py-4 rounded-xl font-semibold text-sm tracking-wide transition-all duration-300 ${
+                allRated
+                  ? "bg-emerald-600 text-white shadow-lg shadow-emerald-900/20 hover:bg-emerald-500 active:scale-[0.98]"
+                  : "bg-slate-200 text-slate-400 cursor-not-allowed"
+              }`}
+            >
+              {!allRated
+                ? `Rate all ${state.contracts.length} contracts`
+                : "Lock In Today's Alignment"}
+            </button>
+            {allRated && (
+              <p className="text-center text-xs text-emerald-600/60 mt-2 tracking-wide">
+                Score: {Math.round(dailyScore * 100)}%
+              </p>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Modal */}
+      <ContractModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onCreate={handleCreateContract}
+        isDisabled={!canAdd}
+        helperText={limitText || undefined}
+      />
+      </div>
     </div>
   );
 }

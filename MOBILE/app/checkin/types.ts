@@ -1,43 +1,51 @@
 /**
- * Types for Weekly Focus Check-In (matches API contracts).
+ * Check-in Types - Core data structures for weekly contract system
+ * Pure types only - no UI logic
  */
 
-export type FocusSourceType = "commitment" | "value" | "focus" | "governance";
+export type ContractOrigin = "vella" | "user";
 
-export type FocusRating = "strong" | "neutral" | "struggling";
-
-export interface WeeklyFocusItem {
-  itemId: string;
-  sourceType: FocusSourceType;
-  subjectCode: string;
-  label: string;
-  priority: number;
-  reasons?: string[];
+export interface WeeklyContract {
+  id: string;
+  title: string;
+  focusArea: string;
+  origin: ContractOrigin;
+  createdAt: string;
+  weekKey: string;
 }
 
-export interface FocusWeekResponse {
-  weekId: string;
-  items: WeeklyFocusItem[];
-  weekSoFarPercent?: number;
-  checkinCount?: number;
-  submittedToday?: boolean;
+export type Rating = "strong" | "neutral" | "struggling";
+
+export interface DailyCheckin {
+  date: string;
+  ratings: Record<string, Rating>;
 }
 
-export interface RatingPayload {
-  itemId: string;
-  subjectCode: string;
-  sourceType: FocusSourceType;
-  rating: FocusRating;
+export interface WeeklyState {
+  weekKey: string;
+  contracts: WeeklyContract[];
+  checkins: DailyCheckin[];
 }
 
+// Legacy type for ReviewPanel compatibility
 export interface WeeklyFocusReview {
-  weekId: string;
+  strongestSubjectCode: string;
+  weakestSubjectCode: string;
   completionScore0to100: number;
-  checkinCount?: number;
-  strongestSubjectCode: string | null;
-  weakestSubjectCode: string | null;
   consistencyTier: "steady" | "mixed" | "fragile";
   earnedValidationEligible: boolean;
-  earnedValidationReasons: string[];
-  suggestedNextWeek: WeeklyFocusItem[];
+  suggestedNextWeek: { itemId: string; label: string }[];
+}
+
+// Legacy type for WeeklyFocusCard compatibility
+export interface WeeklyFocusItem {
+  id: string;
+  label: string;
+  subjectCode: string;
+}
+
+export interface AppState extends WeeklyState {
+  todayRatings: Record<string, Rating>;
+  isLocked: boolean;
+  completedDays: number;
 }

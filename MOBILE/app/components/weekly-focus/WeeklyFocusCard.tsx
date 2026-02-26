@@ -5,8 +5,7 @@ import { cn } from "@/lib/utils";
 import { FocusSegmentControl } from "./FocusSegmentControl";
 import { getHelpOptions } from "@/lib/focus/helpOptions";
 import { getIntervention } from "@/lib/focus/interventions";
-import type { WeeklyFocusItem } from "@/app/checkin/types";
-import type { FocusRating } from "@/app/checkin/types";
+import type { WeeklyFocusItem, Rating as FocusRating } from "@/app/checkin/types";
 
 type WeeklyFocusCardProps = {
   item: WeeklyFocusItem;

@@ -1,17 +1,17 @@
 /**
- * Client-safe subject code → label for weekly focus review.
- * Mirrors allowlisted labels from lib/focus/templates (no server import).
+ * Focus label utilities
  */
 
-export const SUBJECT_LABEL_BY_CODE: Record<string, string> = {
-  smoking: "No smoking",
-  alcohol: "No alcohol",
-  focus: "Deep work",
-  habit: "Daily habit",
-  other: "Weekly focus",
+const SUBJECT_LABELS: Record<string, string> = {
+  "self-mastery": "Self-Mastery",
+  "addiction-recovery": "Addiction Recovery",
+  "relationships": "Relationships",
+  "emotional-regulation": "Emotional Regulation",
+  "decision-clarity": "Decision Clarity",
+  "performance-focus": "Performance Focus",
+  "identity-direction": "Identity Direction",
 };
 
-export function getSubjectLabel(subjectCode: string | null): string {
-  if (!subjectCode) return "—";
-  return SUBJECT_LABEL_BY_CODE[subjectCode] ?? subjectCode;
+export function getSubjectLabel(code: string): string {
+  return SUBJECT_LABELS[code] || code;
 }

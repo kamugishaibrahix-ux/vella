@@ -1,11 +1,13 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import useSWR from "swr";
-import { cn, formatDate } from "@/lib/utils";
+import { cn } from "@/lib/utils";
+import { JournalEntryCard } from "@/app/components/journal/JournalEntryCard";
+import type { JournalEntry } from "@/app/components/journal/types";
 
-type JournalListResponse = { entries?: { id: string; content: string; createdAt: string }[] };
+type JournalListResponse = { entries?: JournalEntry[] };
 
 const fetcher = async (url: string) => {
   const res = await fetch(url);
@@ -14,142 +16,202 @@ const fetcher = async (url: string) => {
   return data;
 };
 
-function normalizeNewlines(input: string) {
-  return input.replace(/\r\n/g, "\n").replace(/\r/g, "\n");
+// Search icon
+function SearchIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+      <circle cx="11" cy="11" r="8" />
+      <path d="m21 21-4.35-4.35" />
+    </svg>
+  );
 }
 
-function clampLines(text: string, maxLines: number) {
-  const lines = normalizeNewlines(text)
-    .split("\n")
-    .map((l) => l.trim())
-    .filter(Boolean);
-  return lines.slice(0, Math.max(1, maxLines)).join("\n");
+// Filter button
+function FilterButton({
+  label,
+  active,
+  onClick,
+}: {
+  label: string;
+  active: boolean;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={cn(
+        "px-3 py-1.5 text-[11px] rounded-full transition-all duration-200",
+        active
+          ? "bg-vella-text text-white"
+          : "bg-vella-bg-card text-vella-muted hover:bg-vella-bg hover:text-vella-text"
+      )}
+    >
+      {label}
+    </button>
+  );
 }
 
-function startOfWeekMonday(date: Date) {
-  const d = new Date(date);
-  const day = (d.getDay() + 6) % 7; // Monday=0 ... Sunday=6
-  d.setDate(d.getDate() - day);
-  d.setHours(0, 0, 0, 0);
-  return d;
-}
-
-function weekLabel(weekStart: Date) {
-  return `Week of ${weekStart.toLocaleDateString("en-US", { month: "short", day: "numeric" })}`;
-}
-
-function extractResolutionSections(content: string): { happening: string; next: string } {
-  const text = normalizeNewlines(content ?? "").trim();
-  if (!text) return { happening: "", next: "" };
-
-  const headingHappening = /WHAT['’]S HAPPENING/i;
-  const headingReality = /WHAT['’]S REALLY GOING ON/i;
-  const headingNext = /WHAT WILL I DO NEXT/i;
-
-  const idxH = text.search(headingHappening);
-  const idxR = text.search(headingReality);
-  const idxN = text.search(headingNext);
-
-  if (idxH === -1 || idxN === -1) {
-    const lines = text.split("\n").map((l) => l.trim()).filter(Boolean);
-    return {
-      happening: lines.slice(0, 2).join("\n"),
-      next: lines.at(-1) ?? "",
-    };
-  }
-
-  const afterHeading = (fromIdx: number, heading: RegExp) => {
-    const match = text.slice(fromIdx).match(heading);
-    if (!match || match.index == null) return fromIdx;
-    return fromIdx + match.index + match[0].length;
-  };
-
-  const startH = afterHeading(idxH, headingHappening);
-  const endH = Math.min(...[idxR, idxN].filter((x) => x !== -1));
-  const happening = text.slice(startH, endH).trim().replace(/^\n+/, "");
-
-  const startN = afterHeading(idxN, headingNext);
-  const next = text.slice(startN).trim().replace(/^\n+/, "");
-
-  return { happening, next };
-}
-
-export default function JournalHistoryPage() {
+export default function SavedPage() {
   const router = useRouter();
-  const { data } = useSWR<JournalListResponse>("/api/journal", fetcher);
+  const { data, isLoading } = useSWR<JournalListResponse>("/api/journal", fetcher);
   const entries = data?.entries ?? [];
 
-  const grouped = useMemo(() => {
-    const sorted = [...entries].sort((a, b) => (a.createdAt > b.createdAt ? -1 : 1));
-    const groups = new Map<string, { weekStart: Date; items: typeof sorted }>();
-    for (const e of sorted) {
-      const created = new Date(e.createdAt);
-      const ws = startOfWeekMonday(created);
-      const key = ws.toISOString().slice(0, 10);
-      const g = groups.get(key);
-      if (g) g.items.push(e);
-      else groups.set(key, { weekStart: ws, items: [e] });
-    }
-    return Array.from(groups.values()).sort((a, b) => (a.weekStart > b.weekStart ? -1 : 1));
+  const [searchQuery, setSearchQuery] = useState("");
+  const [modeFilter, setModeFilter] = useState<string | "all">("all");
+
+  // Get unique modes for filter
+  const availableModes = useMemo(() => {
+    const modes = new Set<string>();
+    entries.forEach((e) => {
+      if (e.modeLabel) modes.add(e.modeLabel);
+    });
+    return Array.from(modes);
   }, [entries]);
 
+  // Filter entries
+  const filteredEntries = useMemo(() => {
+    let result = [...entries].sort((a, b) =>
+      new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+    );
+
+    // Search filter
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase();
+      result = result.filter((e) =>
+        (e.title?.toLowerCase().includes(query) ?? false) ||
+        (e.preview?.toLowerCase().includes(query) ?? false) ||
+        (e.freeText?.toLowerCase().includes(query) ?? false)
+      );
+    }
+
+    // Mode filter
+    if (modeFilter !== "all") {
+      result = result.filter((e) => e.modeLabel === modeFilter);
+    }
+
+    return result;
+  }, [entries, searchQuery, modeFilter]);
+
+  const handleEdit = useCallback((entry: JournalEntry) => {
+    // Navigate to entry detail/edit view
+    router.push(`/journal/${entry.id}` as any);
+  }, [router]);
+
+  const handleDelete = useCallback((entry: JournalEntry) => {
+    // TODO: Implement delete confirmation and API call
+    console.log("Delete entry:", entry.id);
+  }, []);
+
   return (
-    <div className="min-h-[100dvh] overflow-y-auto pb-24">
-      <div className="px-5 py-6 space-y-6">
+    <div className="min-h-[100dvh] overflow-y-auto pb-24 bg-vella-bg">
+      <div className="px-5 py-6 space-y-6 max-w-2xl mx-auto">
+        {/* Header */}
         <header className="flex items-center justify-between">
           <button
             type="button"
             onClick={() => router.back()}
-            className={cn(
-              "text-sm font-medium text-vella-muted hover:text-vella-text pressable",
-              "min-w-[64px] text-left"
-            )}
-            aria-label="Back"
+            className="text-[13px] text-vella-muted hover:text-vella-text transition-colors flex items-center gap-1"
           >
-            ← Back
+            <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+              <path d="M19 12H5" />
+              <path d="M12 19l-7-7 7-7" />
+            </svg>
+            Back
           </button>
-          <h1 className="text-sm font-semibold text-vella-text">Journal History</h1>
-          <div className="min-w-[64px]" aria-hidden />
+          <h1 className="text-[14px] font-medium text-vella-text tracking-wide uppercase">Saved</h1>
+          <div className="w-16" />
         </header>
 
-        <div>
-          {grouped.length === 0 ? (
-            <div className="min-h-[60dvh] flex items-center justify-center">
-              <p className="text-sm text-vella-muted">No entries yet.</p>
+        {/* Search */}
+        <div className="relative">
+          <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-vella-muted" />
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Search entries..."
+            className={cn(
+              "w-full pl-10 pr-4 py-3 text-[14px]",
+              "bg-vella-bg-card rounded-xl border-2 border-vella-border",
+              "placeholder:text-vella-muted",
+              "focus:outline-none focus:border-vella-accent/50",
+              "transition-all duration-200"
+            )}
+          />
+        </div>
+
+        {/* Filters */}
+        {availableModes.length > 0 && (
+          <div className="flex items-center gap-2 flex-wrap">
+            <FilterButton
+              label="All"
+              active={modeFilter === "all"}
+              onClick={() => setModeFilter("all")}
+            />
+            {availableModes.map((mode) => (
+              <FilterButton
+                key={mode}
+                label={mode}
+                active={modeFilter === mode}
+                onClick={() => setModeFilter(mode)}
+              />
+            ))}
+          </div>
+        )}
+
+        {/* Results count */}
+        <div className="flex items-center justify-between">
+          <span className="text-[11px] text-vella-muted">
+            {filteredEntries.length} {filteredEntries.length === 1 ? "entry" : "entries"}
+          </span>
+          {(searchQuery || modeFilter !== "all") && (
+            <button
+              type="button"
+              onClick={() => {
+                setSearchQuery("");
+                setModeFilter("all");
+              }}
+              className="text-[11px] text-vella-muted hover:text-vella-text transition-colors"
+            >
+              Clear filters
+            </button>
+          )}
+        </div>
+
+        {/* Entry list */}
+        <div className="space-y-3">
+          {isLoading ? (
+            <div className="py-12 flex items-center justify-center">
+              <div className="w-6 h-6 border-2 border-vella-border border-t-vella-accent rounded-full animate-spin" />
+            </div>
+          ) : filteredEntries.length === 0 ? (
+            <div className="py-16 flex flex-col items-center justify-center space-y-4">
+              <div className="w-12 h-12 rounded-full bg-vella-bg-card flex items-center justify-center">
+                <SearchIcon className="w-5 h-5 text-vella-muted" />
+              </div>
+              <p className="text-[13px] text-vella-muted">
+                {entries.length === 0 ? "No entries yet." : "No entries match your filters."}
+              </p>
+              {entries.length === 0 && (
+                <button
+                  type="button"
+                  onClick={() => router.push("/journal")}
+                  className="text-[13px] text-vella-accent hover:text-vella-accent/80 transition-colors underline"
+                >
+                  Write your first entry
+                </button>
+              )}
             </div>
           ) : (
-            <div className="space-y-6">
-              {grouped.map((group) => (
-                <section key={group.weekStart.toISOString()} className="space-y-3">
-                  <p className="text-[11px] font-semibold tracking-widest uppercase text-vella-muted">
-                    {weekLabel(group.weekStart)}
-                  </p>
-                  <div className="space-y-3">
-                    {group.items.map((entry) => {
-                      const { happening, next } = extractResolutionSections(entry.content);
-                      const happeningPreview = clampLines(happening, 2);
-                      const nextPreview = clampLines(next, 1);
-                      return (
-                        <div
-                          key={entry.id}
-                          className="rounded-vella-card bg-vella-bg-card shadow-soft px-4 py-4"
-                        >
-                          <p className="text-xs text-vella-muted">{formatDate(entry.createdAt)}</p>
-                          <p className="mt-2 text-sm leading-relaxed text-vella-text whitespace-pre-wrap break-words">
-                            {happeningPreview || "—"}
-                          </p>
-                          <div className="mt-3 rounded-vella-button bg-vella-accent-soft/70 px-3 py-2">
-                            <p className="text-sm font-medium text-vella-text whitespace-pre-wrap break-words">
-                              {nextPreview || "—"}
-                            </p>
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                </section>
-              ))}
-            </div>
+            filteredEntries.map((entry) => (
+              <JournalEntryCard
+                key={entry.id}
+                entry={entry}
+                onEdit={handleEdit}
+                onDelete={handleDelete}
+              />
+            ))
           )}
         </div>
       </div>

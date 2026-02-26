@@ -2,10 +2,6 @@
 
 import { cn } from "@/lib/utils";
 
-type EarnedValidationBlockProps = {
-  className?: string;
-};
-
 const EARNED_PHRASES = [
   "You held your commitment.",
   "You stayed aligned despite friction.",

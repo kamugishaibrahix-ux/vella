@@ -1,17 +1,17 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import type { FocusRating } from "@/app/checkin/types";
+import type { Rating } from "@/app/checkin/types";
 
-const OPTIONS: { value: FocusRating; label: string }[] = [
+const OPTIONS: { value: Rating; label: string }[] = [
   { value: "strong", label: "Strong" },
   { value: "neutral", label: "Neutral" },
   { value: "struggling", label: "Struggling" },
 ];
 
 type FocusSegmentControlProps = {
-  value: FocusRating | null;
-  onChange: (rating: FocusRating) => void;
+  value: Rating | null;
+  onChange: (rating: Rating) => void;
   disabled?: boolean;
   "aria-label"?: string;
 };

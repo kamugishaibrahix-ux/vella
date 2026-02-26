@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Inter, Lora } from "next/font/google";
+import { Inter, Lora, EB_Garamond, DM_Sans } from "next/font/google";
 import "@/lib/security/logGuard"; // DO NOT REMOVE: Privacy enforcement layer
 import "@/app/globals.css";
 import { MobileShell } from "@/app/components/MobileShell";
@@ -16,6 +16,18 @@ const lora = Lora({
   display: "swap",
 });
 
+const ebGaramond = EB_Garamond({
+  subsets: ["latin"],
+  variable: "--font-garamond",
+  display: "swap",
+});
+
+const dmSans = DM_Sans({
+  subsets: ["latin"],
+  variable: "--font-dm-sans",
+  display: "swap",
+});
+
 export const metadata: Metadata = {
   title: "Vella",
   description: "Emotionally intelligent companion",
@@ -27,7 +39,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={`${inter.variable} ${lora.variable}`}>
+    <html lang="en" className={`${inter.variable} ${lora.variable} ${ebGaramond.variable} ${dmSans.variable}`}>
       <body className="min-h-screen font-sans text-vella-text bg-vella-bg flex justify-center">
         {/* Single width controller: no max-width wrappers inside pages */}
         <div className="w-full max-w-md md:max-w-lg min-h-screen relative">
