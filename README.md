@@ -10,3 +10,4 @@ For details of what data is stored where, see [DATA_DESIGN.md](./DATA_DESIGN.md)
 - **[Migration Policy](docs/ops/MIGRATION_POLICY.md)** — Backwards-compatible migration rules, staging procedure, and handling of enums/RLS. CI blocks destructive statements in migrations (see `scripts/check-migrations-safe.mjs`).
 
 
+# vella
