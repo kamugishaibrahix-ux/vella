@@ -78,7 +78,7 @@ export async function pickInsightForConversation({
   try {
     const { loadActiveAdminAIConfig } = await import("@/lib/admin/adminConfig");
     const adminConfig = await loadActiveAdminAIConfig().catch(() => null);
-    insightInjection = adminConfig?.automation?.insightInjection ?? true;
+    insightInjection = (adminConfig as { automation?: { insightInjection?: boolean } })?.automation?.insightInjection ?? true;
   } catch {
     // Silent fail - use default
   }

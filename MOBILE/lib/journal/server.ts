@@ -1,13 +1,13 @@
-// Phase 6B: All journal reads/writes go to Supabase journal_entries. No localStorage.
+// LOCAL-FIRST JOURNAL — server stores metadata only.
+// Text/title never reach this layer.
 
 import {
   listJournalEntriesFromDb,
   getJournalEntryFromDb,
-  createJournalEntryInDb,
-  updateJournalEntryInDb,
+  createJournalMetaInDb,
+  updateJournalMetaInDb,
   deleteJournalEntryInDb,
 } from "@/lib/journal/db";
-import type { JournalEntryRecord } from "@/lib/journal/types";
 
 export type JournalEnrichmentPayload = {
   summary?: string | null;
@@ -20,50 +20,63 @@ export type JournalEnrichmentPayload = {
   microInsights?: string[];
 };
 
-function rowToRecord(row: { id: string; title: string | null; content: string; createdAt: string; updatedAt: string }): JournalEntryRecord {
+export type JournalMetaInput = {
+  id: string;
+  created_at?: string;
+  updated_at?: string;
+  word_count: number;
+  local_hash: string;
+  processing_mode: "private" | "signals_only";
+};
+
+export type JournalMetaRecord = {
+  id: string;
+  createdAt: string;
+  updatedAt: string;
+  wordCount: number;
+  localHash: string;
+  processingMode: string;
+};
+
+function rowToMeta(row: { id: string; createdAt: string; updatedAt: string; wordCount: number; localHash: string; processingMode: string }): JournalMetaRecord {
   return {
     id: row.id,
-    title: row.title,
-    content: row.content,
     createdAt: row.createdAt,
     updatedAt: row.updatedAt,
+    wordCount: row.wordCount,
+    localHash: row.localHash,
+    processingMode: row.processingMode,
   };
 }
 
-export async function listJournalEntries(userId: string | undefined, limit = 50): Promise<JournalEntryRecord[]> {
+export async function listJournalEntries(userId: string | undefined, limit = 50): Promise<JournalMetaRecord[]> {
   if (!userId) return [];
   const rows = await listJournalEntriesFromDb(userId, limit);
-  return rows.map(rowToRecord);
+  return rows.map(rowToMeta);
 }
 
-export async function createJournalEntry(
-  userId: string | undefined,
-  content: string,
-  title?: string | null,
-  _enrichment?: JournalEnrichmentPayload | null,
-  _enrichmentStatus?: string,
-): Promise<JournalEntryRecord> {
+export async function createJournalMeta(
+  userId: string,
+  meta: JournalMetaInput,
+): Promise<JournalMetaRecord> {
   if (!userId) throw new Error("userId required");
-  const row = await createJournalEntryInDb(userId, { title, content });
-  return rowToRecord(row);
+  const row = await createJournalMetaInDb(userId, meta);
+  return rowToMeta(row);
 }
 
-export async function updateJournalEntry(
-  userId: string | undefined,
-  id: string,
-  content: string,
-  _enrichment?: JournalEnrichmentPayload | null,
-  _enrichmentStatus?: string,
-): Promise<JournalEntryRecord | null> {
+export async function updateJournalMeta(
+  userId: string,
+  meta: JournalMetaInput,
+): Promise<JournalMetaRecord | null> {
   if (!userId) return null;
-  const updated = await updateJournalEntryInDb(userId, id, { content });
-  return updated ? rowToRecord(updated) : null;
+  const updated = await updateJournalMetaInDb(userId, meta.id, meta);
+  return updated ? rowToMeta(updated) : null;
 }
 
-export async function getJournalEntry(userId: string | undefined, id: string): Promise<JournalEntryRecord | null> {
+export async function getJournalEntry(userId: string | undefined, id: string): Promise<JournalMetaRecord | null> {
   if (!userId) return null;
   const row = await getJournalEntryFromDb(userId, id);
-  return row ? rowToRecord(row) : null;
+  return row ? rowToMeta(row) : null;
 }
 
 export async function deleteJournalEntry(userId: string | undefined, id: string): Promise<void> {

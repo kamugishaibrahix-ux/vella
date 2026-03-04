@@ -8,12 +8,11 @@ import { getCognitiveDistortions } from "@/lib/distortions/getCognitiveDistortio
 import { getUserTraits } from "@/lib/traits/adaptiveTraits";
 import { listGoals } from "@/lib/goals/goalEngine";
 import { analyzeWritingStyle } from "@/lib/memory/analyzeWritingStyle";
-import type { JournalEntryRecord } from "@/lib/journal/types";
 import type { LocalJournalEntry } from "@/lib/local/journalLocal";
 import { getAllCheckIns, type CheckinRow } from "@/lib/checkins/getAllCheckIns";
 
 export type MemorySnapshot = {
-  journals: JournalEntryRecord[];
+  journals: LocalJournalEntry[];
   checkins: CheckinRow[];
   patterns: Awaited<ReturnType<typeof getEmotionalPatterns>>;
   themes: Awaited<ReturnType<typeof getLifeThemes>>;
@@ -45,17 +44,9 @@ export async function buildMemorySnapshot(userId: string): Promise<MemorySnapsho
       listGoals(userId, "focus"),
     ]);
 
-  // Convert LocalJournalEntry to JournalEntryRecord format
-  const journals: JournalEntryRecord[] = localJournals
+  const journals: LocalJournalEntry[] = localJournals
     .sort((a, b) => b.createdAt.localeCompare(a.createdAt))
-    .slice(0, 50)
-    .map((entry) => ({
-      id: entry.id,
-      title: entry.title,
-      content: entry.content,
-      createdAt: entry.createdAt,
-      updatedAt: entry.updatedAt,
-    } as JournalEntryRecord));
+    .slice(0, 50);
 
   const goals = {
     life: lifeGoals,

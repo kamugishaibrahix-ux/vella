@@ -29,6 +29,7 @@ import { updateEmotionalState } from "./emotion/engine";
 import { createInitialHealthState, type HealthState } from "./health/state";
 import { applyHealthGuardrails, updateHealthState } from "./health/engine";
 import { blendPersonaProfile } from "@/lib/ai/persona/blending";
+import { getDefaultEntitlements } from "@/lib/plans/defaultEntitlements";
 import type { ToneProfileKey } from "@/lib/ai/persona/toneProfiles";
 import { selectMusicProfile } from "@/lib/audio/musicEngine";
 import { getPresetById, findPresetByIntentText } from "@/lib/audio/vellaAudioCatalog";
@@ -1507,7 +1508,7 @@ export function useRealtimeVella(options: UseRealtimeVellaOptions = { planTier: 
     },
     [
       hardCleanup,
-      // handleEvent is captured in closure, not needed in dependency array
+      handleEvent,
       safeSetState,
       updatePersonaSnapshot,
       voiceId,
@@ -1549,7 +1550,8 @@ export function useRealtimeVella(options: UseRealtimeVellaOptions = { planTier: 
         return;
       }
 
-      if (planTier === "free" && enableMic) {
+      const _startEnt = getDefaultEntitlements(planTier);
+      if (!_startEnt.enableRealtime && enableMic) {
         logVoiceTelemetry({
           source: "realtime_hook",
           kind: "warning",
@@ -1798,7 +1800,10 @@ export function useRealtimeVella(options: UseRealtimeVellaOptions = { planTier: 
               console.log("[Auto-Fallback] client.connect() failed, attempting text mode fallback");
             }
             const errorMessage = connectError instanceof Error ? connectError.message : String(connectError);
-            const fallbackSuccess = await fallbackToTextMode(`client.connect() failed: ${errorMessage}`);
+            const fallbackHandler = fallbackToTextModeRef.current;
+            const fallbackSuccess = fallbackHandler
+              ? await fallbackHandler(`client.connect() failed: ${errorMessage}`)
+              : false;
             if (fallbackSuccess) {
               return; // Fallback handled, exit startSession
             }
@@ -1906,7 +1911,10 @@ export function useRealtimeVella(options: UseRealtimeVellaOptions = { planTier: 
           errorMessage.includes("SDP");
         
         if (isConnectionError && mode === "voice" && enableMic && !hasAttemptedTextFallbackRef.current) {
-          const fallbackSuccess = await fallbackToTextMode(`startSession error: ${errorMessage}`);
+          const fallbackHandler = fallbackToTextModeRef.current;
+          const fallbackSuccess = fallbackHandler
+            ? await fallbackHandler(`startSession error: ${errorMessage}`)
+            : false;
           if (fallbackSuccess) {
             return; // Fallback handled, exit
           }
@@ -1953,6 +1961,7 @@ export function useRealtimeVella(options: UseRealtimeVellaOptions = { planTier: 
       updateDeliveryContext,
       updatePersonaSnapshot,
       voiceId,
+      userId,
     ],
   );
 
@@ -2145,15 +2154,29 @@ const REALTIME_AUDIO_CONTROLS: RealtimeAudioControls = {
   handleAudioIntentFromText,
 };
 
+/**
+ * Check if plan can use audio features.
+ * @deprecated Use entitlements.enableVoiceTTS or entitlements.enableAudioVella instead
+ */
 function canPlanUseAudio(planName?: string | null): boolean {
   const tier = mapPlanToTier(planName ?? "free");
-  return tier === "pro" || tier === "elite";
+  const _audioEnt = getDefaultEntitlements(tier);
+  return _audioEnt.enableVoiceTTS || _audioEnt.enableAudioVella;
+}
+
+/**
+ * PURE abstraction: Check if audio features are enabled via entitlements.
+ * Uses enableVoiceTTS || enableAudioVella entitlement flags.
+ */
+function canUseAudioPure(entitlements: { enableVoiceTTS: boolean; enableAudioVella: boolean }): boolean {
+  return entitlements.enableVoiceTTS || entitlements.enableAudioVella;
 }
 
 async function requestPresetAudio(
   options: GeneratePresetAudioOptions,
 ): Promise<VellaAudioResponse | null> {
-  if (options.planTier === "free") return null;
+  const _presetEnt = getDefaultEntitlements(options.planTier);
+  if (!_presetEnt.enableAudioVella) return null;
   if (typeof window === "undefined") return null;
 
   const preset = getPresetById(options.presetId);
@@ -2195,7 +2218,8 @@ async function requestPresetAudio(
 async function handleAudioIntentFromText(
   options: AudioIntentOptions,
 ): Promise<VellaAudioResponse | null> {
-  if (options.planTier === "free") return null;
+  const _intentEnt = getDefaultEntitlements(options.planTier);
+  if (!_intentEnt.enableAudioVella) return null;
   if (typeof window === "undefined") return null;
 
   const trimmed = options.text?.trim();

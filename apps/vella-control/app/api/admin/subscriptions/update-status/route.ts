@@ -72,12 +72,18 @@ export async function POST(request: Request) {
       throw updateError;
     }
 
-    // Log the change
     const { error: logError } = await supabase.from("admin_activity_log").insert({
       admin_id: ADMIN_ACTOR_ID,
       action: "subscriptions.update-status",
+      target_user_id: existing.user_id,
       previous: { status: existing.status },
       next: { status: normalizedStatus },
+      metadata: {
+        admin_ip: request.headers.get("x-forwarded-for") || "unknown",
+        user_agent: request.headers.get("user-agent") || "unknown",
+        request_id: crypto.randomUUID(),
+        timestamp: new Date().toISOString(),
+      },
     });
 
     if (logError) {

@@ -641,6 +641,55 @@ export type Database = {
           updated_at?: string;
         };
       };
+      decisions: {
+        Row: {
+          id: string;
+          user_id: string;
+          confidence_score: number | null;
+          emotional_intensity: number | null;
+          recorded_at: string | null;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          confidence_score?: number | null;
+          emotional_intensity?: number | null;
+          recorded_at?: string | null;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          confidence_score?: number | null;
+          emotional_intensity?: number | null;
+          recorded_at?: string | null;
+        };
+      };
+      decision_outcomes: {
+        Row: {
+          id: string;
+          decision_id: string;
+          user_id: string;
+          outcome_rating: number | null;
+          regret_score: number | null;
+          reviewed_at: string | null;
+        };
+        Insert: {
+          id?: string;
+          decision_id: string;
+          user_id: string;
+          outcome_rating?: number | null;
+          regret_score?: number | null;
+          reviewed_at?: string | null;
+        };
+        Update: {
+          id?: string;
+          decision_id?: string;
+          user_id?: string;
+          outcome_rating?: number | null;
+          regret_score?: number | null;
+          reviewed_at?: string | null;
+        };
+      };
       feedback: {
         Row: {
           id: string;
@@ -668,6 +717,185 @@ export type Database = {
           channel?: string;
           category?: string | null;
           created_at?: string;
+        };
+      };
+      financial_entries: {
+        Row: {
+          id: string;
+          user_id: string;
+          amount: number | null;
+          category: string | null;
+          behavior_flag: string | null;
+          recorded_at: string | null;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          amount?: number | null;
+          category?: string | null;
+          behavior_flag?: string | null;
+          recorded_at?: string | null;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          amount?: number | null;
+          category?: string | null;
+          behavior_flag?: string | null;
+          recorded_at?: string | null;
+        };
+      };
+      health_metrics: {
+        Row: {
+          id: string;
+          user_id: string;
+          sleep_hours: number | null;
+          sleep_quality: number | null;
+          exercise_minutes: number | null;
+          recovery_score: number | null;
+          energy_level: number | null;
+          recorded_at: string | null;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          sleep_hours?: number | null;
+          sleep_quality?: number | null;
+          exercise_minutes?: number | null;
+          recovery_score?: number | null;
+          energy_level?: number | null;
+          recorded_at?: string | null;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          sleep_hours?: number | null;
+          sleep_quality?: number | null;
+          exercise_minutes?: number | null;
+          recovery_score?: number | null;
+          energy_level?: number | null;
+          recorded_at?: string | null;
+        };
+      };
+      memory_clusters: {
+        Row: {
+          id: string;
+          user_id: string;
+          is_active: boolean;
+          updated_at: string;
+          time_range_start?: string | null;
+          time_range_end?: string | null;
+          summary_hash?: string | null;
+          summary_token_estimate?: number | null;
+          member_chunk_hashes?: string[] | null;
+          member_count?: number | null;
+          cohesion_score?: number | null;
+          embedding?: number[] | null;
+          embedding_model?: string | null;
+          embedded_at?: string | null;
+          cluster_key?: string | null;
+          dominant_theme?: string | null;
+          secondary_themes?: string[] | null;
+          tier?: string | null;
+          created_at?: string | null;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          is_active?: boolean;
+          updated_at?: string;
+          time_range_start?: string | null;
+          time_range_end?: string | null;
+          summary_hash?: string | null;
+          summary_token_estimate?: number | null;
+          member_chunk_hashes?: string[] | null;
+          member_count?: number | null;
+          cohesion_score?: number | null;
+          embedding?: number[] | null;
+          embedding_model?: string | null;
+          embedded_at?: string | null;
+          cluster_key?: string | null;
+          dominant_theme?: string | null;
+          secondary_themes?: string[] | null;
+          tier?: string | null;
+          created_at?: string | null;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          is_active?: boolean;
+          updated_at?: string;
+          time_range_start?: string | null;
+          time_range_end?: string | null;
+          summary_hash?: string | null;
+          summary_token_estimate?: number | null;
+          member_chunk_hashes?: string[] | null;
+          member_count?: number | null;
+          cohesion_score?: number | null;
+          embedding?: number[] | null;
+          embedding_model?: string | null;
+          embedded_at?: string | null;
+          cluster_key?: string | null;
+          dominant_theme?: string | null;
+          secondary_themes?: string[] | null;
+          tier?: string | null;
+          created_at?: string | null;
+        };
+      };
+      memory_snapshots: {
+        Row: {
+          id: string;
+          user_id: string;
+          created_at: string;
+          period_start?: string | null;
+          period_end?: string | null;
+          summary_hash?: string | null;
+          summary_token_estimate?: number | null;
+          source_chunk_count?: number | null;
+          source_chunk_hashes?: string[] | null;
+          dominant_themes?: string[] | null;
+          emotional_tone?: string | null;
+          embedding?: number[] | null;
+          embedding_model?: string | null;
+          embedded_at?: string | null;
+          tier?: string | null;
+          updated_at?: string | null;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          created_at?: string;
+          period_start?: string | null;
+          period_end?: string | null;
+          summary_hash?: string | null;
+          summary_token_estimate?: number | null;
+          source_chunk_count?: number | null;
+          source_chunk_hashes?: string[] | null;
+          dominant_themes?: string[] | null;
+          emotional_tone?: string | null;
+          embedding?: number[] | null;
+          embedding_model?: string | null;
+          embedded_at?: string | null;
+          tier?: string | null;
+          updated_at?: string | null;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          created_at?: string;
+          period_start?: string | null;
+          period_end?: string | null;
+          summary_hash?: string | null;
+          summary_token_estimate?: number | null;
+          source_chunk_count?: number | null;
+          source_chunk_hashes?: string[] | null;
+          dominant_themes?: string[] | null;
+          emotional_tone?: string | null;
+          embedding?: number[] | null;
+          embedding_model?: string | null;
+          embedded_at?: string | null;
+          tier?: string | null;
+          updated_at?: string | null;
         };
       };
       user_reports: {
@@ -1218,6 +1446,41 @@ export type Database = {
           is_deleted?: boolean;
         };
       };
+      journal_entries_meta: {
+        Row: {
+          id: string;
+          user_id: string;
+          created_at: string;
+          updated_at: string;
+          word_count: number;
+          local_hash: string;
+          processing_mode: "private" | "signals_only";
+          signals: unknown;
+          is_deleted: boolean;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          created_at?: string;
+          updated_at?: string;
+          word_count?: number;
+          local_hash: string;
+          processing_mode?: "private" | "signals_only";
+          signals?: unknown;
+          is_deleted?: boolean;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          created_at?: string;
+          updated_at?: string;
+          word_count?: number;
+          local_hash?: string;
+          processing_mode?: "private" | "signals_only";
+          signals?: unknown;
+          is_deleted?: boolean;
+        };
+      };
       conversation_metadata_v2: {
         Row: {
           id: string;
@@ -1340,9 +1603,349 @@ export type Database = {
           created_at?: string;
         };
       };
+      master_state_current: {
+        Row: {
+          user_id: string;
+          global_stability_score: number;
+          dominant_risk_domain: string;
+          energy_budget_flag: boolean;
+          overload_flag: boolean;
+          confidence_score: number;
+          sample_size: number;
+          data_freshness_hours: number;
+          is_stale: boolean;
+          updated_at: string;
+        };
+        Insert: {
+          user_id: string;
+          global_stability_score?: number;
+          dominant_risk_domain?: string;
+          energy_budget_flag?: boolean;
+          overload_flag?: boolean;
+          confidence_score?: number;
+          sample_size?: number;
+          data_freshness_hours?: number;
+          is_stale?: boolean;
+          updated_at?: string;
+        };
+        Update: {
+          user_id?: string;
+          global_stability_score?: number;
+          dominant_risk_domain?: string;
+          energy_budget_flag?: boolean;
+          overload_flag?: boolean;
+          confidence_score?: number;
+          sample_size?: number;
+          data_freshness_hours?: number;
+          is_stale?: boolean;
+          updated_at?: string;
+        };
+      };
+      system_status_current: {
+        Row: {
+          user_id: string;
+          system_phase: string;
+          top_priority_domain: string;
+          enforcement_mode: string;
+          focus_capacity: number;
+          decision_capacity: number;
+          recovery_required: boolean;
+          recompute_count_today: number;
+          last_recompute_reason: string | null;
+          confidence_score: number;
+          updated_at: string;
+        };
+        Insert: {
+          user_id: string;
+          system_phase?: string;
+          top_priority_domain?: string;
+          enforcement_mode?: string;
+          focus_capacity?: number;
+          decision_capacity?: number;
+          recovery_required?: boolean;
+          recompute_count_today?: number;
+          last_recompute_reason?: string | null;
+          confidence_score?: number;
+          updated_at?: string;
+        };
+        Update: {
+          user_id?: string;
+          system_phase?: string;
+          top_priority_domain?: string;
+          enforcement_mode?: string;
+          focus_capacity?: number;
+          decision_capacity?: number;
+          recovery_required?: boolean;
+          recompute_count_today?: number;
+          last_recompute_reason?: string | null;
+          confidence_score?: number;
+          updated_at?: string;
+        };
+      };
+      health_state_current: {
+        Row: {
+          user_id: string;
+          energy_index: number;
+          sleep_debt_score: number;
+          recovery_index: number;
+          volatility_flag: boolean;
+          confidence_score: number;
+          updated_at: string;
+        };
+        Insert: {
+          user_id: string;
+          energy_index?: number;
+          sleep_debt_score?: number;
+          recovery_index?: number;
+          volatility_flag?: boolean;
+          confidence_score?: number;
+          updated_at?: string;
+        };
+        Update: {
+          user_id?: string;
+          energy_index?: number;
+          sleep_debt_score?: number;
+          recovery_index?: number;
+          volatility_flag?: boolean;
+          confidence_score?: number;
+          updated_at?: string;
+        };
+      };
+      financial_state_current: {
+        Row: {
+          user_id: string;
+          monthly_spending: number;
+          impulse_spend_count: number;
+          savings_ratio: number;
+          financial_stress_index: number;
+          confidence_score: number;
+          updated_at: string;
+        };
+        Insert: {
+          user_id: string;
+          monthly_spending?: number;
+          impulse_spend_count?: number;
+          savings_ratio?: number;
+          financial_stress_index?: number;
+          confidence_score?: number;
+          updated_at?: string;
+        };
+        Update: {
+          user_id?: string;
+          monthly_spending?: number;
+          impulse_spend_count?: number;
+          savings_ratio?: number;
+          financial_stress_index?: number;
+          confidence_score?: number;
+          updated_at?: string;
+        };
+      };
+      cognitive_state_current: {
+        Row: {
+          user_id: string;
+          avg_confidence: number;
+          regret_index: number;
+          bias_frequency_score: number;
+          decision_volatility: number;
+          confidence_score: number;
+          updated_at: string;
+        };
+        Insert: {
+          user_id: string;
+          avg_confidence?: number;
+          regret_index?: number;
+          bias_frequency_score?: number;
+          decision_volatility?: number;
+          confidence_score?: number;
+          updated_at?: string;
+        };
+        Update: {
+          user_id?: string;
+          avg_confidence?: number;
+          regret_index?: number;
+          bias_frequency_score?: number;
+          decision_volatility?: number;
+          confidence_score?: number;
+          updated_at?: string;
+        };
+      };
+      contracts_current: {
+        Row: {
+          id: string;
+          user_id: string;
+          template_id: string;
+          domain: string;
+          origin: string;
+          enforcement_mode: string;
+          severity: string;
+          duration_days: number;
+          budget_weight: number;
+          is_active: boolean;
+          created_at: string;
+          expires_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          template_id: string;
+          domain: string;
+          origin: string;
+          enforcement_mode: string;
+          severity: string;
+          duration_days: number;
+          budget_weight: number;
+          is_active?: boolean;
+          created_at?: string;
+          expires_at: string;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          template_id?: string;
+          domain?: string;
+          origin?: string;
+          enforcement_mode?: string;
+          severity?: string;
+          duration_days?: number;
+          budget_weight?: number;
+          is_active?: boolean;
+          created_at?: string;
+          expires_at?: string;
+        };
+      };
+      resource_budget_current: {
+        Row: {
+          user_id: string;
+          max_focus_minutes_today: number;
+          max_decision_complexity: number;
+          spending_tolerance_band: number;
+          recovery_required_hours: number;
+          budget_confidence: number;
+          constraint_level: string;
+          confidence_score: number;
+          sample_size: number;
+          data_freshness_hours: number;
+          is_stale: boolean;
+          updated_at: string;
+        };
+        Insert: {
+          user_id: string;
+          max_focus_minutes_today?: number;
+          max_decision_complexity?: number;
+          spending_tolerance_band?: number;
+          recovery_required_hours?: number;
+          budget_confidence?: number;
+          constraint_level?: string;
+          confidence_score?: number;
+          sample_size?: number;
+          data_freshness_hours?: number;
+          is_stale?: boolean;
+          updated_at?: string;
+        };
+        Update: {
+          user_id?: string;
+          max_focus_minutes_today?: number;
+          max_decision_complexity?: number;
+          spending_tolerance_band?: number;
+          recovery_required_hours?: number;
+          budget_confidence?: number;
+          constraint_level?: string;
+          confidence_score?: number;
+          sample_size?: number;
+          data_freshness_hours?: number;
+          is_stale?: boolean;
+          updated_at?: string;
+        };
+      };
+      system_transition_log: {
+        Row: {
+          id: string;
+          user_id: string;
+          previous_phase: string;
+          new_phase: string;
+          previous_priority_domain: string;
+          new_priority_domain: string;
+          previous_enforcement_mode: string;
+          new_enforcement_mode: string;
+          previous_constraint_level: string;
+          new_constraint_level: string;
+          trigger_source: string;
+          triggered_by_domain: string;
+          changed_phase: boolean;
+          changed_priority: boolean;
+          changed_enforcement: boolean;
+          changed_budget: boolean;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          previous_phase: string;
+          new_phase: string;
+          previous_priority_domain: string;
+          new_priority_domain: string;
+          previous_enforcement_mode: string;
+          new_enforcement_mode: string;
+          previous_constraint_level?: string;
+          new_constraint_level?: string;
+          trigger_source?: string;
+          triggered_by_domain?: string;
+          changed_phase?: boolean;
+          changed_priority?: boolean;
+          changed_enforcement?: boolean;
+          changed_budget?: boolean;
+          created_at?: string;
+        };
+        Update: {};
+      };
+      inbox_proposals_meta: {
+        Row: {
+          id: string;
+          user_id: string;
+          type: string;
+          domain: string;
+          severity: string;
+          proposal_id: string;
+          created_at: string;
+          status: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          type: string;
+          domain: string;
+          severity: string;
+          proposal_id: string;
+          created_at?: string;
+          status?: string;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          type?: string;
+          domain?: string;
+          severity?: string;
+          proposal_id?: string;
+          created_at?: string;
+          status?: string;
+        };
+      };
     };
     Views: Record<string, never>;
-    Functions: Record<string, never>;
+    Functions: {
+      atomic_token_deduct: {
+        Args: {
+          p_user_id: string;
+          p_tokens: number;
+          p_source: string;
+          p_from_alloc: boolean;
+          p_allowance: number;
+          p_window_start: string;
+          p_window_end: string;
+        };
+        Returns: Json;
+      };
+    };
     Enums: {
       migration_status: "NOT_STARTED" | "IN_PROGRESS" | "COMPLETED";
       governance_event_type: "commitment_created" | "commitment_completed" | "commitment_violation" | "abstinence_start" | "abstinence_violation" | "focus_start" | "focus_end" | "scheduler_tick";
@@ -1351,6 +1954,8 @@ export type Database = {
       governance_abstinence_target_code: "smoking" | "alcohol" | "focus" | "habit" | "other";
       governance_focus_outcome: "completed" | "abandoned" | "skipped" | "expired";
       governance_target_status: "active" | "paused" | "completed" | "abandoned";
+      budget_constraint_level: "normal" | "constrained" | "critical";
+      transition_trigger_source: "session_close" | "scheduler_tick" | "user_action" | "system_recompute";
     };
   };
 };

@@ -15,9 +15,10 @@ const T = {
 interface QuickActionsProps {
   onOpenLibrary: () => void;
   onOpenFocusAreas: () => void;
+  budgetLine?: { focus: string; decisions: string };
 }
 
-export function QuickActions({ onOpenLibrary, onOpenFocusAreas }: QuickActionsProps) {
+export function QuickActions({ onOpenLibrary, onOpenFocusAreas, budgetLine }: QuickActionsProps) {
   return (
     <section>
       <p
@@ -81,6 +82,33 @@ export function QuickActions({ onOpenLibrary, onOpenFocusAreas }: QuickActionsPr
           <span>Focus Areas</span>
         </button>
       </div>
+
+      {budgetLine && (
+        <div style={{ marginTop: 12 }}>
+          <p
+            style={{
+              fontFamily: T.dmSans,
+              fontSize: 11,
+              fontWeight: 600,
+              letterSpacing: "0.04em",
+              color: T.tertiary,
+              margin: "0 0 3px",
+            }}
+          >
+            Today&apos;s Capacity
+          </p>
+          <p
+            style={{
+              fontFamily: T.dmSans,
+              fontSize: 12,
+              color: T.secondary,
+              margin: 0,
+            }}
+          >
+            Focus: {budgetLine.focus} · Decisions: {budgetLine.decisions}
+          </p>
+        </div>
+      )}
     </section>
   );
 }

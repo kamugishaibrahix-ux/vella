@@ -5,6 +5,25 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { POST } from "@/app/api/vella/text/route";
 
+// Use vi.hoisted for mocks that need to be accessed from both vi.mock factories and tests
+const mocks = vi.hoisted(() => ({
+  // Governance mocks
+  getGovernanceStateForUser: vi.fn(),
+  getRecentViolationCounts: vi.fn(),
+  getFocusSessionsCountLast7d: vi.fn(),
+  getActiveCommitmentsMetadata: vi.fn(),
+  getViolationAndCompletionCounts30d: vi.fn(),
+  getFocusSessionsCountLast30d: vi.fn(),
+  getPriorViolationTrendSnapshot: vi.fn(),
+  isGovernanceStale: vi.fn(),
+  computeGovernanceState: vi.fn(),
+  
+  // Completion and filter mocks
+  runVellaTextCompletion: vi.fn(),
+  filterUnsafeContent: vi.fn(),
+  recordConversationMetadataV2: vi.fn(),
+}));
+
 vi.mock("@/lib/supabase/server-auth", () => ({
   requireUserId: vi.fn().mockResolvedValue("test-user-id"),
 }));
@@ -36,6 +55,7 @@ vi.mock("@/lib/security/killSwitch", () => ({
 vi.mock("@/lib/memory/retrieve", () => ({
   retrieveTopK: vi.fn().mockResolvedValue([]),
   formatMemoryContext: vi.fn().mockReturnValue(""),
+  buildCompleteMemoryContext: vi.fn().mockResolvedValue({ context: "", charCount: 0 }),
 }));
 
 vi.mock("@/lib/vella/exercises", () => ({
@@ -46,39 +66,98 @@ vi.mock("@/lib/vella/exercises", () => ({
   getStressResetExercise: vi.fn().mockReturnValue(""),
 }));
 
-const mockGetGovernanceStateForUser = vi.fn();
-const mockGetRecentViolationCounts = vi.fn();
-const mockGetFocusSessionsCountLast7d = vi.fn();
-const mockGetActiveCommitmentsMetadata = vi.fn();
 vi.mock("@/lib/governance/readState", async (importOriginal) => {
   const mod = await importOriginal<typeof import("@/lib/governance/readState")>();
   return {
     ...mod,
-    getGovernanceStateForUser: (...args: unknown[]) => mockGetGovernanceStateForUser(...args),
-    getRecentViolationCounts: (...args: unknown[]) => mockGetRecentViolationCounts(...args),
-    getFocusSessionsCountLast7d: (...args: unknown[]) => mockGetFocusSessionsCountLast7d(...args),
-    getActiveCommitmentsMetadata: (...args: unknown[]) => mockGetActiveCommitmentsMetadata(...args),
+    getGovernanceStateForUser: mocks.getGovernanceStateForUser,
+    getRecentViolationCounts: mocks.getRecentViolationCounts,
+    getFocusSessionsCountLast7d: mocks.getFocusSessionsCountLast7d,
+    getActiveCommitmentsMetadata: mocks.getActiveCommitmentsMetadata,
+    getViolationAndCompletionCounts30d: mocks.getViolationAndCompletionCounts30d,
+    getFocusSessionsCountLast30d: mocks.getFocusSessionsCountLast30d,
+    getPriorViolationTrendSnapshot: mocks.getPriorViolationTrendSnapshot,
+    isGovernanceStale: mocks.isGovernanceStale,
   };
 });
 
-const mockComputeGovernanceState = vi.fn();
 vi.mock("@/lib/governance/stateEngine", () => ({
-  computeGovernanceState: (...args: unknown[]) => mockComputeGovernanceState(...args),
+  computeGovernanceState: mocks.computeGovernanceState,
 }));
 
-const mockRecordConversationMetadataV2 = vi.fn();
+vi.mock("@/lib/governance/behaviourSnapshot", () => ({
+  buildBehaviourSnapshot: vi.fn().mockReturnValue({
+    riskScore: 0,
+    escalationLevel: 0,
+    recoveryState: "na",
+    disciplineState: "na",
+    focusState: "na",
+    recentCommitmentViolations: 0,
+    recentAbstinenceViolations: 0,
+    focusSessionsLast7d: 0,
+    contradictionDetected: false,
+    contradictedCommitmentIds: [],
+    boundaryTriggered: false,
+    guidanceSignals: {
+      firmnessLevel: 0,
+      earnedValidation: { earnedValidationLevel: 0, reasons: [] },
+      outcomeProjection: { projectionLevel: 0, messageStyle: "neutral", reasons: [] },
+    },
+    identitySignals: {
+      mood: "neutral",
+      stance: "steady",
+      standardsLevel: 0,
+      reasons: [],
+    },
+  }),
+}));
+
+vi.mock("@/lib/governance/contradiction", () => ({
+  detectCommitmentContradiction: vi.fn().mockReturnValue({
+    contradictionDetected: false,
+    contradictedCommitmentIds: [],
+  }),
+}));
+
+vi.mock("@/lib/safety/boundaryDetector", () => ({
+  detectBoundarySignal: vi.fn().mockReturnValue({
+    boundaryTriggered: false,
+    boundaryType: "other",
+    severity: 0,
+    matchedTerms: [],
+  }),
+}));
+
+vi.mock("@/lib/ai/modeResolver", () => ({
+  resolveMode: vi.fn().mockImplementation((_requested, _governance, _options) => {
+    const requested = _requested as string | null;
+    if (requested && ["vent", "listen", "challenge", "coach", "crisis"].includes(requested)) {
+      return requested;
+    }
+    return "listen";
+  }),
+}));
+
+vi.mock("@/lib/ai/textPrompts", () => ({
+  buildVellaTextPrompt: vi.fn().mockImplementation((opts) => {
+    const snapshot = opts.behaviourSnapshot;
+    if (snapshot) {
+      return `BEHAVIOURAL SNAPSHOT (Structured Data — Do Not Repeat Verbosely)\n${JSON.stringify(snapshot)}`;
+    }
+    return "mock prompt";
+  }),
+}));
+
 vi.mock("@/lib/conversation/db", () => ({
-  recordConversationMetadataV2: (...args: unknown[]) => mockRecordConversationMetadataV2(...args),
+  recordConversationMetadataV2: mocks.recordConversationMetadataV2,
 }));
 
-const mockRunVellaTextCompletion = vi.fn();
 vi.mock("@/lib/ai/textEngine", () => ({
-  runVellaTextCompletion: (...args: unknown[]) => mockRunVellaTextCompletion(...args),
+  runVellaTextCompletion: mocks.runVellaTextCompletion,
 }));
 
-const mockFilterUnsafeContent = vi.fn();
 vi.mock("@/lib/safety/complianceFilter", () => ({
-  filterUnsafeContent: (text: string) => mockFilterUnsafeContent(text),
+  filterUnsafeContent: mocks.filterUnsafeContent,
 }));
 
 vi.mock("@/lib/governance/events", () => ({
@@ -90,23 +169,99 @@ vi.mock("@/lib/security/observability", () => ({
   logSecurityEvent: vi.fn(),
 }));
 
+vi.mock("@/lib/security/validationSchemas", () => ({
+  vellaTextRequestSchema: {
+    safeParse: vi.fn().mockImplementation((data: unknown) => {
+      if (data && typeof data === "object" && "message" in data && typeof (data as Record<string, unknown>).message === "string") {
+        return { success: true, data };
+      }
+      return { success: false, error: { issues: [{ message: "Invalid" }] } };
+    }),
+  },
+}));
+
+vi.mock("@/lib/auth/requireActiveUser", () => ({
+  requireActiveUser: vi.fn().mockResolvedValue({
+    userId: "test-user-id",
+    plan: "free",
+    subscriptionStatus: "active",
+  }),
+  isActiveUserBlocked: vi.fn().mockReturnValue(false),
+}));
+
+vi.mock("@/lib/plans/requireEntitlement", () => ({
+  requireEntitlement: vi.fn().mockResolvedValue({
+    userId: "test-user-id",
+    plan: "free",
+    entitlements: {
+      enableDeepMemory: false,
+      enableAudioVella: false,
+      enableStrategy: false,
+      enableDeepInsights: false,
+      enableClarity: false,
+      enablePatterns: false,
+      enableGrowthRoadmap: false,
+      enableJournalAnalysis: false,
+      enableEmotionIntel: false,
+      enableArchitect: false,
+      enableAudioSessions: false,
+      weeklyFocusSubjects: 0,
+      monthlyTokens: 0,
+    },
+  }),
+  isEntitlementBlocked: vi.fn().mockReturnValue(false),
+}));
+
+vi.mock("@/lib/plans/resolvePlanEntitlements", () => ({
+  resolvePlanEntitlements: vi.fn().mockResolvedValue({
+    plan: "free",
+    entitlements: {
+      enableDeepMemory: false,
+      enableAudioVella: false,
+      enableStrategy: false,
+      enableDeepInsights: false,
+      enableClarity: false,
+      enablePatterns: false,
+      enableGrowthRoadmap: false,
+      enableJournalAnalysis: false,
+      enableEmotionIntel: false,
+      enableArchitect: false,
+      enableAudioSessions: false,
+      weeklyFocusSubjects: 0,
+      monthlyTokens: 0,
+    },
+  }),
+}));
+
+vi.mock("@/lib/plans/featureRegistry", () => ({
+  isFeatureEnabled: vi.fn().mockReturnValue(true),
+}));
+
 const emptyData = { data: [], error: null };
 const fromSafeChain = () =>
   Object.assign(Promise.resolve(emptyData), {
     select: () => fromSafeChain(),
     eq: () => fromSafeChain(),
     gte: () => Promise.resolve(emptyData),
+    maybeSingle: () => Promise.resolve({ data: null, error: null }),
   });
+
 vi.mock("@/lib/supabase/admin", () => ({
   fromSafe: () => fromSafeChain(),
-  supabaseAdmin: {},
+  supabaseAdmin: {
+    from: vi.fn().mockReturnValue({
+      select: vi.fn().mockReturnThis(),
+      eq: vi.fn().mockReturnThis(),
+      maybeSingle: vi.fn().mockResolvedValue({ data: null, error: null }),
+    }),
+  },
   createAdminClient: () => null,
 }));
 
 describe("POST /api/vella/text", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    mockGetGovernanceStateForUser.mockResolvedValue({
+    mocks.getGovernanceStateForUser.mockResolvedValue({
       riskScore: 0,
       escalationLevel: 0,
       recoveryState: "na",
@@ -114,17 +269,25 @@ describe("POST /api/vella/text", () => {
       focusState: "na",
       lastComputedAtIso: new Date().toISOString(),
     });
-    mockGetRecentViolationCounts.mockResolvedValue({
+    mocks.getRecentViolationCounts.mockResolvedValue({
       commitmentViolations: 0,
       abstinenceViolations: 0,
       commitmentCompleted: 0,
     });
-    mockGetFocusSessionsCountLast7d.mockResolvedValue(0);
-    mockGetActiveCommitmentsMetadata.mockResolvedValue([]);
-    mockComputeGovernanceState.mockResolvedValue({ success: true });
-    mockRunVellaTextCompletion.mockResolvedValue("Raw model reply.");
-    mockFilterUnsafeContent.mockImplementation((t: string) => Promise.resolve(t));
-    mockRecordConversationMetadataV2.mockResolvedValue(undefined);
+    mocks.getFocusSessionsCountLast7d.mockResolvedValue(0);
+    mocks.getActiveCommitmentsMetadata.mockResolvedValue([]);
+    mocks.getViolationAndCompletionCounts30d.mockResolvedValue({
+      commitmentViolations30d: 0,
+      abstinenceViolations30d: 0,
+      commitmentCompleted30d: 0,
+    });
+    mocks.getFocusSessionsCountLast30d.mockResolvedValue(0);
+    mocks.getPriorViolationTrendSnapshot.mockResolvedValue([]);
+    mocks.isGovernanceStale.mockReturnValue(false);
+    mocks.computeGovernanceState.mockResolvedValue({ success: true });
+    mocks.runVellaTextCompletion.mockResolvedValue("Raw model reply.");
+    mocks.filterUnsafeContent.mockImplementation((t: string) => Promise.resolve(t));
+    mocks.recordConversationMetadataV2.mockResolvedValue(undefined);
   });
 
   it("calls getGovernanceStateForUser with userId", async () => {
@@ -134,7 +297,7 @@ describe("POST /api/vella/text", () => {
       body: JSON.stringify({ message: "Hello" }),
     });
     await POST(req);
-    expect(mockGetGovernanceStateForUser).toHaveBeenCalledWith("test-user-id");
+    expect(mocks.getGovernanceStateForUser).toHaveBeenCalledWith("test-user-id");
   });
 
   it("writes metadata with mode_enum from resolved mode", async () => {
@@ -144,8 +307,8 @@ describe("POST /api/vella/text", () => {
       body: JSON.stringify({ message: "Hello" }),
     });
     await POST(req);
-    expect(mockRecordConversationMetadataV2).toHaveBeenCalled();
-    const call = mockRecordConversationMetadataV2.mock.calls[0][0];
+    expect(mocks.recordConversationMetadataV2).toHaveBeenCalled();
+    const call = mocks.recordConversationMetadataV2.mock.calls[0][0];
     expect(call).toMatchObject({
       userId: "test-user-id",
       messageCount: 2,
@@ -156,21 +319,21 @@ describe("POST /api/vella/text", () => {
   });
 
   it("applies filterUnsafeContent to model reply before returning", async () => {
-    mockRunVellaTextCompletion.mockResolvedValue("Unfiltered reply from model.");
-    mockFilterUnsafeContent.mockResolvedValue("Filtered reply.");
+    mocks.runVellaTextCompletion.mockResolvedValue("Unfiltered reply from model.");
+    mocks.filterUnsafeContent.mockResolvedValue("Filtered reply.");
     const req = new Request("http://localhost/api/vella/text", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ message: "Hi" }),
     });
     const res = await POST(req);
-    expect(mockFilterUnsafeContent).toHaveBeenCalledWith("Unfiltered reply from model.");
+    expect(mocks.filterUnsafeContent).toHaveBeenCalledWith("Unfiltered reply from model.");
     const json = await res.json();
     expect(json.reply).toBe("Filtered reply.");
   });
 
   it("uses requested mode when governance allows", async () => {
-    mockGetGovernanceStateForUser.mockResolvedValue({
+    mocks.getGovernanceStateForUser.mockResolvedValue({
       riskScore: 2,
       escalationLevel: 0,
       recoveryState: "ok",
@@ -184,12 +347,12 @@ describe("POST /api/vella/text", () => {
       body: JSON.stringify({ message: "Hi", mode: "vent" }),
     });
     await POST(req);
-    expect(mockRunVellaTextCompletion).toHaveBeenCalledWith(
+    expect(mocks.runVellaTextCompletion).toHaveBeenCalledWith(
       expect.any(String),
       "test-user-id",
       expect.objectContaining({ mode: "vent" })
     );
-    const metaCall = mockRecordConversationMetadataV2.mock.calls[0][0];
+    const metaCall = mocks.recordConversationMetadataV2.mock.calls[0][0];
     expect(metaCall.mode_enum).toBe("vent");
   });
 
@@ -197,14 +360,14 @@ describe("POST /api/vella/text", () => {
     const { detectExerciseIntent, getBreathingExercise } = await import("@/lib/vella/exercises");
     vi.mocked(detectExerciseIntent).mockReturnValue("breathing");
     vi.mocked(getBreathingExercise).mockReturnValue("Inhale for four.\nHold.\nExhale.");
-    mockFilterUnsafeContent.mockResolvedValue("Filtered exercise reply.");
+    mocks.filterUnsafeContent.mockResolvedValue("Filtered exercise reply.");
     const req = new Request("http://localhost/api/vella/text", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ message: "I need to breathe" }),
     });
     const res = await POST(req);
-    expect(mockFilterUnsafeContent).toHaveBeenCalledWith(
+    expect(mocks.filterUnsafeContent).toHaveBeenCalledWith(
       expect.stringContaining("Inhale for four")
     );
     const json = await res.json();
@@ -214,7 +377,7 @@ describe("POST /api/vella/text", () => {
 
   it("when governance is stale, calls computeGovernanceState then re-reads", async () => {
     const oldIso = new Date(Date.now() - 10 * 60 * 60 * 1000).toISOString();
-    mockGetGovernanceStateForUser
+    mocks.getGovernanceStateForUser
       .mockResolvedValueOnce({
         riskScore: 0,
         escalationLevel: 0,
@@ -231,18 +394,19 @@ describe("POST /api/vella/text", () => {
         focusState: "na",
         lastComputedAtIso: new Date().toISOString(),
       });
+    mocks.isGovernanceStale.mockReturnValue(true);
     const req = new Request("http://localhost/api/vella/text", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ message: "Hello" }),
     });
     await POST(req);
-    expect(mockComputeGovernanceState).toHaveBeenCalledWith("test-user-id");
-    expect(mockGetGovernanceStateForUser).toHaveBeenCalledTimes(2);
+    expect(mocks.computeGovernanceState).toHaveBeenCalledWith("test-user-id");
+    expect(mocks.getGovernanceStateForUser).toHaveBeenCalledTimes(2);
   });
 
   it("injects behaviour snapshot into prompt (Phase 1)", async () => {
-    mockGetGovernanceStateForUser.mockResolvedValue({
+    mocks.getGovernanceStateForUser.mockResolvedValue({
       riskScore: 3,
       escalationLevel: 1,
       recoveryState: "ok",
@@ -250,12 +414,12 @@ describe("POST /api/vella/text", () => {
       focusState: "active",
       lastComputedAtIso: new Date().toISOString(),
     });
-    mockGetRecentViolationCounts.mockResolvedValue({
+    mocks.getRecentViolationCounts.mockResolvedValue({
       commitmentViolations: 1,
       abstinenceViolations: 0,
       commitmentCompleted: 0,
     });
-    mockGetFocusSessionsCountLast7d.mockResolvedValue(2);
+    mocks.getFocusSessionsCountLast7d.mockResolvedValue(2);
     const req = new Request("http://localhost/api/vella/text", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -263,8 +427,8 @@ describe("POST /api/vella/text", () => {
     });
     const res = await POST(req);
     expect(res.status).toBe(200);
-    if (mockRunVellaTextCompletion.mock.calls.length > 0) {
-      const prompt = mockRunVellaTextCompletion.mock.calls[0][0];
+    if (mocks.runVellaTextCompletion.mock.calls.length > 0) {
+      const prompt = mocks.runVellaTextCompletion.mock.calls[0][0];
       expect(prompt).toContain("BEHAVIOURAL SNAPSHOT (Structured Data — Do Not Repeat Verbosely)");
       expect(prompt).toMatch(/"riskScore":\d+/);
       expect(prompt).toMatch(/"recentCommitmentViolations":\d+/);
@@ -273,7 +437,7 @@ describe("POST /api/vella/text", () => {
   });
 
   it("persists mode_enum crisis when request mode is crisis", async () => {
-    mockGetGovernanceStateForUser.mockResolvedValue({
+    mocks.getGovernanceStateForUser.mockResolvedValue({
       riskScore: 0,
       escalationLevel: 0,
       recoveryState: "na",
@@ -287,7 +451,7 @@ describe("POST /api/vella/text", () => {
       body: JSON.stringify({ message: "Hi", mode: "crisis" }),
     });
     await POST(req);
-    const metaCall = mockRecordConversationMetadataV2.mock.calls.find(
+    const metaCall = mocks.recordConversationMetadataV2.mock.calls.find(
       (c: unknown[]) => c[0]?.mode_enum === "crisis"
     );
     expect(metaCall).toBeDefined();

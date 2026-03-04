@@ -35,6 +35,7 @@ import {
   updateUserShadowBan,
   updateUserFlagged,
 } from "@/lib/api/adminUsersClient";
+import { type PlanTier, getTierTokenLimit, isValidPlanTier, VALID_PLAN_TIERS } from "@vella/contract";
 
 type UserStatus = "active" | "suspended" | "banned";
 type UserPlan = string;
@@ -56,23 +57,19 @@ type UserRecord = {
   flaggedForReview: boolean;
 };
 
-const DEFAULT_PLAN_TOKENS: Record<string, number> = {
-  Free: 5000,
-  Pro: 40000,
-  Elite: 120000,
-};
-
 const statusOptions: { value: UserStatus; label: string }[] = [
   { value: "active", label: "Active" },
   { value: "suspended", label: "Suspended" },
   { value: "banned", label: "Banned" },
 ];
 
+// Generate plan options from shared contract
 const planOptions: { value: UserPlan | "all"; label: string }[] = [
   { value: "all", label: "All plans" },
-  { value: "Free", label: "Free" },
-  { value: "Pro", label: "Pro" },
-  { value: "Elite", label: "Elite" },
+  ...(VALID_PLAN_TIERS as PlanTier[]).map((tier) => ({
+    value: tier.charAt(0).toUpperCase() + tier.slice(1), // Capitalize
+    label: tier.charAt(0).toUpperCase() + tier.slice(1),
+  })),
 ];
 
 const statusFilters: { value: "all" | UserStatus; label: string }[] = [
@@ -103,6 +100,11 @@ function formatRelativeTime(dateString?: string | null) {
 function mapAdminUserRow(row: AdminUserRow): UserRecord {
   const safePlan = row.plan ?? "Free";
   const lastActiveExact = row.last_active_at ?? row.updated_at ?? row.created_at ?? new Date().toISOString();
+  
+  // Normalize plan name for token lookup
+  const normalizedTier = safePlan.toLowerCase().trim();
+  const effectiveTier = isValidPlanTier(normalizedTier) ? normalizedTier : "free";
+  
   return {
     id: row.user_id,
     name: row.full_name ?? row.email ?? row.user_id,
@@ -111,7 +113,8 @@ function mapAdminUserRow(row: AdminUserRow): UserRecord {
     status: normalizeStatus(row.status),
     lastActive: formatRelativeTime(lastActiveExact),
     tokenBalance: row.token_balance ?? 0,
-    tokensPerMonth: row.tokens_per_month ?? DEFAULT_PLAN_TOKENS[safePlan] ?? 0,
+    // Use shared contract for token limit - now: free=10k, pro=300k, elite=1M
+    tokensPerMonth: row.tokens_per_month ?? getTierTokenLimit(effectiveTier),
     voiceEnabled: Boolean(row.voice_enabled),
     realtimeBeta: Boolean(row.realtime_beta),
     admin: Boolean(row.admin),

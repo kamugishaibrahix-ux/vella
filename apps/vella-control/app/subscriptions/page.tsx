@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { DollarSign, Shield, TrendingDown, Users } from "lucide-react";
+import { DollarSign, Shield, TrendingDown, Users, AlertTriangle } from "lucide-react";
 import { SectionHeader } from "@/components/admin/SectionHeader";
 import { MetricCard } from "@/components/admin/MetricCard";
 import { Button } from "@/components/ui/button";
@@ -20,7 +20,6 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
-import { Switch } from "@/components/ui/switch";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import type { AdminSubscription } from "@/lib/api/adminSubscriptionsClient";
 import {
@@ -34,6 +33,14 @@ import {
 } from "@/lib/api/adminPromoCodesClient";
 import { fetchRevenue, type RevenueData } from "@/lib/api/adminRevenueClient";
 import { deactivatePromoCode } from "@/lib/api/adminPromoCodesClient";
+import { 
+  type PlanTier,
+  getTierTokenLimit, 
+  getTierPricing, 
+  TIER_MARKETING,
+  VALID_PLAN_TIERS,
+  isValidPlanTier 
+} from "@vella/contract";
 
 type SubscriptionEventRow = {
   id: string;
@@ -46,12 +53,27 @@ type SubscriptionEventRow = {
   status: string;
 };
 
+// Plan info derived from shared contract - display only
+interface PlanInfo {
+  id: string;
+  name: string;
+  users: number;
+  tokenAllocation: number;
+  price: string;
+}
+
 export default function SubscriptionsPage() {
-  const [plans, setPlans] = useState([
-    { id: "free", name: "Free", users: 0, tokenAllocation: 5000, seatLimit: 1, price: "$0", allowRealtime: false },
-    { id: "pro", name: "Pro", users: 0, tokenAllocation: 40000, seatLimit: 3, price: "$49", allowRealtime: true },
-    { id: "elite", name: "Elite", users: 0, tokenAllocation: 120000, seatLimit: 10, price: "$199", allowRealtime: true },
-  ]);
+  // Initialize plans from shared contract (read-only display values)
+  const [plans, setPlans] = useState<PlanInfo[]>(() => {
+    return (VALID_PLAN_TIERS as PlanTier[]).map((tier) => ({
+      id: tier,
+      name: TIER_MARKETING[tier].title,
+      users: 0,
+      tokenAllocation: getTierTokenLimit(tier),
+      price: getTierPricing(tier).priceLabel,
+    }));
+  });
+  
   const [subscriptions, setSubscriptions] = useState<AdminSubscription[]>([]);
   const [isLoadingSubscriptions, setIsLoadingSubscriptions] = useState(true);
   const [subscriptionsError, setSubscriptionsError] = useState<string | null>(null);
@@ -62,6 +84,10 @@ export default function SubscriptionsPage() {
   const [isLoadingPromoCodes, setIsLoadingPromoCodes] = useState(false);
   const [promoDialogOpen, setPromoDialogOpen] = useState(false);
   const [revenue, setRevenue] = useState<RevenueData | null>(null);
+  const [syncStatus, setSyncStatus] = useState<{ type: "error" | "success" | null; message: string }>({ 
+    type: null, 
+    message: "" 
+  });
   const [promoForm, setPromoForm] = useState({
     code: "",
     discount_percent: 20,
@@ -151,35 +177,35 @@ export default function SubscriptionsPage() {
     };
   }, []);
 
+  // Update plan user counts from subscriptions
   useEffect(() => {
     const safeSubscriptions = subscriptions ?? [];
     if (!safeSubscriptions.length) return;
 
     setPlans((prev) => {
       const planCounts = safeSubscriptions.reduce<Record<string, number>>((acc, sub) => {
-        const name = sub.plan ?? "Unknown";
-        acc[name] = (acc[name] ?? 0) + 1;
+        // Normalize plan name for counting
+        const plan = sub.plan ?? "Unknown";
+        const normalized = plan.toLowerCase().trim();
+        
+        // Map to known tier if possible
+        let tier = normalized;
+        if (normalized === "basic") tier = "free";
+        else if (normalized === "premium") tier = "elite";
+        else if (!isValidPlanTier(normalized)) {
+          // Keep unknown plans as-is for display, but they'll show warnings
+          tier = plan;
+        }
+        
+        acc[tier] = (acc[tier] ?? 0) + 1;
         return acc;
       }, {});
 
-      const nextPlans = prev.map((plan) => ({
+      // Update existing plan counts
+      return prev.map((plan) => ({
         ...plan,
-        users: planCounts[plan.name] ?? plan.users,
+        users: planCounts[plan.id] ?? 0,
       }));
-
-      const additionalPlans = Object.entries(planCounts)
-        .filter(([name]) => !nextPlans.some((plan) => plan.name === name))
-        .map(([name, count]) => ({
-          id: name.toLowerCase(),
-          name,
-          users: count,
-          tokenAllocation: 0,
-          seatLimit: 1,
-          price: "$0",
-          allowRealtime: false,
-        }));
-
-      return [...nextPlans, ...additionalPlans];
     });
   }, [subscriptions]);
 
@@ -249,19 +275,6 @@ export default function SubscriptionsPage() {
     }));
   }, [subscriptions]);
 
-  const handlePlanChange = (planId: string, field: "tokenAllocation" | "seatLimit" | "allowRealtime", value: number | boolean) => {
-    setPlans((prev) =>
-      prev.map((plan) => (plan.id === planId ? { ...plan, [field]: value } : plan)),
-    );
-  };
-
-  const handleSavePlan = (planId: string) => {
-    const plan = plans.find((plan) => plan.id === planId);
-    // Requires new tables – skipped intentionally
-    // Plan editing in the "Plan Overview" section is for plan definitions, not individual subscriptions
-    // This requires a plan_templates table to store plan definitions
-  };
-
   const handleBulkAction = async (action: "recalculate" | "sync") => {
     if (action === "recalculate") {
       try {
@@ -277,22 +290,17 @@ export default function SubscriptionsPage() {
         window.location.reload();
       } catch (error) {
         console.error("[SubscriptionsPage] Failed to recalculate", error);
+        setSyncStatus({
+          type: "error",
+          message: error instanceof Error ? error.message : "Failed to recalculate",
+        });
       }
     } else if (action === "sync") {
-      try {
-        const response = await fetch("/api/admin/subscriptions/sync-stripe", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-        });
-        const json = await response.json();
-        if (!response.ok || !json.success) {
-          throw new Error(json.error ?? "Failed to sync with Stripe");
-        }
-        // Reload subscriptions
-        window.location.reload();
-      } catch (error) {
-        console.error("[SubscriptionsPage] Failed to sync", error);
-      }
+      // Stripe sync is not implemented - show clear message
+      setSyncStatus({
+        type: "error",
+        message: "Stripe sync is not implemented. Contact engineering to enable.",
+      });
     }
   };
 
@@ -466,69 +474,46 @@ export default function SubscriptionsPage() {
         ))}
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-2">
-        {/* Requires new tables – skipped intentionally */}
-        {false && (
-          <section className="vc-card space-y-5 rounded-2xl border border-white/5 bg-surface/80 p-6 shadow-sm">
-            <div className="border-b border-white/5 pb-4">
-              <h2 className="text-lg font-semibold text-foreground">Plan Overview</h2>
-              <p className="text-sm text-muted-foreground">Adjust allocations and gating per tier</p>
-            </div>
-            <div className="space-y-4">
-              {plans.map((plan) => (
-                <div
-                  key={plan.id}
-                  className="rounded-2xl border border-white/5 bg-background/40 p-4 text-sm text-muted-foreground shadow-inner shadow-black/5 transition hover:border-primary/30"
-                >
-                  <div className="flex flex-wrap items-center justify-between gap-3">
-                    <div>
-                      <p className="text-base font-semibold text-foreground">{plan.name}</p>
-                      <p className="text-xs text-muted-foreground">{plan.users.toLocaleString()} users · {plan.price}/mo</p>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <span className="text-xs text-muted-foreground">Realtime voice</span>
-                      <Switch
-                        checked={plan.allowRealtime}
-                        onCheckedChange={(checked) => handlePlanChange(plan.id, "allowRealtime", checked)}
-                        className="data-[state=checked]:bg-primary"
-                      />
-                    </div>
-                  </div>
-                  <div className="mt-4 grid gap-3 md:grid-cols-3">
-                    <label className="flex flex-col gap-1 text-xs uppercase tracking-wide text-muted-foreground/80">
-                      Monthly tokens
-                      <Input
-                        type="number"
-                        value={plan.tokenAllocation}
-                        onChange={(event) =>
-                          handlePlanChange(plan.id, "tokenAllocation", Number(event.target.value))
-                        }
-                        className="bg-background/60 text-sm"
-                      />
-                    </label>
-                    <label className="flex flex-col gap-1 text-xs uppercase tracking-wide text-muted-foreground/80">
-                      Seat limit
-                      <Input
-                        type="number"
-                        value={plan.seatLimit}
-                        onChange={(event) =>
-                          handlePlanChange(plan.id, "seatLimit", Number(event.target.value))
-                        }
-                        className="bg-background/60 text-sm"
-                      />
-                    </label>
-                    <div className="flex items-end justify-end">
-                      <Button size="sm" className="w-full" onClick={() => handleSavePlan(plan.id)}>
-                        Save plan
-                      </Button>
-                    </div>
-                  </div>
+      {/* Plan Overview - Display Only */}
+      <section className="vc-card rounded-2xl border border-white/5 bg-surface/80 p-6 shadow-sm">
+        <div className="border-b border-white/5 pb-4">
+          <h2 className="text-lg font-semibold text-foreground">Plan Overview</h2>
+          <p className="text-sm text-muted-foreground">
+            Current plan definitions (read-only). Edit entitlements in AI Configuration.
+          </p>
+        </div>
+        <div className="mt-4 space-y-4">
+          {plans.map((plan) => (
+            <div
+              key={plan.id}
+              className="rounded-2xl border border-white/5 bg-background/40 p-4 text-sm text-muted-foreground shadow-inner shadow-black/5"
+            >
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <div>
+                  <p className="text-base font-semibold text-foreground">{plan.name}</p>
+                  <p className="text-xs text-muted-foreground">
+                    {plan.users.toLocaleString()} users · {plan.price}/mo
+                  </p>
                 </div>
-              ))}
+                <div className="text-right">
+                  <p className="text-xs text-muted-foreground">Monthly tokens</p>
+                  <p className="text-sm font-medium text-foreground">
+                    {plan.tokenAllocation.toLocaleString()}
+                  </p>
+                </div>
+              </div>
             </div>
-          </section>
-        )}
+          ))}
+        </div>
+        <div className="mt-4 rounded-lg bg-amber-500/10 border border-amber-500/20 p-3">
+          <p className="text-xs text-amber-200 flex items-center gap-2">
+            <AlertTriangle className="h-4 w-4" />
+            Token values are defined in @vella/contract. Changes require engineering.
+          </p>
+        </div>
+      </section>
 
+      <div className="grid gap-6 lg:grid-cols-2">
         <section className="vc-card rounded-2xl border border-white/5 bg-surface/80 p-6 shadow-sm">
           <div className="border-b border-white/5 pb-4">
             <h2 className="text-lg font-semibold text-foreground">Recent Subscription Events</h2>
@@ -656,14 +641,33 @@ export default function SubscriptionsPage() {
         <div className="vc-card rounded-2xl border border-white/5 bg-surface/80 p-6 shadow-sm">
           <h3 className="text-base font-semibold text-foreground">Bulk operations</h3>
           <p className="text-sm text-muted-foreground">Run maintenance tasks against plan data</p>
+          
+          {syncStatus.type && (
+            <div className={`mt-3 rounded-lg p-2 text-xs ${
+              syncStatus.type === "error" 
+                ? "bg-red-500/10 border border-red-500/20 text-red-200" 
+                : "bg-green-500/10 border border-green-500/20 text-green-200"
+            }`}>
+              {syncStatus.message}
+            </div>
+          )}
+          
           <div className="mt-4 flex flex-col gap-3">
             <Button variant="outline" onClick={() => handleBulkAction("recalculate")}>
               Recalculate token entitlements
             </Button>
-            <Button variant="outline" onClick={() => handleBulkAction("sync")}>
-              Sync plans from Stripe
+            <Button 
+              variant="outline" 
+              onClick={() => handleBulkAction("sync")}
+              disabled
+              title="Stripe sync not implemented"
+            >
+              Sync plans from Stripe (Not Available)
             </Button>
           </div>
+          <p className="mt-2 text-xs text-muted-foreground">
+            Token values: Free = 10k, Pro = 300k, Elite = 1M (from @vella/contract)
+          </p>
         </div>
       </div>
 
@@ -800,5 +804,3 @@ function mapStatusToEvent(status?: string | null) {
       return "Updated";
   }
 }
-
-

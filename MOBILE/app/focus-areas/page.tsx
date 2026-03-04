@@ -9,6 +9,7 @@ import {
   removeFocusArea,
   hasFocusArea,
   DOMAIN_METADATA,
+  migrateDomain,
 } from "@/lib/focusAreas";
 
 const T = {
@@ -36,10 +37,11 @@ export default function FocusAreasPage() {
     "self-mastery": undefined,
     "addiction-recovery": undefined,
     relationships: undefined,
-    "emotional-regulation": undefined,
-    "decision-clarity": undefined,
+    "emotional-intelligence": undefined,
     "performance-focus": undefined,
-    "identity-direction": undefined,
+    "identity-purpose": undefined,
+    "physical-health": undefined,
+    "financial-discipline": undefined,
   });
   const [isLoaded, setIsLoaded] = useState(false);
 
@@ -54,14 +56,16 @@ export default function FocusAreasPage() {
       "self-mastery": undefined,
       "addiction-recovery": undefined,
       relationships: undefined,
-      "emotional-regulation": undefined,
-      "decision-clarity": undefined,
+      "emotional-intelligence": undefined,
       "performance-focus": undefined,
-      "identity-direction": undefined,
+      "identity-purpose": undefined,
+      "physical-health": undefined,
+      "financial-discipline": undefined,
     };
     areas.forEach((area) => {
+      const migratedDomain = migrateDomain(area.domain);
       if (area.subtype) {
-        subtypes[area.domain] = area.subtype;
+        subtypes[migratedDomain] = area.subtype;
       }
     });
     setSelectedSubtypes(subtypes);
@@ -99,11 +103,12 @@ export default function FocusAreasPage() {
   const domains: FocusDomain[] = [
     "self-mastery",
     "addiction-recovery",
+    "emotional-intelligence",
     "relationships",
-    "emotional-regulation",
-    "decision-clarity",
     "performance-focus",
-    "identity-direction",
+    "identity-purpose",
+    "physical-health",
+    "financial-discipline",
   ];
 
   if (!isLoaded) return null;

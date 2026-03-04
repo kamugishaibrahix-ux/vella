@@ -1,8 +1,13 @@
 import { openai, model as defaultModel } from "./client";
-import type { PlanTier } from "@/lib/tiers/planUtils";
+import { createChatCompletion } from "./safeOpenAI";
 import type { PersonalityProfile } from "@/lib/personality/getPersonalityProfile";
 import type { VoiceEmotionSnapshot } from "@/lib/voice/types";
 import { loadRuntimeTuning } from "@/lib/admin/runtimeTuning";
+import type { Capabilities } from "@/lib/plans/capabilities";
+import { resolveModelForCapabilities, sanitizeContextForCapabilities } from "@/lib/plans/capabilities";
+
+// Re-export for backward compatibility
+export type { Capabilities };
 
 type ChatMessage = {
   role: "system" | "user" | "assistant";
@@ -15,7 +20,16 @@ type RunFullAIParams = {
   messages: ChatMessage[];
   temperature?: number;
   context?: unknown;
-  tier?: PlanTier;
+  /**
+   * User capabilities derived from entitlements.
+   * Replaces the tier parameter for PURE abstraction.
+   * @deprecated Use capabilities instead of tier
+   */
+  capabilities?: Capabilities;
+  /**
+   * @deprecated Use capabilities instead
+   */
+  tier?: never; // Tier parameter removed - use capabilities
   personality?: PersonalityProfile | null;
 };
 
@@ -43,28 +57,49 @@ async function getAdminModelOverrides() {
   }
 }
 
-export async function resolveModelForTier(tier: PlanTier = "free"): Promise<string> {
+/**
+ * Resolve model based on capabilities (PURE abstraction).
+ * Replaces tier-based model selection.
+ */
+export async function resolveModelForCapabilitiesAsync(
+  capabilities: Capabilities
+): Promise<string> {
   // Load admin model override
   const adminOverrides = await getAdminModelOverrides();
   const adminTextModel = adminOverrides?.textModel;
-  
-  // If admin provides a valid model, use it; otherwise fall back to tier-based logic
+
+  // If admin provides a valid model, use it
   if (adminTextModel && isAllowedTextModel(adminTextModel)) {
     return adminTextModel;
   }
-  
-  // Fallback to tier-based selection
-  if (tier === "elite") return "gpt-4.1";
-  return "gpt-4o-mini";
+
+  // Fallback to capability-based selection
+  return resolveModelForCapabilities(capabilities);
+}
+
+/**
+ * @deprecated Use resolveModelForCapabilitiesAsync instead
+ */
+export async function resolveModelForTier(_tier?: unknown): Promise<string> {
+  throw new Error(
+    "resolveModelForTier() is removed. Use resolveModelForCapabilitiesAsync(capabilities). " +
+    "See lib/plans/NO_TIER_STRINGS_RULE.md"
+  );
 }
 
 export async function runFullAI(params: RunFullAIParams): Promise<string> {
   const client = openai;
   if (!client) {
-    return "I’m here with you. Let’s keep breathing together and take things one small step at a time.";
+    return "I'm here with you. Let's keep breathing together and take things one small step at a time.";
   }
 
-  const sanitizedContext = sanitizeContextForTier(params.tier, params.context);
+  // Use capabilities for PURE abstraction
+  const capabilities = params.capabilities;
+  
+  const sanitizedContext = capabilities
+    ? sanitizeContextForCapabilities(capabilities, params.context)
+    : params.context;
+    
   const voiceEmotion = extractVoiceEmotion(params.context);
   const voiceDirective = buildVoiceDirective(voiceEmotion);
 
@@ -90,7 +125,7 @@ export async function runFullAI(params: RunFullAIParams): Promise<string> {
     });
   }
 
-  const personalityDirective = buildPersonalityDirective(params.personality, params.tier);
+  const personalityDirective = buildPersonalityDirective(params.personality, capabilities);
   if (personalityDirective) {
     systemMessages.push({
       role: "system",
@@ -99,9 +134,14 @@ export async function runFullAI(params: RunFullAIParams): Promise<string> {
   }
 
   const finalMessages: ChatMessage[] = [...systemMessages, ...params.messages];
-  const tierModel = await resolveModelForTier(params.tier ?? "free");
-  const primaryModel = params.model ?? defaultModel ?? tierModel;
   
+  // Use capability-based model resolution
+  const resolvedModel = capabilities
+    ? await resolveModelForCapabilitiesAsync(capabilities)
+    : "gpt-4o-mini";
+    
+  const primaryModel = params.model ?? defaultModel ?? resolvedModel;
+
   // Load admin generation parameters
   const adminTuning = await loadRuntimeTuning().catch(() => null);
   const baseTemperature = adminTuning
@@ -120,12 +160,14 @@ export async function runFullAI(params: RunFullAIParams): Promise<string> {
   );
 
   const callModel = async (modelName: string): Promise<string> => {
-    const completion = await client.chat.completions.create({
+    const completion = await createChatCompletion({
+      client,
       model: modelName,
-      temperature: adjustedParams.temperature,
-      top_p: adjustedParams.topP,
-      max_tokens: adjustedParams.maxTokens,
       messages: finalMessages,
+      max_tokens: adjustedParams.maxTokens,
+      temperature: adjustedParams.temperature,
+      timeoutMs: 60_000,
+      extra: { top_p: adjustedParams.topP },
     });
     return completion.choices[0]?.message?.content?.trim() ?? "";
   };
@@ -159,21 +201,14 @@ export async function runFullAI(params: RunFullAIParams): Promise<string> {
   return Promise.race([primaryPromise, fallbackPromise]);
 }
 
-function sanitizeContextForTier(tier: PlanTier | undefined, context: unknown): unknown {
-  if (tier !== "free" || !context || typeof context !== "object") {
-    return context;
-  }
-  const clone: Record<string, unknown> = { ...(context as Record<string, unknown>) };
-  delete clone.patterns;
-  delete clone.themes;
-  delete clone.loops;
-  delete clone.distortions;
-  delete clone.traits;
-  delete clone.goals;
-  delete clone.forecast;
-  delete clone.growth;
-  delete clone.strategies;
-  return clone;
+/**
+ * @deprecated Use sanitizeContextForCapabilities from lib/plans/capabilities
+ */
+function sanitizeContextForTier(): never {
+  throw new Error(
+    "sanitizeContextForTier() is removed. Use sanitizeContextForCapabilities(capabilities, context). " +
+    "See lib/plans/NO_TIER_STRINGS_RULE.md"
+  );
 }
 
 function extractVoiceEmotion(context: unknown): VoiceEmotionSnapshot | null {
@@ -224,36 +259,32 @@ function applyReasoningDepthToGenerationParams(
 
   switch (reasoningDepth) {
     case "Light":
-      // Slightly lower maxTokens, higher temperature, slightly lower topP
       return {
         temperature: Math.max(0, Math.min(2, temperature + 0.1)),
         topP: Math.max(0, Math.min(1, topP - 0.05)),
-        maxTokens: Math.max(200, Math.floor(maxTokens * 0.75)), // -25%
+        maxTokens: Math.max(200, Math.floor(maxTokens * 0.75)),
       };
     case "Analytical":
-      // Increase maxTokens, decrease temperature, slightly higher topP
       return {
         temperature: Math.max(0, Math.min(2, temperature - 0.15)),
         topP: Math.max(0, Math.min(1, topP + 0.05)),
-        maxTokens: Math.max(200, Math.floor(maxTokens * 1.3)), // +30%
+        maxTokens: Math.max(200, Math.floor(maxTokens * 1.3)),
       };
     case "Deep":
-      // Larger increase in maxTokens, larger decrease in temperature, higher topP
       return {
         temperature: Math.max(0, Math.min(2, temperature - 0.2)),
         topP: Math.max(0, Math.min(1, topP + 0.08)),
-        maxTokens: Math.max(200, Math.floor(maxTokens * 1.5)), // +50%
+        maxTokens: Math.max(200, Math.floor(maxTokens * 1.5)),
       };
     case "Normal":
     default:
-      // No adjustment
       return base;
   }
 }
 
 function buildPersonalityDirective(
   personality: PersonalityProfile | null | undefined,
-  tier: PlanTier | undefined,
+  capabilities: Capabilities | undefined,
 ): string | null {
   if (!personality) return null;
   const lines: string[] = [];
@@ -263,7 +294,8 @@ function buildPersonalityDirective(
   if (personality.directness > 0.7) {
     lines.push("Be direct, concise, and structured.");
   }
-  if (personality.humour > 0.3 && tier === "elite") {
+  // Humour now based on capability class, not tier
+  if (personality.humour > 0.3 && capabilities?.modelClass === "premium") {
     lines.push("Add subtle, tasteful humour where appropriate.");
   }
   if (personality.stoic_clarity > 0.7) {
@@ -288,4 +320,3 @@ function buildPersonalityDirective(
   if (lines.length === 0) return null;
   return lines.join("\n");
 }
-

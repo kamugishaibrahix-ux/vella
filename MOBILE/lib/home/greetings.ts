@@ -82,7 +82,6 @@ Rules:
       system,
       messages: [{ role: "user", content: userMsg }],
       temperature: 0.55,
-      tier: "free",
     });
     const aiGreeting = result?.trim();
     if (aiGreeting && aiGreeting.length > 0) {

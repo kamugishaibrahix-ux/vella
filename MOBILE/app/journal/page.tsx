@@ -714,6 +714,7 @@ export default function JournalPage() {
   const [consent, setConsent] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [showCaptured, setShowCaptured] = useState(false);
+  const [proposalToast, setProposalToast] = useState(false);
   const [attachments, setAttachments] = useState<Attachment[]>([]);
   const [highlights, setHighlights] = useState<Highlight[]>([]);
   const [pinnedSnippet, setPinnedSnippet] = useState<string>("");
@@ -767,14 +768,14 @@ export default function JournalPage() {
   const handleHighlight = (sectionHighlights: Highlight[]) => setHighlights(sectionHighlights);
   const handlePin = (text: string) => setPinnedSnippet(text.slice(0, 200));
 
-  const buildContent = () => {
+  const buildContent = useCallback(() => {
     const parts: string[] = [];
     config.sections.forEach((section) => {
       const text = draft[section.key].trim();
       if (text) parts.push(`${section.primary.toUpperCase()}\n${text}`);
     });
     return parts.join("\n\n");
-  };
+  }, [config, draft]);
 
   const getSectionVisibility = (index: number) => {
     if (index === 0) return true;
@@ -798,32 +799,60 @@ export default function JournalPage() {
         window.localStorage.setItem("journal:attachments", JSON.stringify(savedAttachments));
       }
 
-      const res = await fetch("/api/journal", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          text,
-          title: pinnedSnippet || undefined,
-          processingMode: consent ? "signals_only" : "private",
-        }),
+      // LOCAL-FIRST: save text on-device, send only metadata to server
+      const { createLocalJournal } = await import("@/lib/local/journalLocal");
+      const { meta } = await createLocalJournal(undefined, {
+        title: pinnedSnippet || null,
+        content: text,
+        processingMode: consent ? "signals_only" : "private",
       });
 
-      if (res.ok) {
-        setDraft({ happening: "", reality: "", next: "" });
-        setHighlights([]);
-        setPinnedSnippet("");
-        setAttachments([]);
-        setConsent(false);
-        setShowCaptured(true);
-        setHasStartedWriting(false);
-        setCurrentSection(0);
-        await mutate();
-        capturedTimeoutRef.current = window.setTimeout(() => setShowCaptured(false), 1500);
+      // Sync metadata to server (no text, no title)
+      await fetch("/api/journal", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(meta),
+      });
+
+      // Proposal generation (local only, signals_only mode)
+      if (consent) {
+        try {
+          const { ensureUserId } = await import("@/lib/local/ensureUserId");
+          const { maybeCreateProposal, buildDefaultDeps } = await import("@/lib/osSignals/proposalOnSave");
+          const uid = ensureUserId();
+          const deps = buildDefaultDeps(uid);
+          if (process.env.NODE_ENV === "development") {
+            const meta = deps.getRecentEntriesMeta();
+            const domains = deps.getSelectedDomains();
+            console.debug("[proposal] uid=%s entries=%d domains=%o", uid, meta.length, domains);
+          }
+          const result = await maybeCreateProposal(deps);
+          if (process.env.NODE_ENV === "development") {
+            console.debug("[proposal] result=%o", { created: result.created, domain: result.item?.domain ?? null });
+          }
+          if (result.created) {
+            setProposalToast(true);
+            setTimeout(() => setProposalToast(false), 3000);
+          }
+        } catch { /* silent — proposal is best-effort */ }
       }
+
+      setDraft({ happening: "", reality: "", next: "" });
+      setHighlights([]);
+      setPinnedSnippet("");
+      setAttachments([]);
+      setConsent(false);
+      setShowCaptured(true);
+      setHasStartedWriting(false);
+      setCurrentSection(0);
+      await mutate();
+      capturedTimeoutRef.current = window.setTimeout(() => setShowCaptured(false), 1500);
     } finally {
       setIsSaving(false);
     }
-  }, [draft, clarity, pinnedSnippet, attachments, consent, saveEnabled, mutate]);
+  }, [pinnedSnippet, attachments, consent, saveEnabled, mutate, buildContent]);
+
+  // Proposal toast auto-dismiss handled inline above
 
   const todayLabel = useMemo(() => formatDate(new Date()), []);
   const pageStyle = useMemo(() => ({ backgroundColor: VISUAL_SYSTEM.clarity[clarity] }), [clarity]);
@@ -842,6 +871,13 @@ export default function JournalPage() {
             Saved
           </button>
         </header>
+
+        {/* Proposal toast */}
+        {proposalToast && (
+          <div className="text-center text-[11px] font-medium text-vella-muted/70 bg-vella-muted/5 rounded-lg py-2 px-3 animate-fade-in">
+            Execution suggestion added to Inbox
+          </div>
+        )}
 
         {/* Date */}
         <div className="flex justify-end">
@@ -931,7 +967,7 @@ export default function JournalPage() {
               <span className="text-[13px] text-vella-muted/70">Allow Vella to learn from this</span>
             </button>
             {consent && (
-              <p className="text-[11px] text-vella-muted/40 ml-14 mt-1">Structured signals only. Text stays on device.</p>
+              <p className="text-[11px] text-vella-muted/40 ml-14 mt-1">If enabled, only structured signals are saved to your account. Your text stays on this device.</p>
             )}
           </div>
         </RevealSection>

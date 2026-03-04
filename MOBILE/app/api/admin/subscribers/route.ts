@@ -68,7 +68,6 @@ export async function GET() {
 
     return NextResponse.json({ subscribers }, { status: 200 });
   } catch (err) {
-    console.error("[admin/subscribers]", err);
     return NextResponse.json(
       { error: "server_error", code: "SERVER_ERROR" },
       { status: 500 }

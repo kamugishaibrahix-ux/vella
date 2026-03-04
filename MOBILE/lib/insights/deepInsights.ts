@@ -123,7 +123,6 @@ Output JSON ONLY in the shape:
       system: systemPrompt,
       temperature: 0.15,
       messages: [{ role: "user", content: JSON.stringify(payload) }],
-      tier: "elite",
     });
     const parsed = JSON.parse(raw ?? "{}") as DeepInsightBundle;
     return {

@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Inter, Lora, EB_Garamond, DM_Sans } from "next/font/google";
 import "@/lib/security/logGuard"; // DO NOT REMOVE: Privacy enforcement layer
 import "@/app/globals.css";
@@ -31,6 +31,29 @@ const dmSans = DM_Sans({
 export const metadata: Metadata = {
   title: "Vella",
   description: "Emotionally intelligent companion",
+  icons: {
+    icon: "/icons/icon-192.png",
+    shortcut: "/icons/icon-192.png",
+    apple: "/icons/icon-192.png",
+  },
+  openGraph: {
+    images: ["/icons/icon-512.png"],
+  },
+  twitter: {
+    card: "summary_large_image",
+    images: ["/icons/icon-512.png"],
+  },
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "black-translucent",
+    title: "Vella",
+  },
+};
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  themeColor: "#0F1115",
 };
 
 export default function RootLayout({

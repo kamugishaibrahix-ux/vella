@@ -58,13 +58,6 @@ function getRedisUrl(): string | undefined {
   return url || undefined;
 }
 
-// Fail fast in production when Redis URL is missing (runs when this module is first imported).
-if (process.env.NODE_ENV === "production" && !getRedisUrl()) {
-  throw new Error(
-    "[RateLimit] Production requires ADMIN_REDIS_URL or REDIS_URL. Set one of them (e.g. redis://localhost:6379) or run with NODE_ENV=development for in-memory store."
-  );
-}
-
 let storePromise: Promise<RateLimitStore> | null = null;
 let storeTypeLogged = false;
 
@@ -72,6 +65,14 @@ async function getStore(): Promise<RateLimitStore> {
   if (!storePromise) {
     storePromise = (async (): Promise<RateLimitStore> => {
       const url = getRedisUrl();
+      // Fail fast in production when Redis URL is missing — but allow builds to pass.
+      // During `next build`, NEXT_PHASE is set; skip the hard gate so page data collection works.
+      const isBuildPhase = process.env.NEXT_PHASE === "phase-production-build";
+      if (process.env.NODE_ENV === "production" && !url && !isBuildPhase) {
+        throw new Error(
+          "[RateLimit] Production requires ADMIN_REDIS_URL or REDIS_URL. Set one of them (e.g. redis://localhost:6379) or run with NODE_ENV=development for in-memory store."
+        );
+      }
       if (url) {
         const { default: Redis } = await import("ioredis");
         const { RedisRateLimitStore } = await import("./rateLimit/redisStore");

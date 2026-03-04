@@ -3,6 +3,7 @@
  * - Guards against persisting free-text fields to Supabase.
  * - Callers must provide the appropriate Supabase client (browser or admin).
  * - When WRITE_LOCK_MODE=true, writes throw unless bypassWriteLock is true (e.g. stripe webhook).
+ * - Phase Seal: Integrated with PII Firewall for comprehensive personal text blocking.
  *
  * Phase 0: Option 2 — WRITE_BLOCKED_TABLES. Content tables remain in SAFE_TABLES so reads
  * (fromSafe().select()) still work. Writes to journal_entries, conversation_messages, check_ins,
@@ -10,8 +11,20 @@
  * written. Removing those tables from SAFE_TABLES would break existing read paths (e.g. state
  * recompute, memory search) before Dexie migration; Option 2 minimises breakage while guaranteeing
  * no new server text writes.
+ *
+ * Phase Seal Hardening (20260240):
+ * - Integrated PII Firewall for comprehensive forbidden field detection
+ * - Added semantic smuggling vector detection
+ * - Enhanced enforcement mode for maximum protection
+ * - Fail-closed: ANY suspicious write is blocked
  */
 import { isWriteLocked } from "@/lib/security/killSwitch";
+import {
+  assertNoPII,
+  assertNoPIIInBatch,
+  PIIFirewallError,
+} from "@/lib/security/piiFirewall";
+import { assertSnakeCaseKeys } from "@/lib/safe/dbPayload";
 
 type SupabaseQueryBuilder = {
   insert(values: unknown, options?: unknown): any;
@@ -25,6 +38,7 @@ type SupabaseLike = {
 
 /** Contract-aligned banned keys (case-insensitive match). No user free-text may be written. */
 const BANNED_FIELDS = new Set([
+  // Core content fields (original set)
   "content",
   "text",
   "message",
@@ -44,14 +58,32 @@ const BANNED_FIELDS = new Set([
   "answer",
   "reasoning",
   "free_text",
+  // Semantic smuggling vectors (hardening additions)
+  "detail",
+  "details",
+  "context",
+  "notes",
+  "note_text",
+  "caption",
+  "content_text",
+  "contentText",
+  "user_input",
+  "assistant_output",
+  "input",
+  "output",
+  "raw",
+  "payload",
+  "message_text",
+  "full_text",
 ]);
 
-/** Tables that must not accept any write until migration (Phase 0 lockdown). Reads remain allowed via fromSafe(). */
+/** Tables that must not accept any write until migration (Phase 0 lockdown). Reads remain allowed via fromSafe().
+ * Phase 1: memory_chunks removed from blocklist - embeddings allowed (vectors only, no content).
+ */
 const WRITE_BLOCKED_TABLES = new Set([
   "journal_entries",
   "conversation_messages",
   "check_ins",
-  "memory_chunks",
   "user_reports",
   "user_nudges",
 ]);
@@ -178,6 +210,17 @@ function ensureNotBlockedTable(table: string): void {
   }
 }
 
+/**
+ * Safely inserts data into Supabase with comprehensive PII protection.
+ * Integrates both legacy safe data scanning and new PII Firewall.
+ *
+ * @param table - Target table name
+ * @param payload - Data to insert (object or array of objects)
+ * @param options - Supabase insert options
+ * @param client - Supabase client instance
+ * @param bypassWriteLock - Whether to bypass write lock (for admin/webhook use)
+ * @throws SafeDataError | PIIFirewallError if violation detected
+ */
 export function safeInsert<T extends Record<string, unknown> | Record<string, unknown>[]>(
   table: string,
   payload: T,
@@ -187,10 +230,51 @@ export function safeInsert<T extends Record<string, unknown> | Record<string, un
 ) {
   ensureWriteLockAllowed(bypassWriteLock);
   ensureNotBlockedTable(table);
+
+  // Legacy scan (maintains backward compatibility)
   scanPayload(table, payload);
+
+  // Phase Seal: snake_case contract enforcement (dev-only)
+  if (Array.isArray(payload)) {
+    payload.forEach((item) => assertSnakeCaseKeys(item as Record<string, any>, table));
+  } else {
+    assertSnakeCaseKeys(payload as Record<string, any>, table);
+  }
+
+  // Phase Seal: PII Firewall integration
+  try {
+    if (Array.isArray(payload)) {
+      assertNoPIIInBatch(payload, table);
+    } else {
+      assertNoPII(payload, table);
+    }
+  } catch (error) {
+    if (error instanceof PIIFirewallError) {
+      // Enhance the error with safe data context
+      throw new SafeDataError(
+        SafeDataErrorCode.BANNED_FIELD_DETECTED,
+        `[SAFE-DATA] PII Firewall blocked write to '${table}': ${error.message}`,
+        table,
+        error.keyPath,
+      );
+    }
+    throw error;
+  }
+
   return ensureClient(client).from(table).insert(payload, options);
 }
 
+/**
+ * Safely updates data in Supabase with comprehensive PII protection.
+ * Integrates both legacy safe data scanning and new PII Firewall.
+ *
+ * @param table - Target table name
+ * @param payload - Data to update (object or array of objects)
+ * @param options - Supabase update options
+ * @param client - Supabase client instance
+ * @param bypassWriteLock - Whether to bypass write lock (for admin/webhook use)
+ * @throws SafeDataError | PIIFirewallError if violation detected
+ */
 export function safeUpdate<T extends Record<string, unknown> | Record<string, unknown>[]>(
   table: string,
   payload: T,
@@ -200,10 +284,50 @@ export function safeUpdate<T extends Record<string, unknown> | Record<string, un
 ) {
   ensureWriteLockAllowed(bypassWriteLock);
   ensureNotBlockedTable(table);
+
+  // Legacy scan (maintains backward compatibility)
   scanPayload(table, payload);
+
+  // Phase Seal: snake_case contract enforcement (dev-only)
+  if (Array.isArray(payload)) {
+    payload.forEach((item) => assertSnakeCaseKeys(item as Record<string, any>, table));
+  } else {
+    assertSnakeCaseKeys(payload as Record<string, any>, table);
+  }
+
+  // Phase Seal: PII Firewall integration
+  try {
+    if (Array.isArray(payload)) {
+      assertNoPIIInBatch(payload, table);
+    } else {
+      assertNoPII(payload, table);
+    }
+  } catch (error) {
+    if (error instanceof PIIFirewallError) {
+      throw new SafeDataError(
+        SafeDataErrorCode.BANNED_FIELD_DETECTED,
+        `[SAFE-DATA] PII Firewall blocked update to '${table}': ${error.message}`,
+        table,
+        error.keyPath,
+      );
+    }
+    throw error;
+  }
+
   return ensureClient(client).from(table).update(payload, options);
 }
 
+/**
+ * Safely upserts data into Supabase with comprehensive PII protection.
+ * Integrates both legacy safe data scanning and new PII Firewall.
+ *
+ * @param table - Target table name
+ * @param payload - Data to upsert (object or array of objects)
+ * @param options - Supabase upsert options
+ * @param client - Supabase client instance
+ * @param bypassWriteLock - Whether to bypass write lock (for admin/webhook use)
+ * @throws SafeDataError | PIIFirewallError if violation detected
+ */
 export function safeUpsert<T extends Record<string, unknown> | Record<string, unknown>[]>(
   table: string,
   payload: T,
@@ -213,7 +337,36 @@ export function safeUpsert<T extends Record<string, unknown> | Record<string, un
 ) {
   ensureWriteLockAllowed(bypassWriteLock);
   ensureNotBlockedTable(table);
+
+  // Legacy scan (maintains backward compatibility)
   scanPayload(table, payload);
+
+  // Phase Seal: snake_case contract enforcement (dev-only)
+  if (Array.isArray(payload)) {
+    payload.forEach((item) => assertSnakeCaseKeys(item as Record<string, any>, table));
+  } else {
+    assertSnakeCaseKeys(payload as Record<string, any>, table);
+  }
+
+  // Phase Seal: PII Firewall integration
+  try {
+    if (Array.isArray(payload)) {
+      assertNoPIIInBatch(payload, table);
+    } else {
+      assertNoPII(payload, table);
+    }
+  } catch (error) {
+    if (error instanceof PIIFirewallError) {
+      throw new SafeDataError(
+        SafeDataErrorCode.BANNED_FIELD_DETECTED,
+        `[SAFE-DATA] PII Firewall blocked upsert to '${table}': ${error.message}`,
+        table,
+        error.keyPath,
+      );
+    }
+    throw error;
+  }
+
   return ensureClient(client).from(table).upsert(payload, options);
 }
 
@@ -230,3 +383,68 @@ export function serverTextStorageBlockedResponse(requestId?: string) {
     { status: 409, headers: { "Content-Type": "application/json" } },
   );
 }
+
+/**
+ * Phase Seal: Returns a 403 Forbidden response for PII violations.
+ * Use this when the PII Firewall blocks a write.
+ */
+export function piiViolationResponse(requestId?: string, details?: string) {
+  return new Response(
+    JSON.stringify({
+      error: {
+        code: "PII_WRITE_BLOCKED",
+        message:
+          "This request has been blocked. Personal text cannot be stored server-side per the local-first privacy policy.",
+        details: details ?? "Forbidden field detected in payload",
+        request_id: requestId ?? null,
+      },
+    }),
+    { status: 403, headers: { "Content-Type": "application/json" } },
+  );
+}
+
+/**
+ * Phase Seal: Validates a payload without performing a write.
+ * Returns an object with validation results.
+ */
+export function validatePayloadForPII(
+  table: string,
+  payload: Record<string, unknown> | Record<string, unknown>[],
+): { valid: boolean; error?: SafeDataError } {
+  try {
+    ensureNotBlockedTable(table);
+    scanPayload(table, payload);
+    if (Array.isArray(payload)) {
+      assertNoPIIInBatch(payload, table);
+    } else {
+      assertNoPII(payload, table);
+    }
+    return { valid: true };
+  } catch (error) {
+    if (error instanceof SafeDataError) {
+      return { valid: false, error };
+    }
+    if (error instanceof PIIFirewallError) {
+      return {
+        valid: false,
+        error: new SafeDataError(
+          SafeDataErrorCode.BANNED_FIELD_DETECTED,
+          `PII Firewall: ${error.message}`,
+          table,
+          error.keyPath,
+        ),
+      };
+    }
+    return {
+      valid: false,
+      error: new SafeDataError(
+        SafeDataErrorCode.BANNED_FIELD_DETECTED,
+        `Validation error: ${error instanceof Error ? error.message : String(error)}`,
+        table,
+      ),
+    };
+  }
+}
+
+// Re-export PIIFirewallError for convenience
+export { PIIFirewallError };

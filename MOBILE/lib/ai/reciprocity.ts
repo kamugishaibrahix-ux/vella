@@ -4,6 +4,7 @@ import { runFullAI } from "@/lib/ai/fullAI";
 import { analyzeDisclosure } from "@/lib/ai/disclosure";
 import { serverLocalGet, serverLocalSet } from "@/lib/local/serverLocal";
 import { loadConnectionDepth } from "@/lib/connection/loadConnectionDepth";
+import { getDefaultEntitlements } from "@/lib/plans/defaultEntitlements";
 
 type ReciprocityContext = {
   userMessage: string;
@@ -50,7 +51,8 @@ export async function generateReciprocalExpression(
   let intensity: "light" | "moderate" | "strong" = "light";
   if (depth >= 50 && depth < 80) intensity = "moderate";
   else if (depth >= 80) intensity = "strong";
-  if (tier === "free") intensity = "light";
+  const _recipEntitlements = getDefaultEntitlements(tier);
+  if (!_recipEntitlements.enableDeepDive) intensity = "light";
 
 const system = `
 You are Vella's reciprocity layer.
@@ -96,7 +98,6 @@ Return ONLY the line, no labels, no explanations.
     system,
     messages: [{ role: "user", content: userPrompt }],
     temperature: 0.35,
-    tier,
   });
 
   const text = (typeof result === "string" ? result : "").trim();

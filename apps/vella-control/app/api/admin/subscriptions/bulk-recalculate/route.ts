@@ -3,18 +3,31 @@ import { NextResponse } from "next/server";
 import { getAdminClient } from "@/lib/supabase/adminClient";
 import { requireAdmin, getAdminUserId } from "@/lib/auth/requireAdmin";
 import { rateLimitAdmin, isRateLimitError, rateLimit429Response } from "@/lib/security/rateLimit";
+import { type PlanTier, getTierTokenLimit, isValidPlanTier } from "@vella/contract";
+import { logSecurityEvent } from "@/lib/telemetry/securityEvents";
+
 
 const ADMIN_ACTOR_ID = process.env.ADMIN_ACTIVITY_ACTOR_ID ?? "00000000-0000-0000-0000-000000000000";
 
-// Plan to token entitlement mapping
-const PLAN_ENTITLEMENTS: Record<string, number> = {
-  Free: 5000,
-  Pro: 40000,
-  Elite: 120000,
-  basic: 5000,
-  pro: 40000,
-  premium: 120000,
-};
+function buildAuditMetadata(request: Request): Record<string, string> {
+  return {
+    admin_ip: request.headers.get("x-forwarded-for") || "unknown",
+    user_agent: request.headers.get("user-agent") || "unknown",
+    request_id: crypto.randomUUID(),
+    timestamp: new Date().toISOString(),
+  };
+}
+
+/**
+ * Validate plan to canonical PlanTier. No alias mapping.
+ * Null plan → "free" (no subscription). Unknown strings → null (corruption).
+ */
+function validatePlanForRecalc(plan: string | null): PlanTier | null {
+  if (!plan) return "free";
+  const normalized = plan.toLowerCase().trim();
+  if (isValidPlanTier(normalized)) return normalized;
+  return null;
+}
 
 export async function POST(request: Request) {
   const authError = await requireAdmin();
@@ -42,15 +55,22 @@ export async function POST(request: Request) {
     let processed = 0;
     let errors = 0;
     const errorsList: string[] = [];
+    const corruptedUsers: string[] = [];
+    const auditMeta = buildAuditMetadata(request);
 
-    // Process each subscription
     for (const sub of subscriptions ?? []) {
       try {
-        const plan = sub.plan ?? "Free";
-        const planKey = plan.charAt(0).toUpperCase() + plan.slice(1).toLowerCase();
-        const entitlement = PLAN_ENTITLEMENTS[plan] ?? PLAN_ENTITLEMENTS[planKey] ?? 5000;
+        const tier = validatePlanForRecalc(sub.plan);
 
-        // Get current user metadata
+        if (!tier) {
+          logSecurityEvent("BULK_RECALC_CORRUPTION", { user_id: sub.user_id, plan: sub.plan, request_id: auditMeta.request_id });
+          corruptedUsers.push(sub.user_id);
+          errorsList.push(`Subscription ${sub.id}: TIER_CORRUPTION – unknown plan "${sub.plan}"`);
+          continue;
+        }
+
+        const entitlement = getTierTokenLimit(tier);
+
         const { data: userMeta, error: userMetaError } = await supabase
           .from("user_metadata")
           .select("token_balance, tokens_per_month")
@@ -66,7 +86,6 @@ export async function POST(request: Request) {
         const previousBalance = userMeta.token_balance ?? 0;
         const newBalance = entitlement;
 
-        // Update user_metadata
         const { error: updateError } = await supabase
           .from("user_metadata")
           .update({
@@ -82,12 +101,13 @@ export async function POST(request: Request) {
           continue;
         }
 
-        // Log admin activity
         await supabase.from("admin_activity_log").insert({
           admin_id: ADMIN_ACTOR_ID,
           action: "subscriptions.bulk-recalculate",
           previous: { token_balance: previousBalance, tokens_per_month: userMeta.tokens_per_month },
-          next: { token_balance: newBalance, tokens_per_month: entitlement },
+          next: { token_balance: newBalance, tokens_per_month: entitlement, delta: newBalance - previousBalance },
+          target_user_id: sub.user_id,
+          metadata: auditMeta,
         });
 
         processed++;
@@ -97,12 +117,29 @@ export async function POST(request: Request) {
       }
     }
 
+    if (corruptedUsers.length > 0) {
+      return NextResponse.json({
+        success: false,
+        error: "TIER_CORRUPTION_DETECTED",
+        corrupted_count: corruptedUsers.length,
+        corrupted_users: corruptedUsers,
+        processed,
+        errors,
+        errors_list: errorsList,
+      }, { status: 500 });
+    }
+
     return NextResponse.json({
       success: true,
       data: {
         processed,
         errors,
         errors_list: errorsList,
+        token_limits: {
+          free: getTierTokenLimit("free"),
+          pro: getTierTokenLimit("pro"),
+          elite: getTierTokenLimit("elite"),
+        },
       },
     });
   } catch (error) {
@@ -113,4 +150,3 @@ export async function POST(request: Request) {
     );
   }
 }
-

@@ -54,8 +54,108 @@ const slots: Record<VellaAudioTrackKind, TrackSlot | null> = {
   effect: null,
 };
 
+// BOUNDED LRU CACHE: Audio buffers
+// Limits: 50 entries, 100MB total size
+// Prevents unbounded memory growth when playing many audio files
+const MAX_BUFFER_CACHE_ENTRIES = 50;
+const MAX_BUFFER_CACHE_SIZE = 100 * 1024 * 1024; // 100MB
+
+// Main cache stores AudioBuffer directly for compatibility
 const bufferCache = new Map<string, AudioBuffer>();
+// Metadata for LRU and size tracking
+const bufferCacheMeta = new Map<string, { size: number; timestamp: number }>();
+let bufferCacheTotalSize = 0;
+
 const engineListeners = new Set<(state: VellaAudioEngineState) => void>();
+
+/**
+ * Calculate AudioBuffer size in bytes
+ */
+function getBufferSize(buffer: AudioBuffer): number {
+  return buffer.length * buffer.numberOfChannels * 4; // 4 bytes per float32
+}
+
+/**
+ * Get buffer from cache (LRU update)
+ */
+function getCachedBuffer(key: string): AudioBuffer | undefined {
+  const buffer = bufferCache.get(key);
+  if (!buffer) return undefined;
+
+  // Update LRU order
+  const meta = bufferCacheMeta.get(key);
+  if (meta) {
+    bufferCacheMeta.delete(key);
+    bufferCacheMeta.set(key, { ...meta, timestamp: Date.now() });
+  }
+
+  return buffer;
+}
+
+/**
+ * Set buffer in cache (LRU eviction)
+ */
+function setCachedBuffer(key: string, buffer: AudioBuffer): void {
+  const size = getBufferSize(buffer);
+
+  // Remove existing if present
+  if (bufferCache.has(key)) {
+    const oldMeta = bufferCacheMeta.get(key)!;
+    bufferCacheTotalSize -= oldMeta.size;
+    bufferCache.delete(key);
+    bufferCacheMeta.delete(key);
+  }
+
+  // Evict by size
+  while (
+    bufferCacheTotalSize + size > MAX_BUFFER_CACHE_SIZE &&
+    bufferCache.size > 0
+  ) {
+    evictLRUBuffer();
+  }
+
+  // Evict by count
+  while (bufferCache.size >= MAX_BUFFER_CACHE_ENTRIES) {
+    evictLRUBuffer();
+  }
+
+  // Add new entry
+  bufferCache.set(key, buffer);
+  bufferCacheMeta.set(key, { size, timestamp: Date.now() });
+  bufferCacheTotalSize += size;
+}
+
+/**
+ * Evict least recently used buffer
+ */
+function evictLRUBuffer(): void {
+  const firstKey = bufferCache.keys().next().value;
+  if (firstKey === undefined) return;
+
+  const meta = bufferCacheMeta.get(firstKey);
+  if (meta) {
+    bufferCacheTotalSize -= meta.size;
+    bufferCacheMeta.delete(firstKey);
+  }
+  bufferCache.delete(firstKey);
+}
+
+/**
+ * Get cache stats for monitoring
+ */
+function getBufferCacheStats(): {
+  entries: number;
+  totalSize: number;
+  maxEntries: number;
+  maxSize: number;
+} {
+  return {
+    entries: bufferCache.size,
+    totalSize: bufferCacheTotalSize,
+    maxEntries: MAX_BUFFER_CACHE_ENTRIES,
+    maxSize: MAX_BUFFER_CACHE_SIZE,
+  };
+}
 
 // Create AudioContext only on user gesture (click, touch, etc.)
 // This is called from playPreset() which is only invoked on user action
@@ -64,9 +164,9 @@ function createContextOnUserGesture(): AudioContextLike {
     throw new Error("VellaUnifiedAudioEngine can only run in the browser.");
   }
   if (!audioContext) {
-    console.log("[AUDIO] Creating AudioContext on user gesture");
+    // Production: Remove console.log
+    // console.log("[AUDIO] Creating AudioContext on user gesture");
     audioContext = new AudioContext();
-    console.log("[AUDIO] context state:", audioContext.state);
     musicMasterGain = audioContext.createGain();
     musicMasterGain.gain.value = masterVolume;
     musicMasterGain.connect(audioContext.destination);
@@ -108,30 +208,23 @@ function ensureSlot(kind: VellaAudioTrackKind): TrackSlot {
 }
 
 async function fetchAudioBuffer(url: string, ctx: AudioContextLike): Promise<AudioBuffer> {
-  if (bufferCache.has(url)) {
-    const cached = bufferCache.get(url)!;
-    console.log("[AUDIO] using cached buffer, length:", cached.length, "duration:", cached.duration);
+  const cached = getCachedBuffer(url);
+  if (cached) {
+    // Production: Remove debug logging
     return cached;
   }
-  console.log("[AUDIO] fetching:", url);
+
   const res = await fetch(url);
   if (!res.ok) {
-    console.error("[AUDIO] ERROR: Failed to fetch audio:", url, "status:", res.status);
     throw new Error(`Failed to fetch audio (${res.status}): ${url}`);
   }
   const arrayBuffer = await res.arrayBuffer();
-  console.log("[AUDIO] fetched, buffer byteLength:", arrayBuffer.byteLength);
+
   try {
     const buffer = await ctx.decodeAudioData(arrayBuffer.slice(0));
-    console.log("[AUDIO] decoded buffer:", {
-      length: buffer.length,
-      duration: buffer.duration,
-      sampleRate: buffer.sampleRate
-    });
-    bufferCache.set(url, buffer);
+    setCachedBuffer(url, buffer);
     return buffer;
   } catch (err) {
-    console.error("[AUDIO] ERROR: decodeAudioData failed for URL:", url, err);
     throw err;
   }
 }

@@ -2,6 +2,7 @@
 
 import type { PlanTier } from "@/lib/tiers/tierCheck";
 import { getUserPlanTier } from "@/lib/tiers/server";
+import { getDefaultEntitlements } from "@/lib/plans/defaultEntitlements";
 import { callVellaReflectionAPI } from "@/lib/ai/reflection";
 import { loadServerPersonaSettings } from "@/lib/ai/personaServer";
 import { generateEmotionalPatterns } from "@/lib/insights/patterns";
@@ -32,7 +33,8 @@ export async function predictEmotionState(userId: string | null): Promise<Emotio
     return SAFE_DEFAULT;
   }
 
-  if (planTier === "free") {
+  const _ent = getDefaultEntitlements(planTier);
+  if (!_ent.enableDeepDive) {
     return heuristicPrediction(checkins);
   }
 

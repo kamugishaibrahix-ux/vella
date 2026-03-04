@@ -34,6 +34,7 @@ export async function guardMigrationExport(
       key: `migration_export:${rateLimitKey}:${userId}`,
       limit: EXPORT_RATE_LIMIT.limit,
       window: EXPORT_RATE_LIMIT.window,
+      routeKey: "migration_export",
     });
   } catch (err: unknown) {
     if (isRateLimitError(err)) return rateLimit429Response(err.retryAfterSeconds);

@@ -1,11 +1,18 @@
 /**
- * Phase 6B: Check-ins API. All reads/writes from Supabase check_ins. No localStorage.
+ * Phase 6B: Check-in API. All reads/writes from Supabase check_ins_v2. No localStorage.
+ *
+ * NAMING STANDARD: "checkin" (no dash/hyphen) used consistently:
+ * - Route path: /api/check-ins (kept for URL backward compatibility)
+ * - Rate limit keys: checkin_read, checkin_write
+ * - Database table: check_ins_v2
+ * - Library functions: checkins/db.ts
+ * - Internal references: checkin (not check_in, not check-in)
  */
 
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { requireUserId } from "@/lib/supabase/server-auth";
-import { rateLimit, isRateLimitError, rateLimit429Response } from "@/lib/security/rateLimit";
+import { rateLimit, rateLimit429Response } from "@/lib/security/rateLimit";
 import {
   listCheckInsFromDb,
   createCheckInInDb,
@@ -17,6 +24,11 @@ import { getMigrationState, migrationRequiredResponse } from "@/lib/migration/st
 import { serverErrorResponse, notFoundResponse } from "@/lib/security/consistentErrors";
 import { safeErrorLog } from "@/lib/security/logGuard";
 import { SafeDataError, serverTextStorageBlockedResponse } from "@/lib/safe/safeSupabaseWrite";
+import {
+  assertNoPII,
+  PIIFirewallError,
+  piiBlockedJsonResponse,
+} from "@/lib/security/piiFirewall";
 
 const READ_LIMIT = { limit: 60, window: 60 };
 const WRITE_LIMIT = { limit: 30, window: 60 };
@@ -45,11 +57,15 @@ export async function GET() {
   if (userIdOr401 instanceof Response) return userIdOr401;
   const userId = userIdOr401;
 
-  try {
-    await rateLimit({ key: `read:checkins:${userId}`, limit: READ_LIMIT.limit, window: READ_LIMIT.window });
-  } catch (err: unknown) {
-    if (isRateLimitError(err)) return rateLimit429Response(err.retryAfterSeconds);
-    throw err;
+  // Phase 3.3: Rate limit with explicit policy (FAIL-OPEN)
+  const readRateResult = await rateLimit({
+    key: `checkin:${userId}`,
+    limit: READ_LIMIT.limit,
+    window: READ_LIMIT.window,
+    routeKey: "checkin_read",
+  });
+  if (!readRateResult.allowed && readRateResult.status === 429) {
+    return rateLimit429Response(readRateResult.retryAfterSeconds);
   }
 
   try {
@@ -78,16 +94,27 @@ export async function GET() {
   }
 }
 
+/**
+ * PHASE SEAL HARDENING (20260240):
+ * Check-ins are LOCAL-FIRST. Personal notes are NEVER stored in Supabase.
+ * - Mood/stress/energy/focus scores: stored in Supabase (metadata)
+ * - Personal notes: stripped before database write, stored in encrypted IndexedDB via client
+ * - Database table check_ins_v2 contains NO note column
+ */
 export async function POST(req: NextRequest) {
   const userIdOr401 = await requireUserId();
   if (userIdOr401 instanceof Response) return userIdOr401;
   const userId = userIdOr401;
 
-  try {
-    await rateLimit({ key: `write:checkins:${userId}`, limit: WRITE_LIMIT.limit, window: WRITE_LIMIT.window });
-  } catch (err: unknown) {
-    if (isRateLimitError(err)) return rateLimit429Response(err.retryAfterSeconds);
-    throw err;
+  // Phase 3.3: Rate limit with explicit policy (FAIL-OPEN)
+  const writeRateResult = await rateLimit({
+    key: `checkin:${userId}`,
+    limit: WRITE_LIMIT.limit,
+    window: WRITE_LIMIT.window,
+    routeKey: "checkin_write",
+  });
+  if (!writeRateResult.allowed && writeRateResult.status === 429) {
+    return rateLimit429Response(writeRateResult.retryAfterSeconds);
   }
 
   try {
@@ -96,7 +123,27 @@ export async function POST(req: NextRequest) {
     if (!parsed.success) {
       return NextResponse.json({ error: "VALIDATION_ERROR", details: parsed.error.flatten() }, { status: 400 });
     }
-    const row = await createCheckInInDb(userId, parsed.data);
+
+    // Phase Seal: Strip personal note before database write
+    // The note is stored encrypted in client-side IndexedDB, NOT in Supabase
+    const { note, ...metadataOnly } = parsed.data;
+
+    // Phase Seal: Verify no personal text in metadata
+    try {
+      assertNoPII(metadataOnly, "check_ins_v2");
+    } catch (piiError) {
+      if (piiError instanceof PIIFirewallError) {
+        return NextResponse.json(piiBlockedJsonResponse(), { status: 403 });
+      }
+      throw piiError;
+    }
+
+    // Client is responsible for storing the note in encrypted local storage
+    // This API only stores the metadata (scores, timestamps)
+    const row = await createCheckInInDb(userId, metadataOnly);
+
+    // Return note back to client (they need it for local storage)
+    // But don't store it in the database
     return NextResponse.json({
       checkin: {
         id: row.id,
@@ -106,12 +153,15 @@ export async function POST(req: NextRequest) {
         energy: row.energy ?? 0,
         focus: row.focus ?? 0,
         created_at: row.created_at,
-        note: row.note ?? null,
+        note: note ?? null, // Return to client for local storage
       },
     });
   } catch (error) {
     if (error instanceof SafeDataError && error.code === "WRITE_BLOCKED_TABLE") {
       return serverTextStorageBlockedResponse();
+    }
+    if (error instanceof PIIFirewallError) {
+      return NextResponse.json(piiBlockedJsonResponse(), { status: 403 });
     }
     safeErrorLog("[api/check-ins] POST error", error);
     return serverErrorResponse();
@@ -123,11 +173,15 @@ export async function PATCH(req: NextRequest) {
   if (userIdOr401 instanceof Response) return userIdOr401;
   const userId = userIdOr401;
 
-  try {
-    await rateLimit({ key: `write:checkins:${userId}`, limit: WRITE_LIMIT.limit, window: WRITE_LIMIT.window });
-  } catch (err: unknown) {
-    if (isRateLimitError(err)) return rateLimit429Response(err.retryAfterSeconds);
-    throw err;
+  // Phase 3.3: Rate limit with explicit policy (FAIL-OPEN)
+  const patchRateResult = await rateLimit({
+    key: `checkin:${userId}`,
+    limit: WRITE_LIMIT.limit,
+    window: WRITE_LIMIT.window,
+    routeKey: "checkin_write",
+  });
+  if (!patchRateResult.allowed && patchRateResult.status === 429) {
+    return rateLimit429Response(patchRateResult.retryAfterSeconds);
   }
 
   try {
@@ -136,9 +190,25 @@ export async function PATCH(req: NextRequest) {
     if (!parsed.success) {
       return NextResponse.json({ error: "VALIDATION_ERROR", details: parsed.error.flatten() }, { status: 400 });
     }
-    const { id, ...patch } = parsed.data;
-    const updated = await updateCheckInInDb(userId, id, patch);
+    const { id, note, ...patchMetadata } = parsed.data;
+
+    // Phase Seal: Strip personal note before database write
+    // The note is stored encrypted in client-side IndexedDB, NOT in Supabase
+
+    // Phase Seal: Verify no personal text in metadata
+    try {
+      assertNoPII(patchMetadata, "check_ins_v2");
+    } catch (piiError) {
+      if (piiError instanceof PIIFirewallError) {
+        return NextResponse.json(piiBlockedJsonResponse(), { status: 403 });
+      }
+      throw piiError;
+    }
+
+    const updated = await updateCheckInInDb(userId, id, patchMetadata);
     if (!updated) return notFoundResponse();
+
+    // Return note back to client for local storage
     return NextResponse.json({
       checkin: {
         id: updated.id,
@@ -148,12 +218,15 @@ export async function PATCH(req: NextRequest) {
         energy: updated.energy ?? 0,
         focus: updated.focus ?? 0,
         created_at: updated.created_at,
-        note: updated.note ?? null,
+        note: note ?? null, // Return to client for local storage
       },
     });
   } catch (error) {
     if (error instanceof SafeDataError && error.code === "WRITE_BLOCKED_TABLE") {
       return serverTextStorageBlockedResponse();
+    }
+    if (error instanceof PIIFirewallError) {
+      return NextResponse.json(piiBlockedJsonResponse(), { status: 403 });
     }
     safeErrorLog("[api/check-ins] PATCH error", error);
     return serverErrorResponse();
@@ -165,11 +238,15 @@ export async function DELETE(req: NextRequest) {
   if (userIdOr401 instanceof Response) return userIdOr401;
   const userId = userIdOr401;
 
-  try {
-    await rateLimit({ key: `write:checkins:${userId}`, limit: WRITE_LIMIT.limit, window: WRITE_LIMIT.window });
-  } catch (err: unknown) {
-    if (isRateLimitError(err)) return rateLimit429Response(err.retryAfterSeconds);
-    throw err;
+  // Phase 3.3: Rate limit with explicit policy (FAIL-OPEN)
+  const deleteRateResult = await rateLimit({
+    key: `checkin:${userId}`,
+    limit: WRITE_LIMIT.limit,
+    window: WRITE_LIMIT.window,
+    routeKey: "checkin_write",
+  });
+  if (!deleteRateResult.allowed && deleteRateResult.status === 429) {
+    return rateLimit429Response(deleteRateResult.retryAfterSeconds);
   }
 
   const url = new URL(req.url);

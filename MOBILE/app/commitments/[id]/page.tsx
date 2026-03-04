@@ -6,6 +6,7 @@ import { ArrowLeft, Pause, Play, Check, X, Archive } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { computeCompletionDots, type DayDot } from "@/lib/execution/completionDots";
 import { getCommitmentLocal, type CommitmentLocalDecrypted } from "@/lib/local/db/commitmentsLocalRepo";
+import { addLocalBehaviourEvent } from "@/lib/local/behaviourEventsLocal";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -130,6 +131,12 @@ export default function CommitmentDetailPage() {
       });
 
       if (res.ok) {
+        // Write local behaviour event (best-effort, additive)
+        addLocalBehaviourEvent({
+          event_type: outcomeCode === "completed" ? "commitment_completed" : "commitment_violation",
+          subject_code: commitment.subject_code,
+          occurred_at: new Date().toISOString(),
+        }).catch(() => {});
         await fetchData(); // Refresh
       }
     } catch {

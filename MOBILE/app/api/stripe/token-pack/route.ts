@@ -3,7 +3,7 @@ import { NextRequest } from "next/server";
 import { TOKEN_PACK_PRICE_IDS, type TokenPackId, stripe } from "@/lib/payments/stripe";
 
 import { requireUserId } from "@/lib/supabase/server-auth";
-import { rateLimit, isRateLimitError, rateLimit429Response } from "@/lib/security/rateLimit";
+import { rateLimit, rateLimit429Response, rateLimit503Response } from "@/lib/security/rateLimit";
 import { stripeTokenPackSchema } from "@/lib/security/validationSchemas";
 import { validationErrorResponse, formatZodError } from "@/lib/security/validationErrors";
 import { getValidatedOrigin } from "@/lib/payments/originValidation";
@@ -13,6 +13,7 @@ import { safeErrorLog } from "@/lib/security/logGuard";
 export const runtime = "nodejs";
 
 const RATE_LIMIT_TOKEN_PACK = { limit: 5, window: 60 };
+const ROUTE_KEY = "stripe_token_pack";
 
 const BILLING_DISABLED_RESPONSE = { code: "BILLING_DISABLED", message: "Billing is temporarily disabled" };
 
@@ -24,13 +25,15 @@ export async function POST(req: NextRequest) {
   if (userIdOr401 instanceof Response) return userIdOr401;
   const userId = userIdOr401;
 
-  try {
-    await rateLimit({ key: `stripe_token_pack:${userId}`, limit: RATE_LIMIT_TOKEN_PACK.limit, window: RATE_LIMIT_TOKEN_PACK.window });
-  } catch (err: unknown) {
-    if (isRateLimitError(err)) {
-      return rateLimit429Response(err.retryAfterSeconds);
-    }
-    throw err;
+  const rateLimitResult = await rateLimit({
+    key: `stripe_token_pack:${userId}`,
+    limit: RATE_LIMIT_TOKEN_PACK.limit,
+    window: RATE_LIMIT_TOKEN_PACK.window,
+    routeKey: ROUTE_KEY,
+  });
+  if (!rateLimitResult.allowed) {
+    if (rateLimitResult.status === 503) return rateLimit503Response();
+    return rateLimit429Response(rateLimitResult.retryAfterSeconds);
   }
 
   if (!stripe) {

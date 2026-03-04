@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { getDictionary, supportedLanguages, type UILanguageCode } from "@/i18n/config";
-import { rateLimit, getClientIp, isRateLimitError, rateLimit429Response } from "@/lib/security/rateLimit";
+import { rateLimit, getClientIp, rateLimit429Response, rateLimit503Response } from "@/lib/security/rateLimit";
 import { safeErrorLog } from "@/lib/security/logGuard";
 
 function interpolateString(template: string, params: Record<string, string>): string {
@@ -12,16 +12,23 @@ function interpolateString(template: string, params: Record<string, string>): st
   return result;
 }
 
+const MAX_PATTERN_ITEMS = 100;
+const MAX_PATTERN_STRING_LENGTH = 200;
+
+const patternStringSchema = z.string().max(MAX_PATTERN_STRING_LENGTH);
 const patternBucketsSchema = z
   .object({
-    commonPrimaryEmotions: z.array(z.string()).optional(),
-    commonTriggers: z.array(z.string()).optional(),
-    commonFears: z.array(z.string()).optional(),
+    commonPrimaryEmotions: z.array(patternStringSchema).max(MAX_PATTERN_ITEMS).optional(),
+    commonTriggers: z.array(patternStringSchema).max(MAX_PATTERN_ITEMS).optional(),
+    commonFears: z.array(patternStringSchema).max(MAX_PATTERN_ITEMS).optional(),
   })
   .passthrough();
 
 const requestSchema = z.object({
-  patterns: z.union([z.array(z.string()), patternBucketsSchema]),
+  patterns: z.union([
+    z.array(patternStringSchema).max(MAX_PATTERN_ITEMS),
+    patternBucketsSchema,
+  ]),
   language: z.string().optional(),
 });
 
@@ -69,12 +76,16 @@ function invalidRequestResponse() {
 const READ_LIMIT = { limit: 60, window: 60 };
 
 export async function POST(req: NextRequest) {
-  try {
-    const ip = getClientIp(req);
-    await rateLimit({ key: `ip:pattern_insight:${ip}`, limit: READ_LIMIT.limit, window: READ_LIMIT.window });
-  } catch (err: unknown) {
-    if (isRateLimitError(err)) return rateLimit429Response(err.retryAfterSeconds);
-    throw err;
+  const ip = getClientIp(req);
+  const rateLimitResult = await rateLimit({
+    key: `ip:pattern_insight:${ip}`,
+    limit: READ_LIMIT.limit,
+    window: READ_LIMIT.window,
+    routeKey: "pattern_insight",
+  });
+  if (!rateLimitResult.allowed) {
+    if (rateLimitResult.status === 503) return rateLimit503Response();
+    return rateLimit429Response(rateLimitResult.retryAfterSeconds);
   }
 
   let rawBody: unknown;

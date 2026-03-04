@@ -79,7 +79,14 @@ export async function listCommitments(
     .in("status", ["active", "paused"])
     .order("created_at", { ascending: false });
 
-  if (error) return { commitments: [], error: error.message };
+  if (error) {
+    // PGRST205 = table not found — commitments table does not exist in DB yet
+    if ((error as any).code === "PGRST205") {
+      console.warn("[commitmentStore] commitments table not found (PGRST205) — returning empty list");
+      return { commitments: [] };
+    }
+    return { commitments: [], error: error.message };
+  }
   return { commitments: (data ?? []) as CommitmentRow[] };
 }
 

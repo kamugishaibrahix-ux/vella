@@ -42,7 +42,11 @@ const T = {
 // Component
 // ---------------------------------------------------------------------------
 
-export function InMotionPanel() {
+interface InMotionPanelProps {
+  systemPhase?: string;
+}
+
+export function InMotionPanel({ systemPhase }: InMotionPanelProps) {
   const [contracts, setContracts] = useState<Contract[]>([]);
   const [now, setNow] = useState(Date.now());
   const [showCreate, setShowCreate] = useState(false);
@@ -124,6 +128,22 @@ export function InMotionPanel() {
   // Pending contracts for display
   const pendingContracts = otherContracts.filter((cs) => cs.status === "pending");
 
+  // Phase-based text logic (deterministic, no motivational language)
+  function getEmptyStateMessage(phase?: string): string {
+    switch (phase) {
+      case "recovery":
+        return "Recovery phase active. Reduced contract load recommended.";
+      case "volatile":
+        return "Elevated volatility detected. Single-task contracts advised.";
+      case "overloaded":
+        return "System overloaded. Contract execution paused.";
+      case "growth":
+        return "Growth phase. Full contract capacity available.";
+      default:
+        return "No active contracts. Ready to begin.";
+    }
+  }
+
   // Check for overlapping contracts warning
   const hasOverlappingActive = activeContracts.length > 1;
 
@@ -153,7 +173,7 @@ export function InMotionPanel() {
             margin: "0 0 14px",
           }}
         >
-          Nothing in motion. Set a contract to begin.
+          {getEmptyStateMessage(systemPhase)}
         </p>
         <button
           onClick={() => setShowCreate(true)}

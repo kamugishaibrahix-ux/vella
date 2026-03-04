@@ -51,6 +51,25 @@
     background-color: var(--vella-bg);
     color: var(--vella-text);
   }
+
+  /* Global icon rounding — all SVG strokes use round caps/joins */
+  svg {
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  /* Force rounded corners on image-based icons */
+  img {
+    border-radius: 12px;
+  }
+}
+
+/* Logo/icon-specific rounding overrides */
+.app-logo,
+.logo,
+.icon-image {
+  border-radius: 16px;
+  overflow: hidden;
 }
 
 /* Press animation for cards/buttons */
@@ -58,4 +77,31 @@
   .pressable {
     @apply transition-transform active:scale-[0.98];
   }
+
+  /* Hide scrollbar but allow scroll */
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .scrollbar-hide::-webkit-scrollbar {
+    width: 0px;
+    background: transparent;
+  }
+}
+
+/* Fade-in for chat messages */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* Shake animation for PIN error */
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  10%, 30%, 50%, 70%, 90% { transform: translateX(-4px); }
+  20%, 40%, 60%, 80% { transform: translateX(4px); }
+}
+
+.animate-shake {
+  animation: shake 0.4s ease-in-out;
 }

@@ -45,7 +45,7 @@ export function getLimitMessage(vellaCount: number, userCount: number): string |
  * Validate contract addition - returns null if valid, error string if invalid
  */
 export function validateAddContract(
-  origin: "vella" | "user",
+  origin: "user" | "system",
   vellaCount: number,
   userCount: number
 ): string | null {
@@ -55,8 +55,8 @@ export function validateAddContract(
     return `Maximum ${MAX_TOTAL_CONTRACTS} contracts allowed`;
   }
 
-  if (origin === "vella" && vellaCount >= MAX_VELLA_CONTRACTS) {
-    return `Maximum ${MAX_VELLA_CONTRACTS} Vella contracts allowed`;
+  if (origin === "system" && vellaCount >= MAX_VELLA_CONTRACTS) {
+    return `Maximum ${MAX_VELLA_CONTRACTS} system contracts allowed`;
   }
 
   if (origin === "user") {

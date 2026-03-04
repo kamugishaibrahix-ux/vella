@@ -7,23 +7,28 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import { requireUserId } from "@/lib/supabase/server-auth";
-import { rateLimit, isRateLimitError, rateLimit429Response } from "@/lib/security/rateLimit";
+import { rateLimit, rateLimit429Response, rateLimit503Response } from "@/lib/security/rateLimit";
 import { TriggerLogSchema } from "@/lib/execution/triggerValidation";
 import { recordEvent } from "@/lib/governance/events";
 import { fromSafe } from "@/lib/supabase/admin";
 
 const RATE = { limit: 30, window: 60 };
+const ROUTE_KEY = "execution_trigger_log";
 
 export async function POST(req: NextRequest) {
   const userIdOr401 = await requireUserId();
   if (userIdOr401 instanceof Response) return userIdOr401;
   const userId = userIdOr401;
 
-  try {
-    await rateLimit({ key: `user:trigger:log:${userId}`, limit: RATE.limit, window: RATE.window });
-  } catch (err: unknown) {
-    if (isRateLimitError(err)) return rateLimit429Response(err.retryAfterSeconds);
-    throw err;
+  const rateLimitResult = await rateLimit({
+    key: `user:trigger:log:${userId}`,
+    limit: RATE.limit,
+    window: RATE.window,
+    routeKey: ROUTE_KEY,
+  });
+  if (!rateLimitResult.allowed) {
+    if (rateLimitResult.status === 503) return rateLimit503Response();
+    return rateLimit429Response(rateLimitResult.retryAfterSeconds);
   }
 
   let body: unknown;

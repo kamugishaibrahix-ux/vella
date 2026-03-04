@@ -1,0 +1,33 @@
+
+=== ROUTER DEBUG OUTPUT ===
+✓ "Hi"
+    Expected: engine / null
+    Actual:   engine / null
+    Words: 1
+
+✓ "Hello"
+    Expected: engine / null
+    Actual:   engine / null
+    Words: 1
+
+✓ "I feel sad today"
+    Expected: engine / null
+    Actual:   engine / null
+    Words: 4
+
+✓ "I want to build a 5-year life plan covering career, relation..."
+    Expected: ai / deep
+    Actual:   ai / deep
+    Words: 20
+
+✓ "Explain quantum physics"
+    Expected: ai / simple
+    Actual:   ai / simple
+    Words: 3
+
+✓ "Compare React and Vue pros and cons"
+    Expected: ai / deep
+    Actual:   ai / deep
+    Words: 7
+
+=== END ROUTER DEBUG ===

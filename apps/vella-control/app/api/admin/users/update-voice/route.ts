@@ -53,8 +53,15 @@ export async function POST(request: Request) {
     const { error: logError } = await supabase.from("admin_activity_log").insert({
       admin_id: ADMIN_ACTOR_ID,
       action: "users.update-voice",
+      target_user_id: payload.user_id,
       previous: { voice_enabled: existing.voice_enabled },
       next: { voice_enabled: payload.enabled },
+      metadata: {
+        admin_ip: request.headers.get("x-forwarded-for") || "unknown",
+        user_agent: request.headers.get("user-agent") || "unknown",
+        request_id: crypto.randomUUID(),
+        timestamp: new Date().toISOString(),
+      },
     });
 
     if (logError) {

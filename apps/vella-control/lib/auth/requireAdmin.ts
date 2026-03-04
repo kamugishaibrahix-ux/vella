@@ -1,20 +1,13 @@
 import { NextResponse } from "next/server";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
-import { isAdminBypassActive } from "@/lib/auth/devBypass";
+import { isAdminRole } from "@/lib/auth/adminRoles";
 
 /**
  * Require admin authentication for API routes.
  * Returns null if authorized, or a NextResponse with error if not.
- *
- * In dev bypass mode (VELLA_BYPASS_ADMIN_AUTH=1), always returns null (authorized)
- * without contacting Supabase.
+ * Uses app_metadata.role (server-authoritative); not user_metadata.
  */
 export async function requireAdmin(): Promise<NextResponse | null> {
-  // Dev bypass: always succeed without contacting Supabase
-  if (isAdminBypassActive()) {
-    return null; // Authorized
-  }
-
   try {
     const supabase = createServerSupabaseClient();
     const {
@@ -26,9 +19,8 @@ export async function requireAdmin(): Promise<NextResponse | null> {
       return NextResponse.json({ error: "unauthorized" }, { status: 401 });
     }
 
-    const isAdmin = user.user_metadata?.is_admin === true;
-
-    if (!isAdmin) {
+    const role = (user.app_metadata as { role?: string } | undefined)?.role;
+    if (!isAdminRole(role)) {
       return NextResponse.json({ error: "unauthorized" }, { status: 401 });
     }
 
@@ -40,20 +32,22 @@ export async function requireAdmin(): Promise<NextResponse | null> {
 }
 
 /**
- * Returns the current admin user id when authenticated as admin (for rate-limit keys).
- * Returns "dev-bypass" when dev bypass is active; null when not admin or not authenticated.
+ * Returns the current admin user id when authenticated with an admin role (for rate-limit keys).
+ * Returns null when not admin or not authenticated.
+ * Uses app_metadata.role (server-authoritative); not user_metadata.
  */
 export async function getAdminUserId(): Promise<string | null> {
-  if (isAdminBypassActive()) {
-    return "dev-bypass";
-  }
   try {
     const supabase = createServerSupabaseClient();
     const {
       data: { user },
       error,
     } = await supabase.auth.getUser();
-    if (error || !user || user.user_metadata?.is_admin !== true) {
+    if (error || !user) {
+      return null;
+    }
+    const role = (user.app_metadata as { role?: string } | undefined)?.role;
+    if (!isAdminRole(role)) {
       return null;
     }
     return user.id;
@@ -61,4 +55,3 @@ export async function getAdminUserId(): Promise<string | null> {
     return null;
   }
 }
-

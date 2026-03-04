@@ -26,7 +26,6 @@ export async function GET(req: NextRequest) {
     }
     return NextResponse.json(review);
   } catch (err) {
-    console.error("[api/focus/week/review] GET error", err);
     return NextResponse.json({ error: "internal_error" }, { status: 500 });
   }
 }

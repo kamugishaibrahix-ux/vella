@@ -6,6 +6,7 @@
  */
 
 import type { GuardrailConfig } from "./types";
+import { readFlag, writeFlag, readISODate } from "@/lib/local/runtimeFlags";
 
 // ---------------------------------------------------------------------------
 // Defaults
@@ -74,17 +75,29 @@ export function saveGuardrails(config: Partial<GuardrailConfig>): void {
 // ---------------------------------------------------------------------------
 
 const ENABLED_KEY = "vella_trigger_engine_enabled";
+const SOFT_START_KEY = "vella_soft_start_until";
 
-/** Check if trigger engine is enabled. OFF by default. */
+/**
+ * Check if trigger engine is enabled.
+ *
+ * Resolution order:
+ *   1. If key is explicitly "true"  → enabled.
+ *   2. If key is explicitly "false" → disabled (user override respected).
+ *   3. If key is null (never set):
+ *      - If vella_soft_start_until is set → user completed onboarding → treat as enabled.
+ *      - Otherwise → pre-onboarding session → disabled.
+ */
 export function isTriggerEngineEnabled(): boolean {
-  if (typeof window === "undefined" || !window.localStorage) return false;
-  return window.localStorage.getItem(ENABLED_KEY) === "true";
+  const raw = readFlag(ENABLED_KEY);
+  if (raw === "true") return true;
+  if (raw === "false") return false;
+  // raw === null: infer from onboarding completion marker
+  return readISODate(SOFT_START_KEY) !== null;
 }
 
 /** Enable or disable the trigger engine (dev toggle). */
 export function setTriggerEngineEnabled(enabled: boolean): void {
-  if (typeof window === "undefined" || !window.localStorage) return;
-  window.localStorage.setItem(ENABLED_KEY, enabled ? "true" : "false");
+  writeFlag(ENABLED_KEY, enabled ? "true" : "false");
 }
 
 // ---------------------------------------------------------------------------

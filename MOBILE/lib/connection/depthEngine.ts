@@ -129,7 +129,7 @@ function deriveJournalingDepth(journals: Awaited<ReturnType<typeof listJournalEn
   let emotionalHits = 0;
 
   for (const entry of recent) {
-    const content = (entry.content ?? "").toLowerCase();
+    const content = ((entry as { content?: string }).content ?? "").toLowerCase();
     const words = content.split(/\s+/).filter(Boolean);
     totalLength += words.length;
     emotionalHits += words

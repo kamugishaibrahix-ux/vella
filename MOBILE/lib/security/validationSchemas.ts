@@ -3,6 +3,7 @@
  * All schemas reject unknown fields and enforce length limits.
  */
 import { z } from "zod";
+import { OSSignalsArraySchema } from "@/lib/osSignals/taxonomy";
 
 // ======================
 // Text Generation Routes
@@ -44,12 +45,16 @@ const conversationTurnSchema = z.object({
   content: z.string().max(8000),
 });
 
+/** Personal OS enforcement mode hint from client. */
+const osModeSchema = z.enum(["strict", "soft", "observe"]);
+
 export const vellaTextRequestSchema = z
   .object({
     message: z.string().min(1, "Message is required").max(4000, "Message cannot exceed 4000 characters").trim(),
     language: z.string().max(10, "Language code too long").optional(),
     session_id: z.string().uuid().optional().nullable(),
     mode: vellaModeSchema.optional().nullable(),
+    osMode: osModeSchema.optional().nullable(),
     activeValues: z.array(valueCodeSchema).max(20).optional(),
     conversationHistory: z.array(conversationTurnSchema).max(30).optional(),
   })
@@ -75,32 +80,56 @@ export const growthRoadmapRequestSchema = z
   );
 
 // ======================
-// Journal Routes
+// Journal Routes (metadata-only — text never leaves device)
 // ======================
 
 /**
- * Journal POST: title and content length capped. Optional processingMode and subject_code.
+ * Journal POST: metadata-only. Text/title must NOT be sent.
+ * .strict() rejects unknown fields (including text, title, content).
  */
 export const journalCreateSchema = z
   .object({
-    text: z.string().min(1, "Journal text is required").max(10000, "Journal text cannot exceed 10000 characters"),
-    title: z.string().max(200, "Title cannot exceed 200 characters").optional(),
-    processingMode: z.enum(["private", "signals_only", "signals_and_governance"]).optional(),
-    subjectCode: z.enum(["smoking", "alcohol", "focus", "habit", "other"]).optional(),
+    id: z.string().uuid("id must be a valid UUID"),
+    created_at: z.string().datetime().optional(),
+    updated_at: z.string().datetime().optional(),
+    word_count: z.number().int().min(0).max(100000),
+    local_hash: z.string().length(64, "local_hash must be 64-char hex (SHA-256)"),
+    processing_mode: z.enum(["private", "signals_only"]),
+    signals: OSSignalsArraySchema.optional(),
   })
-  .strict();
+  .strict()
+  .superRefine((data, ctx) => {
+    if (data.processing_mode === "private" && data.signals && data.signals.length > 0) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "SIGNALS_NOT_ALLOWED_IN_PRIVATE_MODE",
+        path: ["signals"],
+      });
+    }
+  });
 
 /**
- * Journal PUT: requires id and text. Optional processingMode and subject_code.
+ * Journal PUT: metadata-only update. Text/title must NOT be sent.
  */
 export const journalUpdateSchema = z
   .object({
     id: z.string().min(1, "Entry ID is required"),
-    text: z.string().min(1, "Journal text is required").max(10000, "Journal text cannot exceed 10000 characters"),
-    processingMode: z.enum(["private", "signals_only", "signals_and_governance"]).optional(),
-    subjectCode: z.enum(["smoking", "alcohol", "focus", "habit", "other"]).optional(),
+    updated_at: z.string().datetime().optional(),
+    word_count: z.number().int().min(0).max(100000),
+    local_hash: z.string().length(64, "local_hash must be 64-char hex (SHA-256)"),
+    processing_mode: z.enum(["private", "signals_only"]),
+    signals: OSSignalsArraySchema.optional(),
   })
-  .strict();
+  .strict()
+  .superRefine((data, ctx) => {
+    if (data.processing_mode === "private" && data.signals && data.signals.length > 0) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "SIGNALS_NOT_ALLOWED_IN_PRIVATE_MODE",
+        path: ["signals"],
+      });
+    }
+  });
 
 /**
  * Journal PATCH: retry enrichment for existing entry.
@@ -110,6 +139,16 @@ export const journalRetryEnrichmentSchema = z
     id: z.string().min(1, "Entry ID is required"),
   })
   .strict();
+
+/** Check if a raw payload contains forbidden text fields. Returns field name or null. */
+export function journalPayloadContainsText(raw: unknown): string | null {
+  if (!raw || typeof raw !== "object") return null;
+  const obj = raw as Record<string, unknown>;
+  for (const key of ["text", "title", "content", "body", "journal"]) {
+    if (key in obj) return key;
+  }
+  return null;
+}
 
 // ======================
 // Insights Routes
@@ -212,6 +251,7 @@ export const insightsGenerateRequestSchema = z
 
 /**
  * Stripe create-checkout-session: plan must be a valid enum.
+ * Target plan must be pro or elite (free has no checkout).
  */
 export const stripeCheckoutSessionSchema = z
   .object({
@@ -221,11 +261,24 @@ export const stripeCheckoutSessionSchema = z
   .strict();
 
 /**
+ * @deprecated Use stripeTopupCheckoutSchema with SKU naming instead.
  * Stripe token pack: packId must be a valid enum.
+ * Legacy naming: pack_small, pack_medium, pack_large
  */
 export const stripeTokenPackSchema = z
   .object({
     packId: z.enum(["pack_small", "pack_medium", "pack_large"], { message: "Invalid packId" }),
+    email: z.string().email("Invalid email format").max(255, "Email too long").optional().nullable(),
+  })
+  .strict();
+
+/**
+ * Stripe top-up checkout: sku must be a valid top-up SKU.
+ * SKU naming: topup_50k, topup_200k, topup_1m
+ */
+export const stripeTopupCheckoutSchema = z
+  .object({
+    sku: z.enum(["topup_50k", "topup_200k", "topup_1m"], { message: "Invalid SKU. Must be topup_50k, topup_200k, or topup_1m" }),
     email: z.string().email("Invalid email format").max(255, "Email too long").optional().nullable(),
   })
   .strict();

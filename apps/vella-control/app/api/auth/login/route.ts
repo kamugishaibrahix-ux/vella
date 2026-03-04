@@ -7,6 +7,7 @@ import {
   isRateLimitError,
   rateLimit429Response,
 } from "@/lib/security/rateLimit";
+import { isAdminRole } from "@/lib/auth/adminRoles";
 
 /** IP-based rate limit: 5 attempts per 5 minutes per IP to mitigate brute force. */
 const LOGIN_RATE_LIMIT = { limit: 5, windowSeconds: 300 };
@@ -59,9 +60,8 @@ export async function POST(request: Request) {
       );
     }
 
-    const isAdmin = user.user_metadata?.is_admin === true;
-
-    if (!isAdmin) {
+    const role = (user.app_metadata as { role?: string } | undefined)?.role;
+    if (!isAdminRole(role)) {
       await supabase.auth.signOut();
       return NextResponse.json(
         { success: false, error: "Access denied. Admin privileges required." },

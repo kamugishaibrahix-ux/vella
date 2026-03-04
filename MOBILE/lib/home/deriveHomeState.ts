@@ -26,6 +26,23 @@ export type HomeState = {
   improvement: number;      // 0–1
   connectionScore: number;  // 0–100
 
+  // --- Stability (from /api/system/health) ---
+  systemHealth: {
+    globalStabilityScore: number;
+    dominantRiskDomain: string;
+    focusCapacity: number;
+    decisionCapacity: number;
+    recoveryRequired: boolean;
+    domainStress: {
+      health: number;
+      financial: number;
+      cognitive: number;
+      behavioural: number;
+      governance: number;
+    };
+    phase: string;
+  } | null;
+
   // --- Execution (localStorage) ---
   triggerUsage: { used: number; cap: number };
   triggerEngineOn: boolean;
@@ -45,6 +62,10 @@ export type HomeState = {
 
   // --- Connection moment ---
   shortEmotionalLine: string;
+
+  // --- Behavioural data counts (for recommendation gating) ---
+  checkInCount: number;
+  journalCount: number;
 };
 
 // ---------------------------------------------------------------------------
@@ -91,10 +112,12 @@ type BehaviouralPayload = {
   stability: number;
   improvement: number;
   connectionDepth: number;
+  checkInCount: number;
+  journalCount: number;
 };
 
 async function fetchBehaviouralState(): Promise<BehaviouralPayload> {
-  const fallback: BehaviouralPayload = { consistency: 0, stability: 0.6, improvement: 0.5, connectionDepth: 0 };
+  const fallback: BehaviouralPayload = { consistency: 0, stability: 0.6, improvement: 0.5, connectionDepth: 0, checkInCount: 0, journalCount: 0 };
   try {
     const res = await fetch("/api/state/current", { credentials: "include" });
     if (!res.ok) return fallback;
@@ -108,6 +131,8 @@ async function fetchBehaviouralState(): Promise<BehaviouralPayload> {
       stability: safeNum(progress.stabilityScore, 0.6),
       improvement: safeNum(progress.improvementScore, 0.5),
       connectionDepth: safeNum(s.connection_depth, 0),
+      checkInCount: Math.max(0, Math.floor(safeNum(progress.checkin_count, 0))),
+      journalCount: Math.max(0, Math.floor(safeNum(progress.journal_count, 0))),
     };
   } catch {
     return fallback;
@@ -176,6 +201,32 @@ function countWindowsAheadToday(commitments: CommitmentMetadata[], now: Date): n
 // Connection moment fallback
 // ---------------------------------------------------------------------------
 
+type SystemHealthPayload = {
+  globalStabilityScore: number;
+  dominantRiskDomain: string;
+  focusCapacity: number;
+  decisionCapacity: number;
+  recoveryRequired: boolean;
+  domainStress: {
+    health: number;
+    financial: number;
+    cognitive: number;
+    behavioural: number;
+    governance: number;
+  };
+  phase: string;
+};
+
+async function fetchSystemHealth(): Promise<SystemHealthPayload | null> {
+  try {
+    const res = await fetch("/api/system/health", { credentials: "include" });
+    if (!res.ok) return null;
+    return await res.json() as SystemHealthPayload;
+  } catch {
+    return null;
+  }
+}
+
 function resolveEmotionalLine(
   dashboardLine: string,
   userId: string,
@@ -200,12 +251,13 @@ export async function deriveHomeState(userId?: string | null): Promise<HomeState
   const uid = ensureUserId(userId);
   const now = new Date();
 
-  // Parallel fetches — all 3 are independent
-  const [inboxItems, commitments, connectionData, behaviouralData] = await Promise.all([
+  // Parallel fetches — all independent
+  const [inboxItems, commitments, connectionData, behaviouralData, systemHealth] = await Promise.all([
     listItems(uid).catch(() => [] as InboxItem[]),
     fetchActiveCommitments().catch(() => [] as CommitmentMetadata[]),
     fetchConnectionDashboard().catch(() => ({ score: 0, shortEmotionalLine: "I'm here when you're ready." })),
-    fetchBehaviouralState().catch(() => ({ consistency: 0, stability: 0.6, improvement: 0.5, connectionDepth: 0 })),
+    fetchBehaviouralState().catch(() => ({ consistency: 0, stability: 0.6, improvement: 0.5, connectionDepth: 0, checkInCount: 0, journalCount: 0 })),
+    fetchSystemHealth().catch(() => null),
   ]);
 
   const execState = loadExecutionState(now);
@@ -227,6 +279,7 @@ export async function deriveHomeState(userId?: string | null): Promise<HomeState
     stability: behaviouralData.stability,
     improvement: behaviouralData.improvement,
     connectionScore,
+    systemHealth,
     triggerUsage: {
       used: execState.triggerCountToday,
       cap: guardrails.max_triggers_per_day,
@@ -240,5 +293,7 @@ export async function deriveHomeState(userId?: string | null): Promise<HomeState
     activeCommitmentCount: activeCommitments.length,
     windowsAheadToday: countWindowsAheadToday(commitments, now),
     shortEmotionalLine: resolveEmotionalLine(connectionData.shortEmotionalLine, uid),
+    checkInCount: behaviouralData.checkInCount,
+    journalCount: behaviouralData.journalCount,
   };
 }

@@ -232,7 +232,7 @@ begin
     and admin = true
   );
 end;
-$$ language plpgsql security definer;
+$$ language plpgsql security definer set search_path = public;
 
 -- admin_ai_config: MOBILE can read active config, admin can write
 drop policy if exists "admin_ai_config_read" on public.admin_ai_config;

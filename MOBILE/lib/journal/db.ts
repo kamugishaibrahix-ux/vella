@@ -1,8 +1,7 @@
 /**
- * Phase 6B / M2 Patch: Journal storage.
- * NORMAL reads: journal_entries_v2 only (no legacy merge).
- * Writes: journal_entries_v2 only.
- * Legacy reads: only via migration export (see migration export routes).
+ * LOCAL-FIRST JOURNAL — DB layer stores metadata only.
+ * No text, title, or content columns exist in journal_entries_v2.
+ * Writes: journal_entries_v2 (metadata: id, timestamps, word_count, local_hash).
  */
 
 import { fromSafe, supabaseAdmin } from "@/lib/supabase/admin";
@@ -14,25 +13,22 @@ type InsertV2 = Database["public"]["Tables"]["journal_entries_v2"]["Insert"];
 
 export type JournalEntryRow = {
   id: string;
-  title: string | null;
-  content: string;
   createdAt: string;
   updatedAt: string;
+  wordCount: number;
+  localHash: string;
+  processingMode: string;
 };
 
-function stubFromV2(r: RowV2): JournalEntryRow {
+function rowFromV2(r: RowV2): JournalEntryRow {
   return {
     id: r.id,
-    title: null,
-    content: "",
     createdAt: r.created_at,
     updatedAt: r.updated_at,
+    wordCount: r.word_count ?? 0,
+    localHash: r.local_hash ?? "",
+    processingMode: "private",
   };
-}
-
-function wordCount(text: string): number {
-  const t = (text ?? "").trim();
-  return t ? t.split(/\s+/).filter(Boolean).length : 0;
 }
 
 /** M4.5: Legacy journal_entries dropped from safeTables; always false. */
@@ -45,14 +41,14 @@ export async function listJournalEntriesFromDb(
   limit = 50
 ): Promise<JournalEntryRow[]> {
   const { data, error } = await fromSafe("journal_entries_v2")
-    .select("id, created_at, updated_at")
+    .select("id, created_at, updated_at, word_count, local_hash")
     .eq("user_id", userId)
     .eq("is_deleted", false)
     .order("created_at", { ascending: false })
     .limit(limit);
   if (error) throw error;
   const rows = (data ?? []) as RowV2[];
-  return rows.map(stubFromV2);
+  return rows.map(rowFromV2);
 }
 
 export async function getJournalEntryFromDb(
@@ -60,27 +56,28 @@ export async function getJournalEntryFromDb(
   id: string
 ): Promise<JournalEntryRow | null> {
   const { data, error } = await fromSafe("journal_entries_v2")
-    .select("id, created_at, updated_at")
+    .select("id, created_at, updated_at, word_count, local_hash")
     .eq("user_id", userId)
     .eq("id", id)
     .maybeSingle();
   if (error) throw error;
   if (!data) return null;
-  return stubFromV2(data as RowV2);
+  return rowFromV2(data as RowV2);
 }
 
-export async function createJournalEntryInDb(
+export async function createJournalMetaInDb(
   userId: string,
-  input: { title?: string | null; content: string; local_hash?: string | null }
+  meta: { id: string; created_at?: string; updated_at?: string; word_count: number; local_hash: string; processing_mode: string }
 ): Promise<JournalEntryRow> {
   if (!supabaseAdmin) throw new Error("Supabase admin not configured.");
   const now = new Date().toISOString();
   const insert: InsertV2 = {
+    id: meta.id,
     user_id: userId,
-    created_at: now,
-    updated_at: now,
-    word_count: wordCount(input.content),
-    local_hash: input.local_hash ?? null,
+    created_at: meta.created_at ?? now,
+    updated_at: meta.updated_at ?? now,
+    word_count: meta.word_count,
+    local_hash: meta.local_hash,
     mood_score: null,
     is_deleted: false,
   };
@@ -90,24 +87,24 @@ export async function createJournalEntryInDb(
     undefined,
     supabaseAdmin
   )
-    .select("id, created_at, updated_at")
+    .select("id, created_at, updated_at, word_count, local_hash")
     .single();
   if (error) throw error;
-  const r = data as RowV2;
-  return stubFromV2({ ...r, created_at: r.created_at, updated_at: r.updated_at });
+  return rowFromV2(data as RowV2);
 }
 
-export async function updateJournalEntryInDb(
+export async function updateJournalMetaInDb(
   userId: string,
   id: string,
-  patch: { title?: string | null; content?: string; word_count?: number; local_hash?: string | null }
+  meta: { word_count: number; local_hash: string; updated_at?: string }
 ): Promise<JournalEntryRow | null> {
   if (!supabaseAdmin) throw new Error("Supabase admin not configured.");
   const now = new Date().toISOString();
-  const updates: Record<string, unknown> = { updated_at: now };
-  if (patch.word_count !== undefined) updates.word_count = patch.word_count;
-  else if (patch.content !== undefined) updates.word_count = wordCount(patch.content);
-  if (patch.local_hash !== undefined) updates.local_hash = patch.local_hash;
+  const updates: Record<string, unknown> = {
+    updated_at: meta.updated_at ?? now,
+    word_count: meta.word_count,
+    local_hash: meta.local_hash,
+  };
   const { data, error } = await safeUpdate(
     "journal_entries_v2",
     updates,
@@ -116,12 +113,11 @@ export async function updateJournalEntryInDb(
   )
     .eq("user_id", userId)
     .eq("id", id)
-    .select("id, created_at, updated_at")
+    .select("id, created_at, updated_at, word_count, local_hash")
     .maybeSingle();
   if (error) throw error;
   if (!data) return null;
-  const r = data as RowV2;
-  return stubFromV2({ ...r, created_at: r.created_at, updated_at: r.updated_at });
+  return rowFromV2(data as RowV2);
 }
 
 export async function deleteJournalEntryInDb(userId: string, id: string): Promise<boolean> {

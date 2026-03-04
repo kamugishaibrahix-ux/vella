@@ -2,24 +2,26 @@
  * Server-side plan resolution.
  * Supabase public.subscriptions.plan is the canonical source of truth.
  * Optional Redis cache (when REDIS_URL is set) reduces DB reads; cache is invalidated on webhook updates.
+ *
+ * HARDENING: Fails closed on infrastructure errors. Never silently falls back to "free".
  */
 import { supabaseAdmin, fromSafe } from "@/lib/supabase/admin";
 import { resolvePlanTier } from "./planUtils";
 import type { PlanTier } from "./tierCheck";
 import { getCachedPlan, setCachedPlan } from "./subscriptionPlanCache";
+import { UnknownTierError } from "@/lib/plans/defaultEntitlements";
+import { logSecurityEvent } from "@/lib/telemetry/securityEvents";
 
 export { invalidateSubscriptionPlanCache } from "./subscriptionPlanCache";
 
 export async function getUserPlanTier(userId: string): Promise<PlanTier> {
   try {
-    // Optional: read from Redis cache first (60s TTL)
     const cached = await getCachedPlan(userId);
     if (cached !== null) return cached;
 
-    // No Supabase admin client -> cannot perform DB check; log and fallback
     if (!supabaseAdmin) {
-      console.error("[tiers] Supabase admin not configured; cannot resolve plan from DB.");
-      return "free";
+      logSecurityEvent("PLAN_RESOLUTION_FAILED", { user_id: userId, reason: "supabase_admin_not_configured" });
+      throw new UnknownTierError("unknown", "getUserPlanTier: Supabase admin not configured");
     }
 
     const { data, error } = await fromSafe("subscriptions")
@@ -28,22 +30,33 @@ export async function getUserPlanTier(userId: string): Promise<PlanTier> {
       .maybeSingle();
 
     if (error) {
-      console.error("[tiers] getUserPlanTier Supabase error", error.message);
-      return "free";
+      logSecurityEvent("PLAN_LOOKUP_FAILURE", { user_id: userId, error: error.message });
+      throw new UnknownTierError("unknown", `getUserPlanTier: DB query failed – ${error.message}`);
     }
 
-    // No row -> user has no subscription record; default to free
-    if (!data) {
-      await setCachedPlan(userId, "free");
-      return "free";
+    // data === null ⇒ confirmed: user has no subscription row → legitimate free tier
+    // data === undefined would be impossible here (maybeSingle returns null, not undefined)
+    if (data === null || data === undefined) {
+      const freeTier: PlanTier = "free";
+      await setCachedPlan(userId, freeTier);
+      return freeTier;
     }
 
-    const plan = (data as { plan: string | null }).plan;
-    const tier = resolvePlanTier(plan ?? "free");
+    const rawPlan = (data as { plan: string | null }).plan;
+
+    // Null plan column within an existing row → ambiguous; treat as confirmed free
+    if (rawPlan === null || rawPlan === undefined) {
+      const freeTier: PlanTier = "free";
+      await setCachedPlan(userId, freeTier);
+      return freeTier;
+    }
+
+    const tier = resolvePlanTier(rawPlan);
     await setCachedPlan(userId, tier);
     return tier;
   } catch (err) {
-    console.error("[tiers] getUserPlanTier error", err);
-    return "free";
+    if (err instanceof UnknownTierError) throw err;
+    logSecurityEvent("PLAN_RESOLUTION_FAILED", { user_id: userId, error: String(err) });
+    throw new UnknownTierError("unknown", "getUserPlanTier: unexpected error");
   }
 }

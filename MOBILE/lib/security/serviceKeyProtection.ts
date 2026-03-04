@@ -8,7 +8,7 @@
  */
 
 import { createHash } from "crypto";
-import { getClientIp, rateLimit, isRateLimitError, rateLimit429Response } from "@/lib/security/rateLimit";
+import { getClientIp, rateLimit, rateLimit429Response, rateLimit503Response } from "@/lib/security/rateLimit";
 
 const ENV_ALLOWED_IPS = "SERVICE_KEY_ALLOWED_IPS";
 
@@ -70,22 +70,23 @@ export async function enforceServiceKeyProtection(
   const authHeader = req.headers.get("authorization");
   const fp = getAuthFingerprint(authHeader);
 
-  try {
-    await rateLimit({
-      key: `rebuild:${routeKey}:ip:${ip}`,
-      limit: SERVICE_KEY_RATE_LIMIT.limit,
-      window: SERVICE_KEY_RATE_LIMIT.window,
-    });
-    await rateLimit({
-      key: `rebuild:${routeKey}:fp:${fp}`,
-      limit: SERVICE_KEY_RATE_LIMIT.limit,
-      window: SERVICE_KEY_RATE_LIMIT.window,
-    });
-  } catch (err: unknown) {
-    if (isRateLimitError(err)) {
-      return rateLimit429Response(err.retryAfterSeconds);
-    }
-    throw err;
+  const rlIp = await rateLimit({
+    key: `rebuild:${routeKey}:ip:${ip}`,
+    limit: SERVICE_KEY_RATE_LIMIT.limit,
+    window: SERVICE_KEY_RATE_LIMIT.window,
+    routeKey,
+  });
+  if (!rlIp.allowed) {
+    return rlIp.status === 503 ? rateLimit503Response() : rateLimit429Response(rlIp.retryAfterSeconds);
+  }
+  const rlFp = await rateLimit({
+    key: `rebuild:${routeKey}:fp:${fp}`,
+    limit: SERVICE_KEY_RATE_LIMIT.limit,
+    window: SERVICE_KEY_RATE_LIMIT.window,
+    routeKey,
+  });
+  if (!rlFp.allowed) {
+    return rlFp.status === 503 ? rateLimit503Response() : rateLimit429Response(rlFp.retryAfterSeconds);
   }
   return null;
 }

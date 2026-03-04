@@ -1,13 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 
-import { getUserPlanTier } from "@/lib/tiers/server";
 import type { VellaAudioMode, VellaAudioRequest } from "@/lib/audio/vellaAudioTypes";
 import { getPresetById } from "@/lib/audio/vellaAudioCatalog";
 import { AUDIO_PLAN_UPSELL_MESSAGE, AUDIO_ELITE_ONLY_MESSAGE } from "@/lib/audio/messages";
-import { checkTokenAvailability, chargeTokensForOperation } from "@/lib/tokens/enforceTokenLimits";
+import { checkTokenAvailability } from "@/lib/tokens/enforceTokenLimits";
+import { withMonetisedOperation } from "@/lib/tokens/withMonetisedOperation";
 import { quotaExceededResponse } from "@/lib/tokens/quotaExceededResponse";
-import { requireUserId } from "@/lib/supabase/server-auth";
-import { rateLimit, isRateLimitError, rateLimit429Response } from "@/lib/security/rateLimit";
+import { estimateTokens } from "@/lib/tokens/costSchedule";
+import { requireEntitlement, isEntitlementBlocked } from "@/lib/plans/requireEntitlement";
+import { rateLimit, rateLimit429Response, rateLimit503Response } from "@/lib/security/rateLimit";
 import { RATE_LIMIT_CONFIG } from "@/lib/security/rateLimit/config";
 import { fetchWithTimeout } from "@/lib/security/fetchWithTimeout";
 import { runWithOpenAICircuit, recordOpenAIFailure } from "@/lib/ai/circuitBreaker";
@@ -22,100 +23,131 @@ const AI_DISABLED_RESPONSE = { error: "ai_unavailable", message: "AI is temporar
 const OPENAI_ENDPOINT = "https://api.openai.com/v1/audio/speech";
 const OPENAI_AUDIO_TIMEOUT_MS = 30_000;
 
+/**
+ * PHASE SEAL HARDENING (20260240):
+ * This route processes audio generation IN MEMORY ONLY via OpenAI.
+ * - Generates audio via OpenAI TTS
+ * - Audio is processed and returned as base64
+ * - Audio is NEVER stored in Supabase
+ * - Only token usage metadata is recorded
+ *
+ * ABORT-SAFE REFUND (20260301):
+ * Uses withMonetisedOperation wrapper to guarantee refund on client abort.
+ */
 export async function POST(req: NextRequest) {
   if (isAIDisabled()) {
     return NextResponse.json(AI_DISABLED_RESPONSE, { status: 503 });
   }
-  const userIdOr401 = await requireUserId();
-  if (userIdOr401 instanceof Response) return userIdOr401;
-  const userId = userIdOr401;
+  // Step 1+2: Require entitlement (includes active user check + enableAudioVella gating)
+  const entitlement = await requireEntitlement("audio_vella");
+  if (isEntitlementBlocked(entitlement)) return entitlement;
+  const { userId, plan } = entitlement;
 
-  try {
-    const { limit, window } = RATE_LIMIT_CONFIG.routes["audio/vella"];
-    await rateLimit({ key: `audio_vella:${userId}`, limit, window });
-
-    const planTier = await getUserPlanTier(userId).catch(() => "free" as const);
-    const body = (await req.json().catch(() => null)) as VellaAudioRequest | null;
-
-    if (!body) {
-      return NextResponse.json({ error: "invalid_request" }, { status: 400 });
+  // Step 3: Rate limit (must be before token operations)
+  const { limit, window } = RATE_LIMIT_CONFIG.routes["audio/vella"];
+  const rateLimitResult = await rateLimit({
+    key: `audio_vella:${userId}`,
+    limit,
+    window,
+    routeKey: "audio_vella",
+  });
+  if (!rateLimitResult.allowed) {
+    if (rateLimitResult.status === 503) {
+      return rateLimit503Response("Rate limiting unavailable. Cannot process monetized requests.");
     }
+    return rateLimit429Response(rateLimitResult.retryAfterSeconds);
+  }
 
-    const estimatedTokens = 3500;
-    const tokenCheck = await checkTokenAvailability(userId, planTier, estimatedTokens, "audio_vella", "audio");
-    if (!tokenCheck.allowed) {
-      return quotaExceededResponse();
-    }
+  // Step 4: Request validation
+  const body = (await req.json().catch(() => null)) as VellaAudioRequest | null;
 
-    if (planTier === "free") {
-      return NextResponse.json(
-        { status: "blocked", reason: "plan", message: AUDIO_PLAN_UPSELL_MESSAGE },
-        { status: 403 },
-      );
-    }
+  if (!body) {
+    return NextResponse.json({ error: "invalid_request" }, { status: 400 });
+  }
 
-    const preset = body.presetId ? getPresetById(body.presetId) : undefined;
-    const mode = normalizeMode(body.mode ?? preset?.mode, preset?.engineMode as VellaAudioMode | undefined);
+  // Step 5: Estimate tokens and check availability (early 402)
+  const estimatedTokens = estimateTokens("audio_vella");
+  const tokenCheck = await checkTokenAvailability(userId, plan, estimatedTokens, "audio_vella", "audio");
+  if (!tokenCheck.allowed) {
+    return quotaExceededResponse();
+  }
 
-    // Elite-only gating for music and singing modes
-    if ((mode === "music" || mode === "singing") && planTier !== "elite") {
-      return NextResponse.json(
-        {
-          status: "blocked",
-          reason: "plan",
-          message: AUDIO_ELITE_ONLY_MESSAGE,
-        },
-        { status: 403 },
-      );
-    }
+  const preset = body.presetId ? getPresetById(body.presetId) : undefined;
+  const mode = normalizeMode(body.mode ?? preset?.mode, preset?.engineMode as VellaAudioMode | undefined);
 
-    const prompt = buildAudioPrompt({
-      mode,
-      presetLabel: preset?.label,
-      presetDescription: preset?.description,
-      intent: body.intent,
-      emotionHint: body.emotionHint,
-      toneHint: body.toneHint,
-      timeOfDay: body.timeOfDay,
-    });
-
-    const profile = pickVoiceProfile({
-      mode,
-      emotionHint: body.emotionHint,
-      toneHint: body.toneHint,
-      timeOfDay: body.timeOfDay,
-      connectionDepth: body.connectionDepth,
-      intent: body.intent,
-    });
-
-    const audioBuffer = await requestOpenAiAudio(prompt, profile.voiceId, profile.format ?? "mp3");
-    const audioBase64 = audioBuffer.toString("base64");
-
-    await chargeTokensForOperation(
-      userId,
-      planTier,
-      estimatedTokens,
-      "audio_generation",
-      "audio_vella",
-      "audio",
-    );
-
-    return NextResponse.json({
-      audioBase64,
-      descriptor: {
-        id: preset?.id ?? body.presetId,
-        mode,
-        title: preset?.label ?? "Vella audio",
-        description: preset?.description ?? body.intent ?? "Custom audio from Vella.",
+  // Music and singing modes require advanced audio capability
+  // Check if user has access to advanced audio features via entitlement
+  if ((mode === "music" || mode === "singing") && !entitlement.entitlements.enableAudioVella) {
+    return NextResponse.json(
+      {
+        status: "blocked",
+        reason: "feature_not_available",
+        message: AUDIO_ELITE_ONLY_MESSAGE,
+        feature: "audio_music_mode",
       },
-    });
-  } catch (error) {
-    if (isRateLimitError(error)) {
-      return rateLimit429Response(error.retryAfterSeconds);
+      { status: 403 },
+    );
+  }
+
+  const prompt = buildAudioPrompt({
+    mode,
+    presetLabel: preset?.label,
+    presetDescription: preset?.description,
+    intent: body.intent,
+    emotionHint: body.emotionHint,
+    toneHint: body.toneHint,
+    timeOfDay: body.timeOfDay,
+  });
+
+  const profile = pickVoiceProfile({
+    mode,
+    emotionHint: body.emotionHint,
+    toneHint: body.toneHint,
+    timeOfDay: body.timeOfDay,
+    connectionDepth: body.connectionDepth,
+    intent: body.intent,
+  });
+
+  // Step 6: ABORT-SAFE MONETISED OPERATION
+  // The wrapper guarantees refund if client aborts or any error occurs
+  const result = await withMonetisedOperation(
+    {
+      userId,
+      plan,
+      estimatedTokens,
+      operation: "audio_generation",
+      route: "audio_vella",
+      channel: "audio",
+      featureKey: "audio_vella",
+      request: req,
+    },
+    async () => {
+      // OpenAI call (may throw or be aborted)
+      const audioBuffer = await requestOpenAiAudio(prompt, profile.voiceId, profile.format ?? "mp3");
+      const audioBase64 = audioBuffer.toString("base64");
+
+      return {
+        audioBase64,
+        descriptor: {
+          id: preset?.id ?? body.presetId,
+          mode,
+          title: preset?.label ?? "Vella audio",
+          description: preset?.description ?? body.intent ?? "Custom audio from Vella.",
+        },
+      };
     }
-    safeErrorLog("[audio] vella route error", error);
+  );
+
+  // Handle operation result
+  if (!result.success) {
+    // Log error for monitoring (refund already handled by wrapper)
+    safeErrorLog("[audio/vella] operation failed", new Error(result.error));
+    recordOpenAIFailure();
     return serverErrorResponse("Audio generation failed. Please try again.");
   }
+
+  // Success - return data
+  return NextResponse.json(result.data);
 }
 
 function buildAudioPrompt({
@@ -208,7 +240,7 @@ function pickVoiceProfile({
 async function requestOpenAiAudio(prompt: string, voiceId: string, format: "mp3" | "wav") {
   const apiKey = process.env.OPENAI_API_KEY;
   if (!apiKey) {
-    throw new Error("Missing OPENAI_API_KEY");
+    throw new Error("configuration_error");
   }
 
   const response = await runWithOpenAICircuit(() =>

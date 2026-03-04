@@ -65,7 +65,6 @@ export async function POST(request: Request) {
       throw updateError;
     }
 
-    // Log admin activity
     await supabase.from("admin_activity_log").insert({
       admin_id: ADMIN_ACTOR_ID,
       action: "user_reports.update",
@@ -78,6 +77,12 @@ export async function POST(request: Request) {
         status: updatedReport.status,
         assignee: updatedReport.assignee,
         notes: updatedReport.notes,
+      },
+      metadata: {
+        admin_ip: request.headers.get("x-forwarded-for") || "unknown",
+        user_agent: request.headers.get("user-agent") || "unknown",
+        request_id: crypto.randomUUID(),
+        timestamp: new Date().toISOString(),
       },
     });
 

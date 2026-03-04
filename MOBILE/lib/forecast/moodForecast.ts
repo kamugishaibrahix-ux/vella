@@ -7,6 +7,7 @@ import { loadServerPersonaSettings } from "@/lib/ai/personaServer";
 import { generateEmotionalPatterns } from "@/lib/insights/patterns";
 import { analyseJournalEntries } from "@/lib/insights/journalAnalysis";
 import { getAllCheckIns, type CheckinRow } from "@/lib/checkins/getAllCheckIns";
+import { getDefaultEntitlements } from "@/lib/plans/defaultEntitlements";
 
 export type ForecastSnapshot = {
   mood: number;
@@ -37,7 +38,8 @@ export async function forecastMood(userId: string | null): Promise<MoodForecast>
     return DEFAULT_FORECAST;
   }
 
-  if (planTier === "free") {
+  const _ent = getDefaultEntitlements(planTier);
+  if (!_ent.enableDeepDive) {
     return heuristicForecast(checkins);
   }
 

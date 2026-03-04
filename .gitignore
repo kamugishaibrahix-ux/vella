@@ -28,3 +28,24 @@ build/
 .vscode/
 .DS_Store
 *.log
+
+# TypeScript build cache
+*.tsbuildinfo
+
+# Supabase temp folders
+supabase/.temp/
+MOBILE/supabase/.temp/
+
+# Debug output files
+*_output.txt
+tsc_errors*.txt
+db_push*.txt
+db_reset*.txt
+schema_dump.sql
+null
+
+# Operation logs
+push_attempt.log
+push_full.log
+repairs.txt
+file_tree.txt

@@ -9,11 +9,21 @@ import type { JournalEntry } from "@/app/components/journal/types";
 
 type JournalListResponse = { entries?: JournalEntry[] };
 
-const fetcher = async (url: string) => {
-  const res = await fetch(url);
-  if (!res.ok) return { entries: [] } satisfies JournalListResponse;
-  const data = (await res.json().catch(() => ({}))) as JournalListResponse;
-  return data;
+const fetcher = async (_key: string): Promise<JournalListResponse> => {
+  // LOCAL-FIRST: read journal entries from on-device store
+  const { listLocalJournals } = await import("@/lib/local/journalLocal");
+  const locals = listLocalJournals(undefined);
+  const entries: JournalEntry[] = locals.map((e) => ({
+    id: e.id,
+    createdAt: e.createdAt,
+    modeId: "free-write" as const,
+    modeLabel: "Free Write",
+    title: e.title ?? "Untitled",
+    preview: e.content.slice(0, 120),
+    sharedWithVella: e.processingMode === "signals_only",
+    freeText: e.content,
+  }));
+  return { entries };
 };
 
 // Search icon
@@ -55,7 +65,7 @@ function FilterButton({
 export default function SavedPage() {
   const router = useRouter();
   const { data, isLoading } = useSWR<JournalListResponse>("/api/journal", fetcher);
-  const entries = data?.entries ?? [];
+  const entries = useMemo(() => data?.entries ?? [], [data?.entries]);
 
   const [searchQuery, setSearchQuery] = useState("");
   const [modeFilter, setModeFilter] = useState<string | "all">("all");

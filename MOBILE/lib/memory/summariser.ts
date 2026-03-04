@@ -1,6 +1,7 @@
 import { openai, model } from "@/lib/ai/client";
 import type { PlanTier } from "@/lib/tiers/tierCheck";
 import type { ConversationMessage } from "./conversation";
+import { getDefaultEntitlements } from "@/lib/plans/defaultEntitlements";
 
 type SummariseParams = {
   userId: string;
@@ -10,7 +11,8 @@ type SummariseParams = {
 
 export async function summariseMessages(params: SummariseParams): Promise<string | null> {
   const { userId, planTier, messages } = params;
-  if (!userId || planTier === "free" || !messages.length || !openai) {
+  const _ent = getDefaultEntitlements(planTier);
+  if (!userId || !_ent.enableDeepDive || !messages.length || !openai) {
     return null;
   }
 

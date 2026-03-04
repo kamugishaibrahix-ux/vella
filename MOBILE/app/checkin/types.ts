@@ -3,7 +3,7 @@
  * Pure types only - no UI logic
  */
 
-export type ContractOrigin = "vella" | "user";
+export type ContractOrigin = "user" | "system";
 
 export interface WeeklyContract {
   id: string;
@@ -42,6 +42,19 @@ export interface WeeklyFocusItem {
   id: string;
   label: string;
   subjectCode: string;
+}
+
+// Legacy type for devMock compatibility
+export interface FocusWeekResponse {
+  weekId: string;
+  items: {
+    itemId: string;
+    sourceType: string;
+    subjectCode: string;
+    label: string;
+    priority: number;
+    reasons: string[];
+  }[];
 }
 
 export interface AppState extends WeeklyState {

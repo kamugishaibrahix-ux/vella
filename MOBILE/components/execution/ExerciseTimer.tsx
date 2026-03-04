@@ -100,6 +100,10 @@ export function ExerciseTimer({ exercise, onComplete, onCancel }: ExerciseTimerP
           zIndex: 200,
           color: "white",
           textAlign: "center",
+          maxWidth: 480,
+          margin: "0 auto",
+          height: "100dvh",
+          overflow: "hidden",
         }}
       >
         <div style={{ fontSize: 64, marginBottom: 20 }}>✓</div>
@@ -156,6 +160,10 @@ export function ExerciseTimer({ exercise, onComplete, onCancel }: ExerciseTimerP
         display: "flex",
         flexDirection: "column",
         zIndex: 200,
+        maxWidth: 480,
+        margin: "0 auto",
+        height: "100dvh",
+        overflow: "hidden",
       }}
     >
       {/* Header - Compact */}

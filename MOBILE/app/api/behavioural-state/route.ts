@@ -1,11 +1,13 @@
 import { NextResponse } from "next/server";
 import { requireUserId } from "@/lib/supabase/server-auth";
-import { rateLimit, isRateLimitError, rateLimit429Response } from "@/lib/security/rateLimit";
+import { rateLimit, rateLimit429Response, rateLimit503Response } from "@/lib/security/rateLimit";
 import { fromSafe } from "@/lib/supabase/admin";
 import { serverErrorResponse } from "@/lib/security/consistentErrors";
+import { safeDbCall, isDbUnavailableError, dbUnavailableResponse } from "@/lib/server/safeDbCall";
 import { safeErrorLog } from "@/lib/security/logGuard";
 
 const READ_LIMIT = { limit: 60, window: 60 };
+const ROUTE_KEY = "behavioural_state";
 
 /**
  * @deprecated Use GET /api/state/current instead. Kept for backward compatibility.
@@ -18,22 +20,27 @@ export async function GET() {
   if (userIdOr401 instanceof Response) return userIdOr401;
   const userId = userIdOr401;
 
-  try {
-    await rateLimit({
-      key: `read:behavioural_state:${userId}`,
-      limit: READ_LIMIT.limit,
-      window: READ_LIMIT.window,
-    });
-  } catch (err: unknown) {
-    if (isRateLimitError(err)) return rateLimit429Response(err.retryAfterSeconds);
-    throw err;
+  const rateLimitResult = await rateLimit({
+    key: `read:behavioural_state:${userId}`,
+    limit: READ_LIMIT.limit,
+    window: READ_LIMIT.window,
+    routeKey: ROUTE_KEY,
+  });
+  if (!rateLimitResult.allowed) {
+    if (rateLimitResult.status === 503) return rateLimit503Response();
+    return rateLimit429Response(rateLimitResult.retryAfterSeconds);
   }
 
   try {
-    const { data, error } = await fromSafe("behavioural_state_current")
-      .select("version, state_json, last_computed_at, updated_at")
-      .eq("user_id", userId)
-      .maybeSingle();
+    const result = await safeDbCall(
+      async () =>
+        await fromSafe("behavioural_state_current")
+          .select("version, state_json, last_computed_at, updated_at")
+          .eq("user_id", userId)
+          .maybeSingle(),
+      { route: "behavioural-state", operation: "read", table: "behavioural_state_current" },
+    );
+    const { data, error } = result as { data: unknown; error: { message: string } | null };
 
     if (error) {
       safeErrorLog("[api/behavioural-state] select error", error);
@@ -57,6 +64,7 @@ export async function GET() {
       updatedAt: row.updated_at ?? null,
     });
   } catch (error) {
+    if (isDbUnavailableError(error)) return dbUnavailableResponse();
     safeErrorLog("[api/behavioural-state] error", error);
     return serverErrorResponse();
   }

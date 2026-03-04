@@ -7,8 +7,10 @@ import { NextResponse } from "next/server";
 import { requireAdminRole } from "@/lib/admin/requireAdminRole";
 import { supabaseAdmin } from "@/lib/supabase/admin";
 import { safeUpsert } from "@/lib/safe/safeSupabaseWrite";
+import { rateLimit, rateLimit429Response, rateLimit503Response } from "@/lib/security/rateLimit";
 
 const SUSPEND_ALLOWED_ROLES = ["super_admin", "ops_admin"] as const;
+const RATE_LIMIT_ADMIN = { limit: 30, window: 60 }; // 30 requests per minute
 
 export async function POST(
   _request: Request,
@@ -16,6 +18,20 @@ export async function POST(
 ) {
   const auth = await requireAdminRole();
   if (auth instanceof NextResponse) return auth;
+
+  // Phase 3.3: Rate limit with explicit policy (FAIL-CLOSED - admin write)
+  const rateLimitResult = await rateLimit({
+    key: `admin_suspend:${auth.userId}`,
+    limit: RATE_LIMIT_ADMIN.limit,
+    window: RATE_LIMIT_ADMIN.window,
+    routeKey: "admin_suspend",
+  });
+  if (!rateLimitResult.allowed) {
+    if (rateLimitResult.status === 503) {
+      return rateLimit503Response("Rate limiting unavailable. Cannot process admin operations.");
+    }
+    return rateLimit429Response(rateLimitResult.retryAfterSeconds);
+  }
 
   if (!(SUSPEND_ALLOWED_ROLES as readonly string[]).includes(auth.role)) {
     return NextResponse.json(
@@ -60,7 +76,6 @@ export async function POST(
     }
     return NextResponse.json({ ok: true, suspended: true }, { status: 200 });
   } catch (err) {
-    console.error("[admin/user/suspend]", err);
     return NextResponse.json(
       { error: "server_error", code: "SERVER_ERROR" },
       { status: 500 }

@@ -48,7 +48,6 @@ export async function GET(req: NextRequest) {
       submittedToday,
     });
   } catch (err) {
-    console.error("[api/focus/week] GET error", err);
     return NextResponse.json({ error: "internal_error" }, { status: 500 });
   }
 }

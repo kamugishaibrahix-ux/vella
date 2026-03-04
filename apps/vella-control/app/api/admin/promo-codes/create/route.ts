@@ -48,12 +48,17 @@ export async function POST(request: Request) {
       throw insertError;
     }
 
-    // Log admin activity
     await supabase.from("admin_activity_log").insert({
       admin_id: ADMIN_ACTOR_ID,
       action: "promo_codes.create",
       previous: null,
       next: { promo_code_id: promoCode.id, code: payload.code },
+      metadata: {
+        admin_ip: request.headers.get("x-forwarded-for") || "unknown",
+        user_agent: request.headers.get("user-agent") || "unknown",
+        request_id: crypto.randomUUID(),
+        timestamp: new Date().toISOString(),
+      },
     });
 
     return NextResponse.json({

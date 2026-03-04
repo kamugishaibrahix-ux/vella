@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server";
 import { openai, model } from "@/lib/ai/client";
 import { runWithOpenAICircuit, isCircuitOpenError } from "@/lib/ai/circuitBreaker";
-import { rateLimit, isRateLimitError, rateLimit429Response } from "@/lib/security/rateLimit";
+import { createChatCompletion } from "@/lib/ai/safeOpenAI";
+import { rateLimit, rateLimit429Response, rateLimit503Response } from "@/lib/security/rateLimit";
 import { RATE_LIMIT_CONFIG } from "@/lib/security/rateLimit/config";
 import { serviceUnavailableResponse, serverErrorResponse } from "@/lib/security/consistentErrors";
 import { buildPersonaInstruction } from "@/lib/realtime/personaSynth";
@@ -19,15 +20,19 @@ import type { RelationshipMode } from "@/lib/realtime/emotion/state";
 import type { SupportedLanguage } from "@/lib/ai/language/languageProfiles";
 import { resolveServerLocale, normalizeLocale } from "@/i18n/serverLocale";
 import type { UILanguageCode } from "@/i18n/types";
-import { checkTokenAvailability, chargeTokensForOperation } from "@/lib/tokens/enforceTokenLimits";
+import { checkTokenAvailability } from "@/lib/tokens/enforceTokenLimits";
+import { withMonetisedOperation } from "@/lib/tokens/withMonetisedOperation";
 import { quotaExceededResponse } from "@/lib/tokens/quotaExceededResponse";
-import { requireUserId } from "@/lib/supabase/server-auth";
+import { requireEntitlement, isEntitlementBlocked } from "@/lib/plans/requireEntitlement";
 import { insightsPatternRequestSchema } from "@/lib/security/validationSchemas";
 import { validationErrorResponse, formatZodError } from "@/lib/security/validationErrors";
 import { isAIDisabled } from "@/lib/security/killSwitch";
 import { safeErrorLog } from "@/lib/security/logGuard";
+import { applyCheckinBounds, CHECKIN_MAX_ROWS } from "@/lib/insights/checkinBounds";
 type PatternSchema = ReturnType<typeof insightsPatternRequestSchema.parse>;
-type PatternInput = Omit<PatternSchema, "userId"> & { locale?: UILanguageCode };
+import type { PlanTier } from "@/lib/tiers/tierCheck";
+
+type PatternInput = Omit<PatternSchema, "userId"> & { locale?: UILanguageCode; planTier?: PlanTier };
 
 type NormalizedCheckin = Pick<DailyCheckIn, "mood" | "stress" | "energy" | "note"> & {
   id?: string;
@@ -64,18 +69,43 @@ const EMPTY_PATTERNS: MemoryProfile["emotionalPatterns"] = {
 
 const AI_DISABLED_RESPONSE = { error: "ai_unavailable", message: "AI is temporarily disabled" };
 
+/**
+ * PHASE SEAL HARDENING (20260240):
+ * This route processes personal text IN MEMORY ONLY.
+ * - Derives emotional patterns via OpenAI
+ * - Text is processed and results returned
+ * - Text is NEVER stored in Supabase
+ * - Only token usage metadata is recorded
+ *
+ * ABORT-SAFE REFUND (20260301):
+ * Uses withMonetisedOperation wrapper to guarantee refund on client abort.
+ */
 export async function POST(req: Request) {
   if (isAIDisabled()) {
     return NextResponse.json(AI_DISABLED_RESPONSE, { status: 503 });
   }
-  const userIdOr401 = await requireUserId();
-  if (userIdOr401 instanceof Response) return userIdOr401;
-  const userId = userIdOr401;
+  // Step 1+2: Require entitlement (includes active user check + enableInsightsPatterns gating)
+  const entitlement = await requireEntitlement("insights_patterns");
+  if (isEntitlementBlocked(entitlement)) return entitlement;
+  const { userId, plan } = entitlement;
 
+  // Step 3: Rate limit (must be before token operations)
+  const { limit, window } = RATE_LIMIT_CONFIG.routes.insights_patterns;
+  const rateLimitResult = await rateLimit({
+    key: `insights_patterns:${userId}`,
+    limit,
+    window,
+    routeKey: "insights_patterns",
+  });
+  if (!rateLimitResult.allowed) {
+    if (rateLimitResult.status === 503) {
+      return rateLimit503Response("Rate limiting unavailable. Cannot process monetized requests.");
+    }
+    return rateLimit429Response(rateLimitResult.retryAfterSeconds);
+  }
+
+  // Step 4: Request validation
   try {
-    const { limit, window } = RATE_LIMIT_CONFIG.routes.insights_patterns;
-    await rateLimit({ key: `insights_patterns:${userId}`, limit, window });
-
     const json = await req.json();
     const parseResult = insightsPatternRequestSchema.safeParse(json);
     if (!parseResult.success) {
@@ -85,17 +115,22 @@ export async function POST(req: Request) {
     const body = parseResult.data;
     const rawLocale = (body.locale as string) || resolveServerLocale();
     const locale = normalizeLocale(rawLocale) as UILanguageCode;
-    console.log("🌐 API /insights/patterns - Detected locale:", locale, "(raw:", rawLocale, ")");
-    const { userId: _ignored, ...safeBody } = body;
-    const result = await derivePatternsForRequest(userId, { ...safeBody, locale });
+
+    // Apply deterministic bounds to incoming check-ins
+    const boundedCheckins = applyCheckinBounds((body.checkins ?? []) as DailyCheckIn[]);
+
+    const { userId: _ignored, planTier: _ignoredPlan, checkins: _ignoredCheckins, ...safeBody } = body;
+    const result = await derivePatternsForRequest(userId, {
+      ...safeBody,
+      checkins: boundedCheckins,
+      locale,
+      planTier: plan,
+    });
     if (result && typeof result === "object" && "__quotaExceeded" in result) {
       return quotaExceededResponse();
     }
     return NextResponse.json(result satisfies PatternResult);
   } catch (error) {
-    if (isRateLimitError(error)) {
-      return rateLimit429Response(error.retryAfterSeconds);
-    }
     if (isCircuitOpenError(error)) {
       return serviceUnavailableResponse();
     }
@@ -108,46 +143,69 @@ async function derivePatternsForRequest(userId: string, body: PatternInput): Pro
   if (!body.checkins.length) {
     return wrapLite(EMPTY_PATTERNS, "no_checkins");
   }
+
+  // Double-check bounds (belt-and-suspenders)
+  const boundedCheckins = body.checkins.slice(0, CHECKIN_MAX_ROWS);
+
   if (!openai) {
-    return wrapLite(computeLitePatterns(normalizeCheckins(body.checkins)), "missing_auth");
+    return wrapLite(computeLitePatterns(normalizeCheckins(boundedCheckins)), "missing_auth");
   }
 
-  const normalizedCheckins = normalizeCheckins(body.checkins);
+  const normalizedCheckins = normalizeCheckins(boundedCheckins);
 
   const estimatedTokens = 2500;
   const planTier = body.planTier ?? "free";
+
+  // Step 5: Check token availability (early 402)
   const tokenCheck = await checkTokenAvailability(userId, planTier, estimatedTokens, "insights_patterns", "text");
   if (!tokenCheck.allowed) {
     return { __quotaExceeded: true } as unknown as PatternResult;
   }
 
-  try {
-    const tokenCost = 0;
+  // Step 6: ABORT-SAFE MONETISED OPERATION
+  const personaInstruction = await buildPatternPersonaInstruction(body);
 
-    const personaInstruction = await buildPatternPersonaInstruction(body);
-
-    try {
+  const result = await withMonetisedOperation(
+    {
+      userId,
+      plan: planTier,
+      estimatedTokens,
+      operation: "pattern_analysis",
+      route: "insights_patterns",
+      channel: "text",
+      featureKey: "insights_patterns",
+      request: new Request("http://localhost"), // Dummy request for wrapper compatibility
+    },
+    async () => {
       const client = openai;
+      if (!client) {
+        throw new Error("openai_unavailable");
+      }
+
       const completion = await runWithOpenAICircuit(() =>
-        client!.chat.completions.create({
-        model,
-        temperature: 0.2,
-        messages: [
-          {
-            role: "system",
-            content: `${personaInstruction}\nYou are Vella's emotional pattern engine. Analyse recent check-ins and return JSON describing ${JSON.stringify(
-              Object.keys(EMPTY_PATTERNS),
-            )}.${body.locale && body.locale !== "en" ? `\n\n🚨 CRITICAL: You MUST respond ONLY in ${body.locale.toUpperCase()}. DO NOT use English.` : ""}`,
-          },
-          { role: "user", content: buildPrompt(normalizedCheckins, body.locale ?? "en") },
-        ],
+        createChatCompletion({
+          client,
+          model,
+          temperature: 0.2,
+          max_tokens: 4096,
+          timeoutMs: 60_000,
+          messages: [
+            {
+              role: "system",
+              content: `${personaInstruction}\nYou are Vella's emotional pattern engine. Analyse recent check-ins and return JSON describing ${JSON.stringify(
+                Object.keys(EMPTY_PATTERNS),
+              )}.${body.locale && body.locale !== "en" ? `\n\nCRITICAL: You MUST respond ONLY in ${body.locale.toUpperCase()}. DO NOT use English.` : ""}`,
+            },
+            { role: "user", content: buildPrompt(normalizedCheckins, body.locale ?? "en") },
+          ],
         })
       );
 
       const content = completion.choices[0]?.message?.content?.trim();
       if (!content) {
-        return wrapLite(computeLitePatterns(normalizedCheckins), "empty_response");
+        throw new Error("empty_response");
       }
+
       let parsed: MemoryProfile["emotionalPatterns"] | null = null;
       try {
         const cleaned = content.replace(/```json/gi, "").replace(/```/g, "").trim();
@@ -160,41 +218,33 @@ async function derivePatternsForRequest(userId: string, body: PatternInput): Pro
         };
       } catch (error) {
         safeErrorLog("[api] insights/patterns parse error", error);
-        return wrapLite(computeLitePatterns(normalizedCheckins), "parse_error");
+        throw new Error("parse_error");
       }
 
       if (!parsed) {
-        return wrapLite(computeLitePatterns(normalizedCheckins), "invalid_response");
+        throw new Error("invalid_response");
       }
-
-      const actualTokensUsed = completion.usage?.total_tokens ?? estimatedTokens;
-      await chargeTokensForOperation(
-        userId,
-        planTier,
-        actualTokensUsed,
-        "pattern_analysis",
-        "insights_patterns",
-        "text",
-      );
 
       return {
         patterns: parsed,
-        mode: "ai",
+        mode: "ai" as const,
       };
-    } catch (error) {
-      safeErrorLog("[api] insights/patterns openai error", error);
-      return wrapLite(computeLitePatterns(normalizedCheckins), "openai_error");
     }
-  } catch (error) {
-    safeErrorLog("[api] insights/patterns premium path failed", error);
-    return wrapLite(computeLitePatterns(normalizedCheckins), "local_only");
+  );
+
+  if (!result.success) {
+    // Return lite patterns on failure (refund already handled by wrapper)
+    safeErrorLog("[insights/patterns] monetised operation failed", new Error(result.error));
+    return wrapLite(computeLitePatterns(normalizedCheckins), "ai_failed");
   }
+
+  return result.data;
 }
 
 function buildPrompt(checkins: NormalizedCheckin[], locale: UILanguageCode = "en") {
   // Normalize locale to 2-letter format
   const normalizedLocale = locale?.slice(0, 2).toLowerCase() || "en";
-  
+
   const condensed = checkins.slice(0, 20).map((entry) => ({
     date: entry.date ?? entry.createdAt,
     mood: entry.mood,
@@ -204,8 +254,9 @@ function buildPrompt(checkins: NormalizedCheckin[], locale: UILanguageCode = "en
     note: entry.note,
   }));
 
-  const languageInstruction = normalizedLocale !== "en" 
-    ? `\n\n🚨 CRITICAL LANGUAGE REQUIREMENT 🚨
+  const languageInstruction = normalizedLocale !== "en"
+    ? `
+\nCRITICAL LANGUAGE REQUIREMENT
 You MUST respond ONLY in ${normalizedLocale.toUpperCase()}.
 DO NOT use English unless ${normalizedLocale} is 'en'.
 All text in patterns (emotions, triggers, fears, tendencies) MUST be in ${normalizedLocale}.
@@ -342,4 +393,3 @@ function wrapLite(
     fallbackReason,
   };
 }
-

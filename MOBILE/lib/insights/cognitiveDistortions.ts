@@ -12,6 +12,7 @@ import { detectBehaviourLoops } from "./behaviourLoops";
 import { getRecentMessages } from "@/lib/memory/conversation";
 import { loadServerPersonaSettings } from "@/lib/ai/personaServer";
 import type { LocalJournalEntry } from "@/lib/local/journalLocal";
+import { getDefaultEntitlements } from "@/lib/plans/defaultEntitlements";
 
 type JournalRow = LocalJournalEntry;
 type ConversationMessage = Awaited<ReturnType<typeof getRecentMessages>>[number];
@@ -34,7 +35,8 @@ export async function detectCognitiveDistortions(userId: string | null): Promise
     loadServerPersonaSettings(userId),
   ]);
 
-  if (planTier === "free") {
+  const _ent = getDefaultEntitlements(planTier);
+  if (!_ent.enableDeepDive) {
     return heuristicDistortions(journals, conversation);
   }
 

@@ -1,13 +1,14 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { requireUserId } from "@/lib/supabase/server-auth";
-import { rateLimit, isRateLimitError, rateLimit429Response } from "@/lib/security/rateLimit";
+import { rateLimit, rateLimit429Response, rateLimit503Response } from "@/lib/security/rateLimit";
 import { recomputeState } from "@/lib/engine/behavioural/recomputeState";
 import { validationErrorResponse, formatZodError } from "@/lib/security/validationErrors";
 import { serverErrorResponse } from "@/lib/security/consistentErrors";
 import { safeErrorLog } from "@/lib/security/logGuard";
 
 const RECOMPUTE_LIMIT = { limit: 5, window: 60 };
+const ROUTE_KEY = "state_recompute";
 
 const bodySchema = z.object({
   snapshotType: z.enum(["daily", "weekly", "triggered"]).optional(),
@@ -28,15 +29,15 @@ export async function POST(req: Request) {
   if (userIdOr401 instanceof Response) return userIdOr401;
   const userId = userIdOr401;
 
-  try {
-    await rateLimit({
-      key: `state_recompute:${userId}`,
-      limit: RECOMPUTE_LIMIT.limit,
-      window: RECOMPUTE_LIMIT.window,
-    });
-  } catch (err: unknown) {
-    if (isRateLimitError(err)) return rateLimit429Response(err.retryAfterSeconds);
-    throw err;
+  const rateLimitResult = await rateLimit({
+    key: `state_recompute:${userId}`,
+    limit: RECOMPUTE_LIMIT.limit,
+    window: RECOMPUTE_LIMIT.window,
+    routeKey: ROUTE_KEY,
+  });
+  if (!rateLimitResult.allowed) {
+    if (rateLimitResult.status === 503) return rateLimit503Response();
+    return rateLimit429Response(rateLimitResult.retryAfterSeconds);
   }
 
   let body: z.infer<typeof bodySchema>;

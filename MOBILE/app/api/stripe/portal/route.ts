@@ -4,7 +4,8 @@ import { requireUserId } from "@/lib/supabase/server-auth";
 import { supabaseAdmin, fromSafe } from "@/lib/supabase/admin";
 import { getValidatedOrigin } from "@/lib/payments/originValidation";
 import { notFoundResponse, serverErrorResponse } from "@/lib/security/consistentErrors";
-import { rateLimit, isRateLimitError, rateLimit429Response } from "@/lib/security/rateLimit";
+import { safeDbCall, isDbUnavailableError, dbUnavailableResponse } from "@/lib/server/safeDbCall";
+import { rateLimit, rateLimit429Response, rateLimit503Response } from "@/lib/security/rateLimit";
 import { isBillingDisabled } from "@/lib/security/killSwitch";
 import { safeErrorLog } from "@/lib/security/logGuard";
 
@@ -32,6 +33,7 @@ function resolveReturnPath(raw: unknown): string {
  * stripe_customer_id from storage.
  */
 const RATE_LIMIT_PORTAL = { limit: 5, window: 60 };
+const ROUTE_KEY = "stripe_portal";
 
 export async function POST(req: NextRequest) {
   if (isBillingDisabled()) {
@@ -41,13 +43,15 @@ export async function POST(req: NextRequest) {
   if (userIdOr401 instanceof Response) return userIdOr401;
   const userId = userIdOr401;
 
-  try {
-    await rateLimit({ key: `stripe_portal:${userId}`, limit: RATE_LIMIT_PORTAL.limit, window: RATE_LIMIT_PORTAL.window });
-  } catch (err: unknown) {
-    if (isRateLimitError(err)) {
-      return rateLimit429Response(err.retryAfterSeconds);
-    }
-    throw err;
+  const rateLimitResult = await rateLimit({
+    key: `stripe_portal:${userId}`,
+    limit: RATE_LIMIT_PORTAL.limit,
+    window: RATE_LIMIT_PORTAL.window,
+    routeKey: ROUTE_KEY,
+  });
+  if (!rateLimitResult.allowed) {
+    if (rateLimitResult.status === 503) return rateLimit503Response();
+    return rateLimit429Response(rateLimitResult.retryAfterSeconds);
   }
 
   if (!stripe) {
@@ -67,17 +71,23 @@ export async function POST(req: NextRequest) {
     // Ignore body parse failure; use default return path
   }
 
-  const { data: row, error } = await fromSafe("subscriptions")
-    .select("stripe_customer_id")
-    .eq("user_id", userId)
-    .maybeSingle();
+  try {
+  const result = await safeDbCall(
+    async () =>
+      await fromSafe("subscriptions")
+        .select("stripe_customer_id")
+        .eq("user_id", userId)
+        .maybeSingle(),
+    { route: "stripe_portal", operation: "subscription_lookup" },
+  );
+  const { data: row, error } = result as { data: { stripe_customer_id?: string | null } | null; error: { message: string } | null };
 
   if (error) {
     safeErrorLog("[stripe] portal subscription lookup error", error);
     return serverErrorResponse();
   }
 
-  const customerId = (row as { stripe_customer_id?: string | null } | null)?.stripe_customer_id?.trim();
+  const customerId = (row ?? null)?.stripe_customer_id?.trim();
   if (!customerId) {
     return notFoundResponse("No billing account found for this user.");
   }
@@ -95,5 +105,9 @@ export async function POST(req: NextRequest) {
   } catch (err) {
     safeErrorLog("[stripe] portal error", err);
     return serverErrorResponse("Unable to create portal session");
+  }
+  } catch (e) {
+    if (isDbUnavailableError(e)) return dbUnavailableResponse();
+    throw e;
   }
 }

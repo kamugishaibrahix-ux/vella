@@ -1,7 +1,7 @@
 "use server";
 
 import { runFullAI, resolveModelForTier } from "@/lib/ai/fullAI";
-import type { JournalEntryRecord } from "@/lib/journal/types";
+import type { LocalJournalEntry } from "@/lib/local/journalLocal";
 
 export type WritingStyleProfile = {
   tone?: string;
@@ -31,14 +31,14 @@ Keep descriptions concise (<= 20 words).
 `.trim();
 
 export async function analyzeWritingStyle(
-  entries: JournalEntryRecord[],
+  entries: LocalJournalEntry[],
 ): Promise<WritingStyleProfile | null> {
   if (!entries || entries.length === 0) return null;
 
   const combined = entries
     .map((entry) => {
       const title = entry.title ? `Title: ${entry.title}` : "";
-      const content = entry.content ?? "";
+      const content = entry.content ?? "";  // content lives locally
       return [title, content].filter(Boolean).join("\n");
     })
     .filter(Boolean)
@@ -53,7 +53,6 @@ export async function analyzeWritingStyle(
       system: STYLE_SYSTEM_PROMPT,
       temperature: 0.1,
       messages: [{ role: "user", content: combined }],
-      tier: "elite",
     });
     if (!result) return null;
     return JSON.parse(result) as WritingStyleProfile;

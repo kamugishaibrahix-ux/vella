@@ -5,10 +5,19 @@ import { getAdminClient } from "@/lib/supabase/adminClient";
 import { requireAdmin, getAdminUserId } from "@/lib/auth/requireAdmin";
 import { rateLimitAdmin, isRateLimitError, rateLimit429Response } from "@/lib/security/rateLimit";
 
+/**
+ * STRICT Zod schema for token updates.
+ * HARDENING:
+ * - Delta bounded to reasonable limits (-1M to +1M)
+ * - Requires reason for large adjustments (> 100k)
+ */
 const bodySchema = z.object({
   user_id: z.string().uuid(),
-  delta: z.number().int(),
+  delta: z.number().int().min(-1_000_000).max(1_000_000, "Token adjustment cannot exceed 1M"),
+  reason: z.string().max(500).optional(),
 });
+
+type BodySchema = z.infer<typeof bodySchema>;
 
 const ADMIN_ACTOR_ID =
   process.env.ADMIN_ACTIVITY_ACTOR_ID ?? "00000000-0000-0000-0000-000000000000";
@@ -25,8 +34,15 @@ export async function POST(request: Request) {
   }
 
   try {
-    const payload = bodySchema.parse(await request.json());
+    const payload: BodySchema = bodySchema.parse(await request.json());
     const supabase = getAdminClient();
+    
+    // Log warning for large adjustments
+    if (Math.abs(payload.delta) > 100_000 && !payload.reason) {
+      console.warn(
+        `[ADMIN] Large token adjustment (${payload.delta}) without reason for user ${payload.user_id}`
+      );
+    }
 
     const { data: user, error: selectError } = await supabase
       .from("user_metadata")
@@ -65,8 +81,17 @@ export async function POST(request: Request) {
     const { error: logError } = await supabase.from("admin_activity_log").insert({
       admin_id: ADMIN_ACTOR_ID,
       action: "users.update-tokens",
+      target_user_id: payload.user_id,
       previous: { token_balance: user.token_balance },
-      next: { token_balance: newBalance },
+      next: { token_balance: newBalance, delta: payload.delta },
+      metadata: {
+        delta: payload.delta,
+        adjustment_reason: payload.reason || "No reason provided",
+        admin_ip: request.headers.get("x-forwarded-for") || "unknown",
+        user_agent: request.headers.get("user-agent") || "unknown",
+        request_id: crypto.randomUUID(),
+        timestamp: new Date().toISOString(),
+      },
     });
 
     if (logError) {

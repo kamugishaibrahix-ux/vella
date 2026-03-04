@@ -39,12 +39,15 @@ interface RecommendedExercisesProps {
   onSelectExercise: (exercise: Exercise) => void;
   onOpenLibrary: () => void;
   hasActiveTimeBlock?: boolean;
+  /** When false, show "Explore exercises" instead of "Recommended for today". No AI; pure UX gate. */
+  hasBehavioralData?: boolean;
 }
 
 export function RecommendedExercises({
   onSelectExercise,
   onOpenLibrary,
   hasActiveTimeBlock = false,
+  hasBehavioralData = false,
 }: RecommendedExercisesProps) {
   const [recommendations, setRecommendations] = useState<ExerciseRecommendation[]>([]);
   const [landing, setLanding] = useState<string | null>(null);
@@ -88,7 +91,7 @@ export function RecommendedExercises({
             textTransform: "uppercase",
           }}
         >
-          RECOMMENDED
+          {hasBehavioralData ? "RECOMMENDED" : "EXPLORE EXERCISES"}
         </p>
         <p
           style={{
@@ -97,7 +100,9 @@ export function RecommendedExercises({
             color: T.secondary,
           }}
         >
-          Set your morning state to get personalized recommendations.
+          {hasBehavioralData
+            ? "Set your morning state to get personalized recommendations."
+            : "Try an exercise to get started. Recommendations appear once you have more activity."}
         </p>
       </section>
     );
@@ -124,7 +129,7 @@ export function RecommendedExercises({
             textTransform: "uppercase",
           }}
         >
-          RECOMMENDED FOR {landing ? landing.toUpperCase() : "TODAY"}
+          {hasBehavioralData ? `RECOMMENDED FOR ${landing ? landing.toUpperCase() : "TODAY"}` : "EXPLORE EXERCISES"}
         </p>
         <button
           onClick={onOpenLibrary}

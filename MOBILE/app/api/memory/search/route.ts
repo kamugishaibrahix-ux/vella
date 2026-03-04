@@ -1,27 +1,35 @@
 /**
  * Phase 6C: Debug retrieval — top-K memory search. Authed user.
  * Free plan: excerpt redacted (empty string). Paid: include excerpt.
+ * 
+ * PHASE B - Refactored: Uses entitlements instead of tier string checks.
+ * Now checks enableDeepMemory capability for excerpt access.
  */
 
 import { NextRequest, NextResponse } from "next/server";
-import { requireUserId } from "@/lib/supabase/server-auth";
-import { rateLimit, isRateLimitError, rateLimit429Response } from "@/lib/security/rateLimit";
+import { rateLimit, rateLimit429Response, rateLimit503Response } from "@/lib/security/rateLimit";
 import { retrieveTopK } from "@/lib/memory/retrieve";
-import { getUserPlanTier } from "@/lib/tiers/server";
+import { requireEntitlement, isEntitlementBlocked } from "@/lib/plans/requireEntitlement";
 import { safeErrorLog } from "@/lib/security/logGuard";
 
 const READ_LIMIT = { limit: 30, window: 60 };
+const ROUTE_KEY = "memory_search";
 
 export async function GET(req: NextRequest) {
-  const userIdOr401 = await requireUserId();
-  if (userIdOr401 instanceof Response) return userIdOr401;
-  const userId = userIdOr401;
+  // Step 1: Require entitlement (includes auth check)
+  const entitlement = await requireEntitlement("chat_text");
+  if (isEntitlementBlocked(entitlement)) return entitlement;
+  const { userId, entitlements } = entitlement;
 
-  try {
-    await rateLimit({ key: `memory_search:${userId}`, limit: READ_LIMIT.limit, window: READ_LIMIT.window });
-  } catch (err: unknown) {
-    if (isRateLimitError(err)) return rateLimit429Response(err.retryAfterSeconds);
-    throw err;
+  const rateLimitResult = await rateLimit({
+    key: `memory_search:${userId}`,
+    limit: READ_LIMIT.limit,
+    window: READ_LIMIT.window,
+    routeKey: ROUTE_KEY,
+  });
+  if (!rateLimitResult.allowed) {
+    if (rateLimitResult.status === 503) return rateLimit503Response();
+    return rateLimit429Response(rateLimitResult.retryAfterSeconds);
   }
 
   const url = new URL(req.url);
@@ -30,13 +38,15 @@ export async function GET(req: NextRequest) {
 
   try {
     const blocks = await retrieveTopK({ userId, queryText: q, k, maxCharsTotal: 1500 });
-    const planTier = await getUserPlanTier(userId).catch(() => "free" as const);
-    const paid = planTier === "pro" || planTier === "elite";
+    
+    // PURE abstraction: Check capability instead of tier string
+    // Deep memory users (typically Elite) get full excerpts
+    const hasDeepMemory = entitlements.enableDeepMemory;
 
     const results = blocks.map((b) => ({
       sourceType: b.sourceType,
       sourceId: b.sourceId,
-      excerpt: paid ? b.excerpt : "",
+      excerpt: hasDeepMemory ? b.excerpt : "",
       excerptLength: b.excerpt.length,
       score: b.score,
       createdAtISO: b.createdAtISO,

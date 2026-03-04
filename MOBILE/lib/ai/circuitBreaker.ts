@@ -75,6 +75,7 @@ export class CircuitOpenError extends Error {
  * Run an OpenAI-dependent operation through the circuit breaker.
  * Throws CircuitOpenError when circuit is open (caller should return 503).
  * Behaviour identical from caller perspective; state is now shared via Redis in production.
+ * Tracks success/failure counters and latency histogram for observability.
  */
 export async function runWithOpenAICircuit<T>(fn: () => Promise<T>): Promise<T> {
   const store = await getStore();
@@ -83,13 +84,18 @@ export async function runWithOpenAICircuit<T>(fn: () => Promise<T>): Promise<T> 
   if (open) {
     throw new CircuitOpenError(openUntil);
   }
+  const startMs = Date.now();
   try {
     const result = await fn();
     await store.recordSuccess(Date.now());
+    const { incrementOpenAISuccess, recordOpenAILatency } = await import("@/lib/security/observability");
+    incrementOpenAISuccess();
+    recordOpenAILatency(Date.now() - startMs);
     return result;
   } catch (err) {
-    const { incrementOpenAIFailure } = await import("@/lib/security/observability");
+    const { incrementOpenAIFailure, recordOpenAILatency } = await import("@/lib/security/observability");
     incrementOpenAIFailure();
+    recordOpenAILatency(Date.now() - startMs);
     await store.recordFailure(Date.now());
     throw err;
   }

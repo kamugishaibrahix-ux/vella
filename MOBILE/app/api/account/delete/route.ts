@@ -1,9 +1,10 @@
 import { NextResponse } from "next/server";
 import { supabaseAdmin, fromSafe } from "@/lib/supabase/admin";
 import { requireUserId } from "@/lib/supabase/server-auth";
-import { rateLimit, isRateLimitError, rateLimit429Response } from "@/lib/security/rateLimit";
+import { rateLimit, rateLimit429Response, rateLimit503Response } from "@/lib/security/rateLimit";
 
 const RATE_LIMIT_DELETE = { limit: 2, window: 600 };
+const ROUTE_KEY = "account_delete";
 
 export async function POST(request: Request) {
   if (!supabaseAdmin) {
@@ -14,18 +15,23 @@ export async function POST(request: Request) {
   if (userIdOr401 instanceof Response) return userIdOr401;
   const userId = userIdOr401;
 
-  try {
-    await rateLimit({ key: `account_delete:${userId}`, limit: RATE_LIMIT_DELETE.limit, window: RATE_LIMIT_DELETE.window });
-  } catch (err: unknown) {
-    if (isRateLimitError(err)) {
-      return rateLimit429Response(err.retryAfterSeconds);
+  const rateLimitResult = await rateLimit({
+    key: `account_delete:${userId}`,
+    limit: RATE_LIMIT_DELETE.limit,
+    window: RATE_LIMIT_DELETE.window,
+    routeKey: ROUTE_KEY,
+  });
+  if (!rateLimitResult.allowed) {
+    if (rateLimitResult.status === 503) {
+      return rateLimit503Response();
     }
-    throw err;
+    return rateLimit429Response(rateLimitResult.retryAfterSeconds);
   }
 
+  // Delete user data. Note: token_usage and token_topups are automatically
+  // deleted via ON DELETE CASCADE on the user_id foreign key when profile
+  // is deleted. The ledger write firewall blocks direct DML on these tables.
   const deleteOperations = [
-    { table: "token_usage", promise: fromSafe("token_usage").delete().eq("user_id", userId) },
-    { table: "token_topups", promise: fromSafe("token_topups").delete().eq("user_id", userId) },
     { table: "subscriptions", promise: fromSafe("subscriptions").delete().eq("user_id", userId) },
     { table: "user_preferences", promise: fromSafe("user_preferences").delete().eq("user_id", userId) },
     { table: "vella_settings", promise: fromSafe("vella_settings").delete().eq("user_id", userId) },

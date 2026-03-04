@@ -4,7 +4,6 @@ import { installLogGuardForTests } from "@/lib/security/logGuard";
 
 installLogGuardForTests();
 
-// Create a mock localStorage that persists across tests
 const localStorageMock = (() => {
   let store: Record<string, string> = {};
 
@@ -29,26 +28,31 @@ const localStorageMock = (() => {
   };
 })();
 
-// Mock window and localStorage before each test
+// Patch localStorage on the existing jsdom window — never replace global.window itself.
 beforeEach(() => {
   localStorageMock.clear();
   Object.defineProperty(window, "localStorage", {
     value: localStorageMock,
     writable: true,
-  });
-  Object.defineProperty(global, "window", {
-    value: { localStorage: localStorageMock },
-    writable: true,
+    configurable: true,
   });
 });
 
-// Mock crypto.randomUUID for ensureUserId
-Object.defineProperty(global, "crypto", {
-  value: {
-    randomUUID: () => {
-      return "test-uuid-" + Math.random().toString(36).substring(2, 15);
+// Patch only the missing randomUUID on the existing crypto object.
+if (typeof globalThis.crypto === "undefined") {
+  Object.defineProperty(globalThis, "crypto", {
+    value: {
+      randomUUID: () =>
+        "test-uuid-" + Math.random().toString(36).substring(2, 15),
     },
-  },
-  writable: true,
-});
-
+    writable: true,
+    configurable: true,
+  });
+} else if (typeof globalThis.crypto.randomUUID !== "function") {
+  Object.defineProperty(globalThis.crypto, "randomUUID", {
+    value: () =>
+      "test-uuid-" + Math.random().toString(36).substring(2, 15),
+    writable: true,
+    configurable: true,
+  });
+}

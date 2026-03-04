@@ -7,6 +7,9 @@
 import { NextResponse } from "next/server";
 import { requireAdminRole } from "@/lib/admin/requireAdminRole";
 import { fromSafe, supabaseAdmin } from "@/lib/supabase/admin";
+import { rateLimit, rateLimit429Response } from "@/lib/security/rateLimit";
+
+const RATE_LIMIT_ADMIN_READ = { limit: 60, window: 60 }; // 60 requests per minute
 
 export async function GET(
   _request: Request,
@@ -14,6 +17,18 @@ export async function GET(
 ) {
   const auth = await requireAdminRole();
   if (auth instanceof NextResponse) return auth;
+
+  // Phase 3.3: Rate limit with explicit policy (FAIL-OPEN - admin read)
+  const rateLimitResult = await rateLimit({
+    key: `admin_metadata:${auth.userId}`,
+    limit: RATE_LIMIT_ADMIN_READ.limit,
+    window: RATE_LIMIT_ADMIN_READ.window,
+    routeKey: "admin_metadata_write", // Note: This is a read, but uses write bucket for consistency
+  });
+  if (!rateLimitResult.allowed && rateLimitResult.status === 429) {
+    return rateLimit429Response(rateLimitResult.retryAfterSeconds);
+  }
+  // Note: 503 (Redis down with FAIL-OPEN) is allowed to proceed with fallback throttle
 
   if (!supabaseAdmin) {
     return NextResponse.json(
@@ -55,7 +70,6 @@ export async function GET(
       journal_count: journalCount,
     }, { status: 200 });
   } catch (err) {
-    console.error("[admin/user/metadata]", err);
     return NextResponse.json(
       { error: "server_error", code: "SERVER_ERROR" },
       { status: 500 }

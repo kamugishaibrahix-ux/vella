@@ -8,6 +8,7 @@ import type { PlanTier } from "@/lib/tiers/planUtils";
 import { getRecentMessages, getSummary } from "@/lib/memory/conversation";
 import { buildMemoryContext } from "@/lib/ai/memoryContext";
 import { retrieveTopK, formatMemoryContext } from "@/lib/memory/retrieve";
+import { getDefaultEntitlements } from "@/lib/plans/defaultEntitlements";
 import { updateConnectionDepth } from "@/lib/connection/depthEngine";
 import { buildPersonaInstruction } from "@/lib/realtime/personaSynth";
 import {
@@ -132,7 +133,8 @@ export async function callVellaReflectionAPI(payload: ReflectionPayload): Promis
       patternsSummary: payload.emotionalPatternsSummary ?? null,
     });
 
-    const paid = payload.planTier === "pro" || payload.planTier === "elite";
+    const _reflEnt = getDefaultEntitlements(payload.planTier);
+    const paid = _reflEnt.enableDeepDive;
     const queryForMemory = recentMessages.length > 0
       ? (recentMessages[recentMessages.length - 1]?.content ?? referenceText)
       : referenceText;

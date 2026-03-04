@@ -3,8 +3,18 @@
  * No UI logic here. Pure functions only.
  */
 
-import type { WeeklyContract, Rating, DailyCheckin, WeeklyState } from "./types";
+import type { WeeklyContract, ContractOrigin, Rating, DailyCheckin, WeeklyState } from "./types";
 import { MAX_TOTAL_CONTRACTS, getUserAllowed, validateAddContract } from "./limits";
+
+/**
+ * Migrate legacy contract origin at read boundary.
+ * Maps "vella" -> "system"; passes through valid origins unchanged.
+ */
+export function migrateContractOrigin(raw: string): ContractOrigin {
+  if (raw === "vella") return "system";
+  if (raw === "system" || raw === "user") return raw;
+  return "user";
+}
 
 /**
  * Generate ISO week key from date: "2026-W08"
@@ -71,9 +81,9 @@ export function countContracts(contracts: WeeklyContract[]): {
   userCount: number;
   totalCount: number;
 } {
-  const vellaCount = contracts.filter((c) => c.origin === "vella").length;
+  const systemCount = contracts.filter((c) => c.origin === "system").length;
   const userCount = contracts.filter((c) => c.origin === "user").length;
-  return { vellaCount, userCount, totalCount: vellaCount + userCount };
+  return { vellaCount: systemCount, userCount, totalCount: systemCount + userCount };
 }
 
 /**

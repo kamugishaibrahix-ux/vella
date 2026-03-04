@@ -1,16 +1,21 @@
 import { NextRequest, NextResponse } from "next/server";
-import { rateLimit, getClientIp, isRateLimitError, rateLimit429Response } from "@/lib/security/rateLimit";
+import { rateLimit, getClientIp, rateLimit429Response, rateLimit503Response } from "@/lib/security/rateLimit";
 
 /** Read-only tier (public): 60 req/60s per IP */
 const READ_LIMIT = { limit: 60, window: 60 };
+const ROUTE_KEY = "regulation_strategies";
 
 export async function GET(req: NextRequest) {
-  try {
-    const ip = getClientIp(req);
-    await rateLimit({ key: `ip:regulation_strategies:${ip}`, limit: READ_LIMIT.limit, window: READ_LIMIT.window });
-  } catch (err: unknown) {
-    if (isRateLimitError(err)) return rateLimit429Response(err.retryAfterSeconds);
-    throw err;
+  const ip = getClientIp(req);
+  const rateLimitResult = await rateLimit({
+    key: `ip:regulation_strategies:${ip}`,
+    limit: READ_LIMIT.limit,
+    window: READ_LIMIT.window,
+    routeKey: ROUTE_KEY,
+  });
+  if (!rateLimitResult.allowed) {
+    if (rateLimitResult.status === 503) return rateLimit503Response();
+    return rateLimit429Response(rateLimitResult.retryAfterSeconds);
   }
 
   const strategies = [

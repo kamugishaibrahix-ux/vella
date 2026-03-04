@@ -4,14 +4,16 @@ import { callVellaReflectionAPI, type ReflectionPayload } from "@/lib/ai/reflect
 import { updateLastActive } from "@/lib/memory/lastActive";
 import { resolveServerLocale, normalizeLocale } from "@/i18n/serverLocale";
 import type { UILanguageCode } from "@/i18n/types";
-import { rateLimit, isRateLimitError, rateLimit429Response } from "@/lib/security/rateLimit";
+import { rateLimit, rateLimit429Response, rateLimit503Response } from "@/lib/security/rateLimit";
 import { RATE_LIMIT_CONFIG } from "@/lib/security/rateLimit/config";
-import { checkTokenAvailability, chargeTokensForOperation } from "@/lib/tokens/enforceTokenLimits";
+import { checkTokenAvailability } from "@/lib/tokens/enforceTokenLimits";
+import { withMonetisedOperation } from "@/lib/tokens/withMonetisedOperation";
 import { quotaExceededResponse } from "@/lib/tokens/quotaExceededResponse";
-import { resolvePlanTier } from "@/lib/tiers/planUtils";
-import { requireUserId } from "@/lib/supabase/server-auth";
+import { estimateTokens } from "@/lib/tokens/costSchedule";
+import { requireEntitlement, isEntitlementBlocked } from "@/lib/plans/requireEntitlement";
 import { serverErrorResponse } from "@/lib/security/consistentErrors";
 import { safeErrorLog } from "@/lib/security/logGuard";
+import { assertNoPII, PIIFirewallError, piiBlockedJsonResponse } from "@/lib/security/piiFirewall";
 
 const reflectionBodySchema = z
   .object({
@@ -37,51 +39,109 @@ const reflectionBodySchema = z
   })
   .strict();
 
+/**
+ * PHASE SEAL HARDENING (20260240):
+ * This route processes personal text IN MEMORY ONLY.
+ * - Accepts reflection content (note, content, title, emotionalPatternsSummary)
+ * - Processes via callVellaReflectionAPI (AI analysis)
+ * - Text is NEVER stored in Supabase
+ * - Only token usage metadata is recorded
+ * - All personal text is cleared after processing
+ *
+ * ABORT-SAFE REFUND (20260301):
+ * Uses withMonetisedOperation wrapper to guarantee refund on client abort.
+ */
 export async function POST(req: NextRequest) {
-  const userIdOr401 = await requireUserId();
-  if (userIdOr401 instanceof Response) return userIdOr401;
-  const userId = userIdOr401;
+  // Step 1+2: Require entitlement (includes active user check; reflection is always allowed)
+  const entitlement = await requireEntitlement("reflection");
+  if (isEntitlementBlocked(entitlement)) return entitlement;
+  const { userId, plan } = entitlement;
 
-  try {
-    const { limit, window } = RATE_LIMIT_CONFIG.routes.reflection;
-    await rateLimit({ key: `reflection:${userId}`, limit, window });
+  // Step 3: Rate limit (must be before token operations)
+  const { limit, window } = RATE_LIMIT_CONFIG.routes.reflection;
+  const rateLimitResult = await rateLimit({ key: `reflection:${userId}`, limit, window, routeKey: "reflection" });
+  if (!rateLimitResult.allowed) {
+    if (rateLimitResult.status === 503) {
+      return rateLimit503Response("Rate limiting unavailable. Cannot process monetized requests.");
+    }
+    return rateLimit429Response(rateLimitResult.retryAfterSeconds);
+  }
 
-    const parsed = reflectionBodySchema.safeParse(await req.json().catch(() => ({})));
-    if (!parsed.success) {
-      return NextResponse.json({ error: "VALIDATION_ERROR" }, { status: 400 });
+  // Step 4: Request validation
+  const parsed = reflectionBodySchema.safeParse(await req.json().catch(() => ({})));
+  if (!parsed.success) {
+    return NextResponse.json({ error: "VALIDATION_ERROR" }, { status: 400 });
+  }
+  const payload = parsed.data;
+  const rawLocale = payload.locale ?? resolveServerLocale();
+  const locale = normalizeLocale(rawLocale) as UILanguageCode;
+
+  // Step 5: Estimate tokens and check availability (early 402)
+  const estimatedTokens = estimateTokens("reflection");
+  const tokenCheck = await checkTokenAvailability(userId, plan, estimatedTokens, "reflection", "text");
+  if (!tokenCheck.allowed) {
+    return quotaExceededResponse();
+  }
+
+  const type = (payload.type ?? "insight") as ReflectionPayload["type"];
+
+  // Step 6: ABORT-SAFE MONETISED OPERATION
+  // The wrapper guarantees refund if client aborts or any error occurs
+  const result = await withMonetisedOperation(
+    {
+      userId,
+      plan,
+      estimatedTokens,
+      operation: "reflection",
+      route: "reflection",
+      channel: "text",
+      featureKey: "reflection",
+      request: req,
+    },
+    async () => {
+      // OpenAI call (may throw or be aborted)
+      const apiResult = await callVellaReflectionAPI({ ...payload, type, userId, locale, planTier: plan } as ReflectionPayload);
+
+      // Check for error response
+      if (apiResult.type === "error") {
+        throw new Error("reflection_failed");
+      }
+
+      if (apiResult.type !== "ai_response") {
+        throw new Error("unexpected_result_type");
+      }
+
+      // Phase Seal: Verify no personal text in metadata (PII firewall)
+      try {
+        assertNoPII({ userId, tokens: estimatedTokens, feature: "reflection" }, "token_usage");
+      } catch (piiError) {
+        if (piiError instanceof PIIFirewallError) {
+          throw new Error("pii_firewall_violation");
+        }
+        throw piiError;
+      }
+
+      return apiResult;
     }
-    const payload = parsed.data;
-    const rawLocale = payload.locale ?? resolveServerLocale();
-    const locale = normalizeLocale(rawLocale) as UILanguageCode;
-    console.log("🌐 API /reflection - Detected locale:", locale, "(raw:", rawLocale, ")");
-    
-    // Extract planTier from payload or default to "free"
-    const planTier = resolvePlanTier(payload.planTier ?? null);
-    
-    const estimatedTokens = 4000;
-    const tokenCheck = await checkTokenAvailability(userId, planTier, estimatedTokens, "reflection", "text");
-    if (!tokenCheck.allowed) {
-      return quotaExceededResponse();
+  );
+
+  // Update last active (best effort)
+  await updateLastActive().catch(() => {});
+
+  // Handle operation result
+  if (!result.success) {
+    // Determine appropriate error response
+    const errorMsg = result.error?.toLowerCase() || "";
+
+    if (errorMsg.includes("pii_firewall")) {
+      return NextResponse.json(piiBlockedJsonResponse(), { status: 403 });
     }
-    
-    const type = (payload.type ?? "insight") as ReflectionPayload["type"];
-    const result = await callVellaReflectionAPI({ ...payload, type, userId, locale, planTier } as ReflectionPayload).catch(() => ({
-      type: "error" as const,
-      message: "I couldn't process that reflection just now. Please try again shortly.",
-    }));
-    
-    if (result.type === "ai_response") {
-      await chargeTokensForOperation(userId, planTier, estimatedTokens, "reflection", "reflection", "text");
-    }
-    
-    await updateLastActive().catch(() => {});
-    return NextResponse.json(result);
-  } catch (error) {
-    if (isRateLimitError(error)) {
-      return rateLimit429Response(error.retryAfterSeconds);
-    }
-    safeErrorLog("[api] reflection route error", error);
+
+    // Log error for monitoring (refund already handled by wrapper)
+    safeErrorLog("[reflection] operation failed", new Error(result.error));
     return serverErrorResponse();
   }
-}
 
+  // Success - return data
+  return NextResponse.json(result.data);
+}

@@ -23,34 +23,29 @@
   overflow: hidden;
 }
 
-/* —— Zone 1: Header (avatar + headline + heart) — DO NOT MODIFY —— */
+/* —— Zone 1: Header — 3-column grid layout — */
 .header {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 16px;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  padding: 0 16px;
   flex-shrink: 0;
 }
 
-.headerLeft {
+/* Vella cluster: Logo + Title + Date (LEFT COLUMN) */
+.vellaCluster {
   display: flex;
   align-items: center;
-  gap: 14px;
+  gap: 8px;
   min-width: 0;
 }
 
-.avatar {
-  width: 40px;
-  height: 40px;
-  border-radius: 9999px;
-  background: var(--vella-accent-soft);
-  display: grid;
-  place-items: center;
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--vella-primary);
+.logoImage {
+  width: 32px;
+  height: 32px;
+  object-fit: contain;
   flex-shrink: 0;
-  box-shadow: 0 2px 8px var(--vella-primary-muted);
+  border-radius: 12px;
 }
 
 .headerText {
@@ -67,37 +62,129 @@
 }
 
 .date {
-  margin-top: 10px;
-  font-size: 14px;
+  margin-top: 2px;
+  font-size: 13px;
   color: #8a8f93;
   margin-bottom: 0;
+  letter-spacing: 0.005em;
 }
 
-/* —— Heart connection indicator — DO NOT MODIFY —— */
-.heartConnection {
+/* Right actions: Inbox + Profile (RIGHT COLUMN) */
+.headerActions {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  flex-shrink: 0;
+  margin-left: 4px;
+}
+
+/* Center column: Heart (CENTER) */
+.stabilityCenter {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-right: 10px;
+}
+
+/* Inbox */
+.inboxLink {
+  flex-shrink: 0;
+  padding: 6px;
+  border-radius: 10px;
+  transition: background 0.2s ease;
+  display: grid;
+  place-items: center;
+}
+
+.inboxLink:hover {
+  background: rgba(0, 0, 0, 0.04);
+}
+
+/* Profile */
+.profileLink {
+  flex-shrink: 0;
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+}
+
+.profileLink:hover {
+  opacity: 0.8;
+}
+
+.avatar {
+  width: 34px;
+  height: 34px;
+  border-radius: 9999px;
+  background: var(--vella-accent-soft);
+  display: grid;
+  place-items: center;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--vella-primary);
+  flex-shrink: 0;
+  box-shadow: 0 1px 3px var(--vella-primary-muted);
+}
+
+/* —— Stability Indicator (heart) — */
+.stabilityIndicator {
   flex-shrink: 0;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 4px;
+  gap: 1px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  transition: transform 0.2s ease;
+}
+
+.stabilityIndicator:hover {
+  transform: scale(1.04);
+}
+
+.stabilityIndicator:active {
+  transform: scale(0.97);
 }
 
 .heartIconWrap {
-  width: 48px;
-  height: 48px;
+  width: 45px;
+  height: 45px;
   position: relative;
   flex-shrink: 0;
-  animation: heartBreathe 7s ease-in-out 1.2s infinite;
+  animation: heartBreathe 5s ease-in-out infinite;
+  filter: drop-shadow(0 1px 3px rgba(0,0,0,0.08));
 }
 
+/* Breathing: scale 1 → 1.02 → 1 over 5s */
 @keyframes heartBreathe {
-  0%,
-  100% {
-    filter: drop-shadow(0 0 0 rgba(46, 107, 95, 0));
+  0%, 30%, 100% {
+    transform: scale(1);
   }
-  50% {
-    filter: drop-shadow(0 0 10px var(--vella-primary-muted));
+  15% {
+    transform: scale(1.02);
   }
+}
+
+.heartGlow {
+  position: absolute;
+  inset: -3px;
+  border-radius: 50%;
+  pointer-events: none;
+  transition: background 0.4s ease;
+}
+
+/* Glass highlight — subtle top-left inner shine */
+.heartHighlight {
+  position: absolute;
+  top: 5px;
+  left: 6px;
+  width: 11px;
+  height: 8px;
+  border-radius: 50%;
+  background: radial-gradient(ellipse at 40% 30%, rgba(255,255,255,0.32) 0%, transparent 70%);
+  pointer-events: none;
+  z-index: 2;
 }
 
 .heartFill {
@@ -107,21 +194,11 @@
   bottom: 0;
   width: 100%;
   height: 0;
-  background: linear-gradient(180deg, #c5ddd8 0%, #b8d4ce 100%);
   mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='white' d='M12 20.2l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 10.38L12 20.2z'/%3E%3C/svg%3E");
   mask-size: 100% 100%;
   mask-position: bottom;
   mask-repeat: no-repeat;
-  animation: heartFillRise 1s ease-out 0.2s forwards;
-}
-
-@keyframes heartFillRise {
-  from {
-    height: 0%;
-  }
-  to {
-    height: var(--heart-fill, 60%);
-  }
+  transition: height 0.6s ease-out, opacity 0.3s ease;
 }
 
 .heartSvg {
@@ -136,20 +213,32 @@
 .heartOutline {
   width: 100%;
   height: 100%;
+  transition: stroke 0.3s ease;
 }
 
 .heartPercent {
   font-size: 14px;
   font-weight: 700;
-  color: #1E1D1B;
   letter-spacing: -0.02em;
+  transition: color 0.3s ease;
+  line-height: 1.1;
 }
 
 .heartLabel {
-  font-size: 11px;
+  font-size: 10px;
   color: #8a8f93;
   font-weight: 500;
   letter-spacing: 0.02em;
+  line-height: 1.2;
+}
+
+.liveSystemMeta {
+  font-size: 9px;
+  color: #9B9A96;
+  font-weight: 400;
+  letter-spacing: 0.01em;
+  line-height: 1.3;
+  margin-top: 2px;
 }
 
 /* —— Zone 2: Scrollable body below header —— */

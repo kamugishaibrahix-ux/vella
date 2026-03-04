@@ -1,8 +1,8 @@
 import { NextResponse } from "next/server";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
-import { isAdminBypassActive } from "@/lib/auth/devBypass";
 import { rateLimitAdmin, isRateLimitError, rateLimit429Response } from "@/lib/security/rateLimit";
 import { getAdminUserId } from "@/lib/auth/requireAdmin";
+import { isAdminRole } from "@/lib/auth/adminRoles";
 
 export async function GET(request: Request) {
   try {
@@ -15,23 +15,6 @@ export async function GET(request: Request) {
     throw err;
   }
 
-  // Dev bypass: return fake admin user if bypass is active
-  if (isAdminBypassActive()) {
-    return NextResponse.json(
-      {
-        success: true,
-        user: {
-          id: "dev-admin",
-          email: "dev-admin@example.com",
-          is_admin: true,
-          name: "Dev Admin",
-        },
-      },
-      { status: 200 }
-    );
-  }
-
-  // Production or dev without bypass: use real Supabase auth
   try {
     const supabase = createServerSupabaseClient();
     const {
@@ -43,12 +26,15 @@ export async function GET(request: Request) {
       return NextResponse.json({ success: false, user: null }, { status: 401 });
     }
 
+    const role = (user.app_metadata as { role?: string } | undefined)?.role;
+    const isAdmin = isAdminRole(role);
+
     return NextResponse.json({
       success: true,
       user: {
         id: user.id,
         email: user.email,
-        is_admin: user.user_metadata?.is_admin === true,
+        role: isAdmin ? role : null,
       },
     });
   } catch (error) {
@@ -56,4 +42,3 @@ export async function GET(request: Request) {
     return NextResponse.json({ success: false, user: null }, { status: 500 });
   }
 }
-

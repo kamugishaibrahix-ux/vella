@@ -49,12 +49,23 @@ export async function POST(request: Request) {
       throw updateError;
     }
 
-    await supabase.from("admin_activity_log").insert({
+    const { error: logError } = await supabase.from("admin_activity_log").insert({
       admin_id: ADMIN_ACTOR_ID,
       action: "users.flag-review",
+      target_user_id: payload.user_id,
       previous: { flagged_for_review: user.flagged_for_review },
       next: { flagged_for_review: payload.flagged },
+      metadata: {
+        admin_ip: request.headers.get("x-forwarded-for") || "unknown",
+        user_agent: request.headers.get("user-agent") || "unknown",
+        request_id: crypto.randomUUID(),
+        timestamp: new Date().toISOString(),
+      },
     });
+
+    if (logError) {
+      console.warn("[users/flag-review] Failed to write audit log:", logError);
+    }
 
     return NextResponse.json({ success: true });
   } catch (error) {

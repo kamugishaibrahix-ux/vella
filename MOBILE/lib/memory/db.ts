@@ -1,7 +1,8 @@
 /**
- * Phase 6C: Memory chunks DB layer. Server-only.
+ * Phase 6C + Phase 1: Memory chunks DB layer. Server-only.
  * Uses fromSafe (RLS applies for user context); admin for service-key jobs.
- * Phase 0: Writes go through safeUpsert/safeUpdate; memory_chunks is write-blocked, so these throw SafeDataError and callers return 409.
+ * Phase 1: memory_chunks unblocked - stores embeddings (vectors only), content remains local.
+ * NEVER stores raw content (content column always empty string per local-first contract).
  */
 
 import { fromSafe, supabaseAdmin } from "@/lib/supabase/admin";

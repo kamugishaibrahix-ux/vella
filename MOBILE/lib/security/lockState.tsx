@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useEffect, useState, useCallback, type ReactNode } from "react";
+import { createContext, useContext, useEffect, useState, useCallback, useRef, type ReactNode } from "react";
 
 // Storage keys
 const STORAGE_KEY_ENABLED = "vella.lock.enabled";
@@ -10,7 +10,13 @@ const STORAGE_KEY_LAST_UNLOCK = "vella.lock.lastUnlock";
 const STORAGE_KEY_REQUIRE_AFTER = "vella.lock.requireAfterMinutes";
 
 // Default values
-const DEFAULT_REQUIRE_AFTER_MINUTES = 0;
+const DEFAULT_REQUIRE_AFTER_MINUTES = 5;
+
+// Inactivity check interval (ms)
+const INACTIVITY_CHECK_INTERVAL_MS = 10_000;
+
+// Throttle activity recording (ms)
+const ACTIVITY_THROTTLE_MS = 2_000;
 
 // Helper: Check if window/localStorage is available
 function hasStorage(): boolean {
@@ -122,6 +128,13 @@ export function LockProvider({ children }: { children: ReactNode }) {
   const [lastUnlock, setLastUnlockState] = useState<Date | null>(null);
   const [initializing, setInitializing] = useState<boolean>(true);
 
+  // Refs for lifecycle/inactivity (avoid stale closure issues)
+  const enabledRef = useRef<boolean>(false);
+  const lockedRef = useRef<boolean>(false);
+  const requireAfterMinutesRef = useRef<number>(DEFAULT_REQUIRE_AFTER_MINUTES);
+  const lastActivityRef = useRef<number>(Date.now());
+  const lastActivityThrottleRef = useRef<number>(0);
+
   // Load state from storage
   const loadState = useCallback(() => {
     if (!hasStorage()) {
@@ -177,10 +190,87 @@ export function LockProvider({ children }: { children: ReactNode }) {
     setInitializing(false);
   }, []);
 
+  // Keep refs in sync with state for use in event handlers / intervals
+  useEffect(() => { enabledRef.current = enabled; }, [enabled]);
+  useEffect(() => { lockedRef.current = locked; }, [locked]);
+  useEffect(() => { requireAfterMinutesRef.current = requireAfterMinutes; }, [requireAfterMinutes]);
+
   // Initialize on mount
   useEffect(() => {
     loadState();
   }, [loadState]);
+
+  // ── Auto-lock lifecycle + inactivity ──────────────────────────────────────
+  const lockIfEnabled = useCallback(() => {
+    if (!enabledRef.current) return;
+    const hash = readStorage(STORAGE_KEY_HASH);
+    const salt = readStorage(STORAGE_KEY_SALT);
+    if (hash && salt) {
+      writeStorage(STORAGE_KEY_LAST_UNLOCK, "");
+      setLastUnlockState(null);
+      setLocked(true);
+    }
+  }, []);
+
+  // Activity recorder — throttled, does NOT run while locked
+  const recordActivity = useCallback(() => {
+    if (lockedRef.current) return;
+    const now = Date.now();
+    if (now - lastActivityThrottleRef.current < ACTIVITY_THROTTLE_MS) return;
+    lastActivityThrottleRef.current = now;
+    lastActivityRef.current = now;
+  }, []);
+
+  // Lifecycle events: lock on background/close
+  useEffect(() => {
+    const handleVisibility = () => {
+      if (document.hidden) lockIfEnabled();
+    };
+    const handlePageHide = () => lockIfEnabled();
+    const handleBeforeUnload = () => lockIfEnabled();
+
+    document.addEventListener("visibilitychange", handleVisibility);
+    window.addEventListener("pagehide", handlePageHide);
+    window.addEventListener("beforeunload", handleBeforeUnload);
+
+    return () => {
+      document.removeEventListener("visibilitychange", handleVisibility);
+      window.removeEventListener("pagehide", handlePageHide);
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+    };
+  }, [lockIfEnabled]);
+
+  // Activity event listeners
+  useEffect(() => {
+    window.addEventListener("pointerdown", recordActivity, { passive: true });
+    window.addEventListener("keydown", recordActivity, { passive: true });
+    window.addEventListener("touchstart", recordActivity, { passive: true });
+    window.addEventListener("scroll", recordActivity, { passive: true });
+
+    return () => {
+      window.removeEventListener("pointerdown", recordActivity);
+      window.removeEventListener("keydown", recordActivity);
+      window.removeEventListener("touchstart", recordActivity);
+      window.removeEventListener("scroll", recordActivity);
+    };
+  }, [recordActivity]);
+
+  // Inactivity timeout interval
+  useEffect(() => {
+    const interval = setInterval(() => {
+      if (!enabledRef.current) return;
+      if (lockedRef.current) return;
+      const minutes = requireAfterMinutesRef.current;
+      if (minutes === 0) return; // 0 = lock immediately on every open (handled elsewhere)
+      const idleMs = Date.now() - lastActivityRef.current;
+      if (idleMs > minutes * 60_000) {
+        lockIfEnabled();
+      }
+    }, INACTIVITY_CHECK_INTERVAL_MS);
+
+    return () => clearInterval(interval);
+  }, [lockIfEnabled]);
+  // ────────────────────────────────────────────────────────────────────────────
 
   // setEnabled
   const setEnabled = useCallback(
@@ -226,9 +316,10 @@ export function LockProvider({ children }: { children: ReactNode }) {
       writeStorage(STORAGE_KEY_ENABLED, "true");
       setEnabledState(true);
 
-      // Unlock after setting passcode
+      // Unlock immediately after setting passcode; reset activity timer
       const now = Date.now();
       writeStorage(STORAGE_KEY_LAST_UNLOCK, String(now));
+      lastActivityRef.current = now;
       setLastUnlockState(new Date(now));
       setLocked(false);
     },
@@ -259,6 +350,7 @@ export function LockProvider({ children }: { children: ReactNode }) {
           const now = Date.now();
           writeStorage(STORAGE_KEY_LAST_UNLOCK, String(now));
           setLastUnlockState(new Date(now));
+          lastActivityRef.current = now;
           setLocked(false);
           return true;
         }
@@ -273,10 +365,11 @@ export function LockProvider({ children }: { children: ReactNode }) {
   // unlockWithBiometric
   const unlockWithBiometric = useCallback(async () => {
     // Treat biometric unlock as trusted
-    const now = new Date();
+    const now = Date.now();
+    writeStorage(STORAGE_KEY_LAST_UNLOCK, String(now));
+    lastActivityRef.current = now;
+    setLastUnlockState(new Date(now));
     setLocked(false);
-    setLastUnlockState(now);
-    writeStorage(STORAGE_KEY_LAST_UNLOCK, String(now.getTime()));
   }, []);
 
   // lock
@@ -286,6 +379,8 @@ export function LockProvider({ children }: { children: ReactNode }) {
     const storedSalt = readStorage(STORAGE_KEY_SALT);
 
     if (storedEnabled && storedHash && storedSalt) {
+      writeStorage(STORAGE_KEY_LAST_UNLOCK, "");
+      setLastUnlockState(null);
       setLocked(true);
     }
   }, []);

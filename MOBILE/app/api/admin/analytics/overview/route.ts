@@ -59,7 +59,6 @@ export async function GET() {
       crisis_mode_count,
     }, { status: 200 });
   } catch (err) {
-    console.error("[admin/analytics/overview]", err);
     return NextResponse.json(
       { error: "server_error", code: "SERVER_ERROR" },
       { status: 500 }

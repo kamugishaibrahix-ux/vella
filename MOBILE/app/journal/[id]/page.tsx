@@ -23,16 +23,20 @@ export default function JournalEntryPage() {
   const [editContent, setEditContent] = useState("");
   const [isSaving, setIsSaving] = useState(false);
 
-  // Fetch entry
+  // LOCAL-FIRST: read entry from local store
   useEffect(() => {
-    const fetchEntry = async () => {
+    const loadEntry = async () => {
       try {
-        const res = await fetch("/api/journal");
-        if (!res.ok) throw new Error("Failed to fetch");
-        const data = await res.json();
-        const found = data.entries?.find((e: JournalEntry) => e.id === entryId);
+        const { getLocalJournal } = await import("@/lib/local/journalLocal");
+        const found = getLocalJournal(undefined, entryId);
         if (found) {
-          setEntry(found);
+          setEntry({
+            id: found.id,
+            title: found.title,
+            content: found.content,
+            createdAt: found.createdAt,
+            updatedAt: found.updatedAt,
+          });
           setEditContent(found.content);
         }
       } catch {
@@ -42,7 +46,7 @@ export default function JournalEntryPage() {
       }
     };
 
-    fetchEntry();
+    loadEntry();
   }, [entryId]);
 
   const handleSave = useCallback(async () => {
@@ -50,20 +54,29 @@ export default function JournalEntryPage() {
     setIsSaving(true);
 
     try {
-      const res = await fetch("/api/journal", {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          id: entry.id,
-          text: editContent,
-          processingMode: "private",
-        }),
+      // LOCAL-FIRST: update text locally, sync metadata to server
+      const { updateLocalJournal } = await import("@/lib/local/journalLocal");
+      const result = await updateLocalJournal(undefined, entry.id, {
+        content: editContent,
+        processingMode: "private",
       });
 
-      if (res.ok) {
-        const data = await res.json();
-        setEntry(data.entry);
+      if (result) {
+        setEntry({
+          id: result.entry.id,
+          title: result.entry.title,
+          content: result.entry.content,
+          createdAt: result.entry.createdAt,
+          updatedAt: result.entry.updatedAt,
+        });
         setIsEditing(false);
+
+        // Sync metadata to server (no text, no title)
+        await fetch("/api/journal", {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(result.meta),
+        });
       }
     } finally {
       setIsSaving(false);

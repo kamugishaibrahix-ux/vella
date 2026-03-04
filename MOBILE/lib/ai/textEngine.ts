@@ -1,4 +1,5 @@
 import OpenAI from "openai";
+import { createChatCompletion } from "./safeOpenAI";
 import { computePersonaHash } from "@/lib/utils/personaHash";
 import type { VellaMode } from "@/lib/ai/modes";
 
@@ -18,6 +19,7 @@ const client = process.env.OPENAI_API_KEY
 
 export type VellaTextCompletionContext = {
   mode: VellaMode;
+  maxTokens?: number;
 };
 
 /** Build system instruction for current mode. Not logged or stored. */
@@ -57,11 +59,13 @@ export async function runVellaTextCompletion(
     void logPromptSignature(userId, personaHash, "text");
   }
 
-  const chat = await client.chat.completions.create({
+  const chat = await createChatCompletion({
+    client,
     model: "gpt-4o-mini",
     messages,
-    max_tokens: 500,
+    max_tokens: context?.maxTokens ?? 500,
     temperature: 0.8,
+    timeoutMs: 60_000,
   });
 
   let assistantMessage = chat.choices[0].message.content ?? "";

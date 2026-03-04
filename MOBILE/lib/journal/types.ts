@@ -1,26 +1,11 @@
-import type { LocalJournalEntry } from "@/lib/local/journalLocal";
-
-export type JournalEntryRecord = LocalJournalEntry & {
-  summary?: string | null;
-  emotion_tags?: string[] | null;
-  themes?: string[] | null;
-  loops?: string[] | null;
-  distortions?: string[] | null;
-  traits?: string[] | null;
-  follow_up_questions?: string[] | null;
-  micro_insights?: string[] | null;
-  enrichment_status?: "pending" | "failed" | "completed";
-};
-
-export type EnrichedJournalEntry = JournalEntryRecord & {
-  tags: string[];
-  themes: string[];
-  loops: string[];
-  distortions: string[];
-  traits: string[];
-  questions: string[];
-  microInsights: string[];
-  enrichment_status: "pending" | "failed" | "completed";
+/** Server-side record — metadata only, no text/title. */
+export type JournalEntryRecord = {
+  id: string;
+  createdAt: string;
+  updatedAt: string;
+  wordCount?: number;
+  localHash?: string;
+  processingMode?: string;
 };
 
 export function deriveJournalTitle(content?: string | null): string | null {

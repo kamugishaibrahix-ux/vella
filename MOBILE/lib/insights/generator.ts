@@ -1,6 +1,7 @@
 import type { DailyCheckIn, MemoryProfile } from "@/lib/memory/types";
 import type { InsightCardData } from "./types";
 import type { UILanguageCode } from "@/i18n/types";
+import { UnknownTierError, isValidPlanTier } from "@/lib/plans/defaultEntitlements";
 
 export function summarizeEmotionalThemes(patterns: MemoryProfile["emotionalPatterns"]): string | null {
   const primary = patterns.commonPrimaryEmotions.slice(0, 3);
@@ -111,8 +112,7 @@ export function buildLiteInsights(checkins: DailyCheckIn[]): InsightCardData[] {
 export function mapPlan(plan: string | undefined | null): "free" | "pro" | "elite" {
   if (!plan) return "free";
   const normalized = plan.trim().toLowerCase();
-  if (normalized === "elite") return "elite";
-  if (normalized === "pro") return "pro";
-  return "free";
+  if (isValidPlanTier(normalized)) return normalized;
+  throw new UnknownTierError(normalized, "mapPlan");
 }
 

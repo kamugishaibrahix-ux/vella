@@ -1,54 +1,32 @@
-import type { PlanTier } from "@/lib/tiers/planUtils";
+/**
+ * @deprecated Use lib/plans/capabilities.ts instead.
+ *
+ * HARDENING: The tier-string shim has been removed.
+ * Callers MUST pass capabilities; no tier-string fallback.
+ */
 
-export function injectTierReasoning(tier: PlanTier | string): string {
-  if (tier === "free") {
-    return `
-You are Vella's free-tier assistant.
-You MUST give helpful, simple, friendly explanations.
-Keep responses short BUT meaningful.
-Provide practical, common-sense reasoning.
-Avoid saying “I cannot help” or “consult a professional” unless the user expresses clear self-harm, harm to others, or medical emergency.
-Avoid deep psychological analysis (reserved for Pro/Elite).
-Avoid pro/elite-only insights, but always give real value.
-Do NOT repeat phrases. Keep tone warm and natural.
-`.trim();
+import type { Capabilities } from "@/lib/plans/capabilities";
+import { injectCapabilityReasoning, getCapabilities } from "@/lib/plans/capabilities";
+import { getDefaultEntitlements, isValidPlanTier } from "@/lib/plans/defaultEntitlements";
+
+/**
+ * @deprecated Use injectCapabilityReasoning(getCapabilities(entitlements)) directly.
+ *
+ * If capabilities are provided, uses them. Otherwise resolves from entitlements
+ * using the entitlement-based path (no tier-string logic).
+ */
+export function injectTierReasoning(
+  tier: "free" | "pro" | "elite" | string,
+  capabilities?: Capabilities
+): string {
+  if (capabilities) {
+    return injectCapabilityReasoning(capabilities);
   }
 
-  if (tier === "pro") {
-    return `
-You are operating in PRO MODE.
-Provide:
-- Deeper emotional analysis
-- Patterns and small insights
-- Light loops, themes, and distortions
-- Some personalised guidance
-- Medium-length reasoning
-Avoid:
-- Advanced behavioural looping
-- Full growth roadmap
-- Deep forecasting
-`.trim();
+  if (!isValidPlanTier(tier)) {
+    return injectCapabilityReasoning(getCapabilities(getDefaultEntitlements("free")));
   }
 
-  if (tier === "elite") {
-    return `
-You are operating in ELITE MODE.
-Provide FULL INTELLIGENCE:
-- Patterns
-- Themes
-- Distortions
-- Behaviour loops
-- Traits
-- Goals (life + focus)
-- Strategies
-- Forecasts
-- Growth roadmap integration
-- Deep, structured reasoning
-- Behavioural insights + CBT layered guidance
-Do not limit depth.
-`.trim();
-  }
-
-  return "";
+  const entitlements = getDefaultEntitlements(tier);
+  return injectCapabilityReasoning(getCapabilities(entitlements));
 }
-

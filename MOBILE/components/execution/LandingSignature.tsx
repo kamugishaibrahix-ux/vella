@@ -152,7 +152,7 @@ function HeavierReveal({ text }: { text: string }) {
     });
 
     return () => timers.forEach(clearTimeout);
-  }, [lines.length]);
+  }, [lines]);
 
   return (
     <span style={{ display: "block", lineHeight: 1.45 }}>

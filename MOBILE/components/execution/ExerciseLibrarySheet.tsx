@@ -107,10 +107,11 @@ export function ExerciseLibrarySheet({
         style={{
           background: T.bg,
           borderRadius: "16px 16px 0 0",
-          maxHeight: "85vh",
           maxWidth: 480,
-          margin: "0 auto",
           width: "100%",
+          margin: "0 auto",
+          height: "100dvh",
+          overflow: "hidden",
           display: "flex",
           flexDirection: "column",
           animation: "slideUp 0.25s ease-out",

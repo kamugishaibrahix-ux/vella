@@ -6,6 +6,7 @@
 
 import { logTokenUsage } from "@/lib/tokens/logTokenUsage";
 import type { PlanTier } from "@/lib/tiers/planUtils";
+import { getDefaultEntitlements } from "@/lib/plans/defaultEntitlements";
 import { loadLocal } from "@/lib/local/storage";
 import { getCounterState } from "@/lib/budget/counterEngine";
 
@@ -28,24 +29,13 @@ export interface BudgetState {
 }
 
 export function getBudgetLimitsForPlan(plan: PlanTier): BudgetLimits {
-  switch (plan) {
-    case "elite":
-      return {
-        textTokensPerMonth: 1_000_000,
-        realtimeSecondsPerMonth: 18_000,
-      };
-    case "pro":
-      return {
-        textTokensPerMonth: 300_000,
-        realtimeSecondsPerMonth: 3_600,
-      };
-    case "free":
-    default:
-      return {
-        textTokensPerMonth: 50_000,
-        realtimeSecondsPerMonth: 0,
-      };
-  }
+  const entitlements = getDefaultEntitlements(plan);
+  return {
+    textTokensPerMonth: entitlements.maxMonthlyTokens,
+    realtimeSecondsPerMonth: entitlements.enableRealtime
+      ? (entitlements.enableDeepInsights ? 18_000 : 3_600)
+      : 0,
+  };
 }
 
 const APPROX_REALTIME_TOKENS_PER_SECOND = 20;
@@ -98,7 +88,7 @@ export async function recordUsage(userId: string, record: UsageRecord): Promise<
       userId,
       tokens,
       event: `usage:${record.channel}${record.route ? `:${record.route}` : ""}`,
-      fromAllocation: record.plan !== "free",
+      fromAllocation: getDefaultEntitlements(record.plan).usesAllocationBucket,
       // Pass structured fields for counter engine
       channel: record.channel,
       textTokens: record.textTokens,

@@ -1,11 +1,14 @@
 import { NextResponse } from "next/server";
 import { supabaseAdmin, fromSafe } from "@/lib/supabase/admin";
+import { safeDbCall, isDbUnavailableError, dbUnavailableResponse } from "@/lib/server/safeDbCall";
 import { requireUserId } from "@/lib/supabase/server-auth";
-import { rateLimit, isRateLimitError, rateLimit429Response } from "@/lib/security/rateLimit";
+import { rateLimit, rateLimit429Response, rateLimit503Response } from "@/lib/security/rateLimit";
 
 const RATE_LIMIT_EXPORT = { limit: 5, window: 300 };
+const ROUTE_KEY = "account_export";
 
 export async function POST(request: Request) {
+  try {
   if (!supabaseAdmin) {
     return NextResponse.json({ error: "Supabase admin client not configured." }, { status: 500 });
   }
@@ -14,40 +17,48 @@ export async function POST(request: Request) {
   if (userIdOr401 instanceof Response) return userIdOr401;
   const userId = userIdOr401;
 
-  try {
-    await rateLimit({ key: `account_export:${userId}`, limit: RATE_LIMIT_EXPORT.limit, window: RATE_LIMIT_EXPORT.window });
-  } catch (err: unknown) {
-    if (isRateLimitError(err)) {
-      return rateLimit429Response(err.retryAfterSeconds);
+  const rateLimitResult = await rateLimit({
+    key: `account_export:${userId}`,
+    limit: RATE_LIMIT_EXPORT.limit,
+    window: RATE_LIMIT_EXPORT.window,
+    routeKey: ROUTE_KEY,
+  });
+  if (!rateLimitResult.allowed) {
+    if (rateLimitResult.status === 503) {
+      return rateLimit503Response();
     }
-    throw err;
+    return rateLimit429Response(rateLimitResult.retryAfterSeconds);
   }
 
-  const [profile, subscriptions, vella, preferences, usage, topups] = await Promise.all([
-    fromSafe("profiles")
-      .select("id, display_name, created_at, avatar_url")
-      .eq("id", userId)
-      .maybeSingle(),
-    fromSafe("subscriptions")
-      .select("id, user_id, plan, monthly_token_allocation, created_at")
-      .eq("user_id", userId),
-    fromSafe("vella_settings")
-      .select("user_id, voice_model, tone_style, relationship_mode, voice_hud")
-      .eq("user_id", userId)
-      .maybeSingle(),
-    fromSafe("user_preferences")
-      .select("user_id, notifications_enabled, created_at")
-      .eq("user_id", userId)
-      .maybeSingle(),
-    fromSafe("token_usage")
-      .select("id, user_id, tokens, from_allocation, created_at")
-      .eq("user_id", userId)
-      .limit(200),
-    fromSafe("token_topups")
-      .select("id, user_id, amount, created_at, purchased")
-      .eq("user_id", userId)
-      .limit(200),
-  ]);
+  const [profile, subscriptions, vella, preferences, usage, topups] = await safeDbCall(
+    () =>
+      Promise.all([
+        fromSafe("profiles")
+          .select("id, display_name, created_at, avatar_url")
+          .eq("id", userId)
+          .maybeSingle(),
+        fromSafe("subscriptions")
+          .select("id, user_id, plan, monthly_token_allocation, created_at")
+          .eq("user_id", userId),
+        fromSafe("vella_settings")
+          .select("user_id, voice_model, tone_style, relationship_mode, voice_hud")
+          .eq("user_id", userId)
+          .maybeSingle(),
+        fromSafe("user_preferences")
+          .select("user_id, notifications_enabled, created_at")
+          .eq("user_id", userId)
+          .maybeSingle(),
+        fromSafe("token_usage")
+          .select("id, user_id, tokens, from_allocation, created_at")
+          .eq("user_id", userId)
+          .limit(200),
+        fromSafe("token_topups")
+          .select("id, user_id, amount, created_at, purchased")
+          .eq("user_id", userId)
+          .limit(200),
+      ]),
+    { route: "account_export", operation: "export" },
+  );
 
   const profileData = unwrapResponse<Record<string, unknown> | null>(profile, "profiles", null);
   const subscriptionsData = unwrapResponse<any[]>(subscriptions, "subscriptions", []);
@@ -73,6 +84,10 @@ export async function POST(request: Request) {
       "Content-Disposition": `attachment; filename="vella-account-${userId}.json"`,
     },
   });
+  } catch (e) {
+    if (isDbUnavailableError(e)) return dbUnavailableResponse();
+    throw e;
+  }
 }
 
 function unwrapResponse<T>(

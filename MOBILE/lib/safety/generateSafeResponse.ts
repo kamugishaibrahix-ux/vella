@@ -17,7 +17,6 @@ export async function generateSafeResponse(text: string | null | undefined): Pro
       system: SAFE_SYSTEM_PROMPT,
       temperature: 0.2,
       messages: [{ role: "user", content }],
-      tier: "elite",
     });
     return (
       result?.trim() ??

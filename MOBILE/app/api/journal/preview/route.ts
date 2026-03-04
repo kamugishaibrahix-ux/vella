@@ -6,7 +6,7 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import { requireUserId } from "@/lib/supabase/server-auth";
-import { rateLimit, isRateLimitError, rateLimit429Response } from "@/lib/security/rateLimit";
+import { rateLimit, rateLimit429Response, rateLimit503Response } from "@/lib/security/rateLimit";
 import { validationErrorResponse, formatZodError } from "@/lib/security/validationErrors";
 import { serverErrorResponse } from "@/lib/security/consistentErrors";
 import { safeErrorLog } from "@/lib/security/logGuard";
@@ -21,20 +21,21 @@ const PREVIEW_SCHEMA = z.object({
 });
 
 const PREVIEW_RATE_LIMIT = { limit: 30, window: 60 };
+const ROUTE_KEY = "journal_preview";
 
 export async function POST(req: NextRequest) {
   const userIdOr401 = await requireUserId();
   if (userIdOr401 instanceof Response) return userIdOr401;
 
-  try {
-    await rateLimit({
-      key: `journal_preview:${userIdOr401}`,
-      limit: PREVIEW_RATE_LIMIT.limit,
-      window: PREVIEW_RATE_LIMIT.window,
-    });
-  } catch (err: unknown) {
-    if (isRateLimitError(err)) return rateLimit429Response(err.retryAfterSeconds);
-    throw err;
+  const rateLimitResult = await rateLimit({
+    key: `journal_preview:${userIdOr401}`,
+    limit: PREVIEW_RATE_LIMIT.limit,
+    window: PREVIEW_RATE_LIMIT.window,
+    routeKey: ROUTE_KEY,
+  });
+  if (!rateLimitResult.allowed) {
+    if (rateLimitResult.status === 503) return rateLimit503Response();
+    return rateLimit429Response(rateLimitResult.retryAfterSeconds);
   }
 
   try {

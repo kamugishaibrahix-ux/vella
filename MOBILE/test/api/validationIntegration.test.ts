@@ -36,19 +36,23 @@ vi.mock("@/lib/ai/agents", () => ({
   runClarityEngine: vi.fn().mockResolvedValue({ result: "clarity output" }),
 }));
 
-// Mock journal functions
+// Mock journal functions (metadata-only)
 vi.mock("@/lib/journal/server", () => ({
-  createJournalEntry: vi.fn().mockResolvedValue({
+  createJournalMeta: vi.fn().mockResolvedValue({
     id: "entry-123",
-    user_id: "test-user-id",
-    content: "Test entry",
-    created_at: new Date().toISOString(),
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+    wordCount: 5,
+    localHash: "a".repeat(64),
+    processingMode: "private",
   }),
-  updateJournalEntry: vi.fn().mockResolvedValue({
+  updateJournalMeta: vi.fn().mockResolvedValue({
     id: "entry-123",
-    user_id: "test-user-id",
-    content: "Updated entry",
-    created_at: new Date().toISOString(),
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+    wordCount: 5,
+    localHash: "a".repeat(64),
+    processingMode: "private",
   }),
 }));
 
@@ -147,11 +151,57 @@ describe("API Route Validation Integration", () => {
     });
   });
 
-  describe("POST /api/journal", () => {
-    it("rejects oversized text (over 10000 chars)", async () => {
+  describe("POST /api/journal (metadata-only)", () => {
+    const validMeta = {
+      id: "a0000000-0000-4000-8000-000000000001",
+      word_count: 5,
+      local_hash: "a".repeat(64),
+      processing_mode: "private" as const,
+    };
+
+    it("rejects payload containing text field (TEXT_NOT_ALLOWED)", async () => {
       const req = new NextRequest("http://localhost:3000/api/journal", {
         method: "POST",
-        body: JSON.stringify({ text: "a".repeat(10001) }),
+        body: JSON.stringify({ ...validMeta, text: "smuggled text" }),
+        headers: { "Content-Type": "application/json" },
+      });
+
+      const response = await journalPOST(req);
+      expect(response.status).toBe(400);
+      const json = await response.json();
+      expect(json.error.code).toBe("TEXT_NOT_ALLOWED");
+    });
+
+    it("rejects payload containing title field (TEXT_NOT_ALLOWED)", async () => {
+      const req = new NextRequest("http://localhost:3000/api/journal", {
+        method: "POST",
+        body: JSON.stringify({ ...validMeta, title: "smuggled title" }),
+        headers: { "Content-Type": "application/json" },
+      });
+
+      const response = await journalPOST(req);
+      expect(response.status).toBe(400);
+      const json = await response.json();
+      expect(json.error.code).toBe("TEXT_NOT_ALLOWED");
+    });
+
+    it("rejects payload containing content field (TEXT_NOT_ALLOWED)", async () => {
+      const req = new NextRequest("http://localhost:3000/api/journal", {
+        method: "POST",
+        body: JSON.stringify({ ...validMeta, content: "smuggled content" }),
+        headers: { "Content-Type": "application/json" },
+      });
+
+      const response = await journalPOST(req);
+      expect(response.status).toBe(400);
+      const json = await response.json();
+      expect(json.error.code).toBe("TEXT_NOT_ALLOWED");
+    });
+
+    it("rejects unknown fields (strict schema)", async () => {
+      const req = new NextRequest("http://localhost:3000/api/journal", {
+        method: "POST",
+        body: JSON.stringify({ ...validMeta, unknownField: "should be rejected" }),
         headers: { "Content-Type": "application/json" },
       });
 
@@ -161,45 +211,10 @@ describe("API Route Validation Integration", () => {
       expect(json.code).toBe("VALIDATION_ERROR");
     });
 
-    it("rejects oversized title (over 200 chars)", async () => {
+    it("accepts valid metadata-only payload", async () => {
       const req = new NextRequest("http://localhost:3000/api/journal", {
         method: "POST",
-        body: JSON.stringify({
-          text: "Valid text",
-          title: "a".repeat(201),
-        }),
-        headers: { "Content-Type": "application/json" },
-      });
-
-      const response = await journalPOST(req);
-      expect(response.status).toBe(400);
-      const json = await response.json();
-      expect(json.code).toBe("VALIDATION_ERROR");
-    });
-
-    it("rejects unknown fields", async () => {
-      const req = new NextRequest("http://localhost:3000/api/journal", {
-        method: "POST",
-        body: JSON.stringify({
-          text: "Valid text",
-          unknownField: "should be rejected",
-        }),
-        headers: { "Content-Type": "application/json" },
-      });
-
-      const response = await journalPOST(req);
-      expect(response.status).toBe(400);
-      const json = await response.json();
-      expect(json.code).toBe("VALIDATION_ERROR");
-    });
-
-    it("accepts valid input", async () => {
-      const req = new NextRequest("http://localhost:3000/api/journal", {
-        method: "POST",
-        body: JSON.stringify({
-          text: "My journal entry for today",
-          title: "Today's reflection",
-        }),
+        body: JSON.stringify(validMeta),
         headers: { "Content-Type": "application/json" },
       });
 
@@ -208,15 +223,31 @@ describe("API Route Validation Integration", () => {
     });
   });
 
-  describe("PUT /api/journal", () => {
+  describe("PUT /api/journal (metadata-only)", () => {
+    const validUpdate = {
+      id: "entry-123",
+      word_count: 10,
+      local_hash: "b".repeat(64),
+      processing_mode: "signals_only" as const,
+    };
+
+    it("rejects payload containing text field (TEXT_NOT_ALLOWED)", async () => {
+      const req = new NextRequest("http://localhost:3000/api/journal", {
+        method: "PUT",
+        body: JSON.stringify({ ...validUpdate, text: "smuggled" }),
+        headers: { "Content-Type": "application/json" },
+      });
+
+      const response = await journalPUT(req);
+      expect(response.status).toBe(400);
+      const json = await response.json();
+      expect(json.error.code).toBe("TEXT_NOT_ALLOWED");
+    });
+
     it("rejects unknown fields", async () => {
       const req = new NextRequest("http://localhost:3000/api/journal", {
         method: "PUT",
-        body: JSON.stringify({
-          id: "entry-123",
-          text: "Valid text",
-          unknownField: "should be rejected",
-        }),
+        body: JSON.stringify({ ...validUpdate, unknownField: "nope" }),
         headers: { "Content-Type": "application/json" },
       });
 
@@ -224,6 +255,17 @@ describe("API Route Validation Integration", () => {
       expect(response.status).toBe(400);
       const json = await response.json();
       expect(json.code).toBe("VALIDATION_ERROR");
+    });
+
+    it("accepts valid metadata-only update", async () => {
+      const req = new NextRequest("http://localhost:3000/api/journal", {
+        method: "PUT",
+        body: JSON.stringify(validUpdate),
+        headers: { "Content-Type": "application/json" },
+      });
+
+      const response = await journalPUT(req);
+      expect(response.status).toBe(200);
     });
   });
 

@@ -12,10 +12,29 @@ const LEGACY_ALIAS_MAP: Record<string, VellaVoiceId> = {
 
 const REALTIME_RENDERER_BY_VOICE: Record<VellaVoiceId, string> = {
   luna: "alloy",
-  aira: "young_female",
-  sol: "young_male",
-  orion: "mature_male",
+  aira: "shimmer",
+  sol: "echo",
+  orion: "onyx",
 };
+
+/**
+ * Server-side mapping: product voice → valid OpenAI TTS voice ID.
+ * Used by /api/voice/standard and /api/voice/preview.
+ *
+ * Valid OpenAI TTS voices (gpt-4o-mini-tts):
+ *   alloy, ash, ballad, coral, echo, fable, nova, onyx, sage, shimmer, verse
+ */
+export const TTS_VOICE_MAP: Record<VellaVoiceId, string> = {
+  luna: "alloy",
+  aira: "shimmer",
+  sol: "echo",
+  orion: "onyx",
+};
+
+export function resolveTTSVoice(value?: string | null): string {
+  const normalized = normalizeVellaVoiceId(value);
+  return TTS_VOICE_MAP[normalized] ?? TTS_VOICE_MAP[DEFAULT_VELLA_VOICE_ID];
+}
 
 export function normalizeVellaVoiceId(value?: string | null): VellaVoiceId {
   if (!value) return DEFAULT_VELLA_VOICE_ID;

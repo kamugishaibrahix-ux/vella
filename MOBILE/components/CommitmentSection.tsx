@@ -69,7 +69,7 @@ export function CommitmentSection({ homeState }: { homeState: HomeState | null }
   const items: CommitmentItem[] = useMemo(() => {
     if (names.length === 0) return [];
 
-    const metaById = new Map<string, (typeof homeState)["commitments"][number]>();
+    const metaById = new Map<string, NonNullable<typeof homeState>["commitments"][number]>();
     for (const c of homeState?.commitments ?? []) {
       metaById.set(c.id, c as any);
     }

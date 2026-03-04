@@ -1,9 +1,11 @@
 "use client";
 
-import { useCallback, useEffect, useRef } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X } from "lucide-react";
 import { VoiceOptionCard, type VoiceOption } from "./VoiceOptionCard";
+import { getSelectedDomainLabels } from "@/lib/focusAreas";
+import { OSModeSelector } from "@/components/OSModeSelector";
 
 const VOICE_OPTIONS: VoiceOption[] = [
   { id: "luna", name: "Luna", personality: "Calm · Warm · Reflective" },
@@ -117,7 +119,7 @@ export function VoiceSelectorSheet({
             </div>
 
             {/* Voice options */}
-            <div className="px-4 pb-8 space-y-2 max-h-[60vh] overflow-y-auto">
+            <div className="px-4 pb-4 space-y-2 max-h-[60vh] overflow-y-auto">
               {VOICE_OPTIONS.map((voice) => (
                 <VoiceOptionCard
                   key={voice.id}
@@ -129,10 +131,36 @@ export function VoiceSelectorSheet({
                 />
               ))}
             </div>
+
+            {/* Personal OS Mode */}
+            <div className="px-4 pb-3">
+              <OSModeSelector variant="full" />
+            </div>
+
+            {/* OS Context */}
+            <SessionContextSection />
           </motion.div>
         </motion.div>
       )}
     </AnimatePresence>
+  );
+}
+
+/** Minimal OS context shown inside the voice settings sheet. */
+function SessionContextSection() {
+  const [labels, setLabels] = useState<string[]>([]);
+  useEffect(() => {
+    setLabels(getSelectedDomainLabels());
+  }, []);
+
+  if (labels.length === 0) return null;
+
+  return (
+    <div className="px-5 pb-6 pt-2 border-t border-white/5">
+      <p className="text-[10px] uppercase tracking-wide text-white/30 font-medium">Selected Domains</p>
+      <p className="text-xs text-white/60 mt-1 truncate">{labels.join(" · ")}</p>
+      <p className="text-[10px] text-white/30 mt-2">Plans are only created when you confirm.</p>
+    </div>
   );
 }
 

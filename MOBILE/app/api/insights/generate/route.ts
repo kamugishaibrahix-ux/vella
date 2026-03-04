@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server";
 import { openai, model } from "@/lib/ai/client";
 import { runWithOpenAICircuit, isCircuitOpenError } from "@/lib/ai/circuitBreaker";
-import { rateLimit, isRateLimitError, rateLimit429Response } from "@/lib/security/rateLimit";
+import { createChatCompletion } from "@/lib/ai/safeOpenAI";
+import { rateLimit, rateLimit429Response, rateLimit503Response } from "@/lib/security/rateLimit";
 import { RATE_LIMIT_CONFIG } from "@/lib/security/rateLimit/config";
 import { serviceUnavailableResponse, serverErrorResponse } from "@/lib/security/consistentErrors";
 import { buildInsightPrompt, buildLiteInsights } from "@/lib/insights/generator";
@@ -20,26 +21,22 @@ import {
 } from "@/lib/voice/vellaVoices";
 import type { TonePreference } from "@/lib/memory/types";
 import type { SupportedLanguage } from "@/lib/ai/language/languageProfiles";
-import { getUpgradeBlock } from "@/lib/tiers/tierCheck";
-import type { BehaviourVector } from "@/lib/adaptive/behaviourVector";
-import type { MonitoringSnapshot } from "@/lib/monitor/types";
-import type { HealthState } from "@/lib/realtime/health/state";
-import type { VellaSettings } from "@/lib/settings/vellaSettings";
-import type { RelationshipMode } from "@/lib/realtime/emotion/state";
-import { getAllCheckIns } from "@/lib/checkins/getAllCheckIns";
-import { loadLocal } from "@/lib/local/storage";
 import { resolveServerLocale, normalizeLocale } from "@/i18n/serverLocale";
 import type { UILanguageCode } from "@/i18n/types";
-import { checkTokenAvailability, chargeTokensForOperation } from "@/lib/tokens/enforceTokenLimits";
+import { checkTokenAvailability } from "@/lib/tokens/enforceTokenLimits";
+import { withMonetisedOperation } from "@/lib/tokens/withMonetisedOperation";
 import { quotaExceededResponse } from "@/lib/tokens/quotaExceededResponse";
-import { requireUserId } from "@/lib/supabase/server-auth";
+import { estimateTokens } from "@/lib/tokens/costSchedule";
+import { requireEntitlement, isEntitlementBlocked } from "@/lib/plans/requireEntitlement";
 import { insightsGenerateRequestSchema } from "@/lib/security/validationSchemas";
 import { validationErrorResponse, formatZodError } from "@/lib/security/validationErrors";
 import { isAIDisabled } from "@/lib/security/killSwitch";
 import { safeErrorLog } from "@/lib/security/logGuard";
+import { applyCheckinBounds, CHECKIN_MAX_ROWS } from "@/lib/insights/checkinBounds";
+import type { BehaviourVector } from "@/lib/adaptive/behaviourVector";
 
 const FEATURE_KEY = "insight";
-const DEFAULT_VOICE_HUD: VellaSettings["voiceHud"] = {
+const DEFAULT_VOICE_HUD = {
   moodChip: true,
   stability: true,
   deliveryHints: true,
@@ -50,7 +47,7 @@ const DEFAULT_VOICE_HUD: VellaSettings["voiceHud"] = {
 };
 
 type RequestPayload = ReturnType<typeof insightsGenerateRequestSchema.parse>;
-type AuthenticatedRequestPayload = Omit<RequestPayload, "userId"> & { userId: string | null; locale?: UILanguageCode };
+type AuthenticatedRequestPayload = Omit<RequestPayload, "userId"> & { userId: string | null; locale?: UILanguageCode; planTier?: string };
 
 type InsightResponse = {
   insights: InsightCardData[];
@@ -73,18 +70,43 @@ const DEFAULT_SETTINGS = {
 
 const AI_DISABLED_RESPONSE = { error: "ai_unavailable", message: "AI is temporarily disabled" };
 
+/**
+ * PHASE SEAL HARDENING (20260240):
+ * This route processes personal text IN MEMORY ONLY.
+ * - Generates insights via OpenAI
+ * - Text is processed and results returned
+ * - Text is NEVER stored in Supabase
+ * - Only token usage metadata is recorded
+ *
+ * ABORT-SAFE REFUND (20260301):
+ * Uses withMonetisedOperation wrapper to guarantee refund on client abort.
+ */
 export async function POST(req: Request) {
   if (isAIDisabled()) {
     return NextResponse.json(AI_DISABLED_RESPONSE, { status: 503 });
   }
-  const userIdOr401 = await requireUserId();
-  if (userIdOr401 instanceof Response) return userIdOr401;
-  const userId = userIdOr401;
+  // Step 1+2: Require entitlement (includes active user check; insights_generate is always allowed)
+  const entitlement = await requireEntitlement("insights_generate");
+  if (isEntitlementBlocked(entitlement)) return entitlement;
+  const { userId, plan } = entitlement;
 
+  // Step 3: Rate limit (must be before token operations)
+  const { limit, window } = RATE_LIMIT_CONFIG.routes.insights_generate;
+  const rateLimitResult = await rateLimit({
+    key: `insights_generate:${userId}`,
+    limit,
+    window,
+    routeKey: "insights_generate",
+  });
+  if (!rateLimitResult.allowed) {
+    if (rateLimitResult.status === 503) {
+      return rateLimit503Response("Rate limiting unavailable. Cannot process monetized requests.");
+    }
+    return rateLimit429Response(rateLimitResult.retryAfterSeconds);
+  }
+
+  // Step 4: Request validation
   try {
-    const { limit, window } = RATE_LIMIT_CONFIG.routes.insights_generate;
-    await rateLimit({ key: `insights_generate:${userId}`, limit, window });
-
     const json = await req.json();
     const parseResult = insightsGenerateRequestSchema.safeParse(json);
     if (!parseResult.success) {
@@ -94,21 +116,24 @@ export async function POST(req: Request) {
     const body = parseResult.data;
     const rawLocale = (body.locale as string) || resolveServerLocale();
     const locale = normalizeLocale(rawLocale) as UILanguageCode;
-    console.log("🌐 API /insights/generate - Detected locale:", locale, "(raw:", rawLocale, ")");
 
-    const localCheckins = await getAllCheckIns(userId).catch(() => []);
-    void localCheckins;
+    // Apply deterministic bounds to incoming check-ins
+    const boundedCheckins = applyCheckinBounds((body.checkins ?? []) as DailyCheckIn[]);
 
-    const { userId: _ignored, ...rest } = body;
-    const response = await generateInsightsServerSide({ ...rest, userId, locale });
+    const { userId: _ignored, checkins: _ignoredCheckins, ...rest } = body;
+    const response = await generateInsightsServerSide({
+      ...rest,
+      checkins: boundedCheckins,
+      userId,
+      locale,
+      planTier: plan,
+      req,
+    });
     if (response && typeof response === "object" && "__quotaExceeded" in response) {
       return quotaExceededResponse();
     }
     return NextResponse.json(response);
   } catch (error) {
-    if (isRateLimitError(error)) {
-      return rateLimit429Response(error.retryAfterSeconds);
-    }
     if (isCircuitOpenError(error)) {
       return serviceUnavailableResponse();
     }
@@ -117,13 +142,16 @@ export async function POST(req: Request) {
   }
 }
 
-async function generateInsightsServerSide(body: AuthenticatedRequestPayload & { locale?: UILanguageCode }): Promise<InsightResponse> {
-  const recentCheckins = [...body.checkins].sort((a, b) =>
+async function generateInsightsServerSide(body: AuthenticatedRequestPayload & { locale?: UILanguageCode; req: Request }): Promise<InsightResponse> {
+  // Double-check bounds (belt-and-suspenders)
+  const boundedCheckins = body.checkins.slice(0, CHECKIN_MAX_ROWS);
+
+  const recentCheckins = [...boundedCheckins].sort((a, b) =>
     (b.date ?? "").localeCompare(a.date ?? ""),
   ) as DailyCheckIn[];
   const liteInsights = buildLiteInsights(recentCheckins);
   const emotionalShift = computeEmotionalShift(recentCheckins);
-  
+
   // If no userId, return lite insights immediately (local-only mode)
   if (!body.userId) {
     return {
@@ -136,7 +164,8 @@ async function generateInsightsServerSide(body: AuthenticatedRequestPayload & { 
     };
   }
 
-  const estimatedTokens = 3000;
+  // Step 5: Estimate tokens and check availability (early 402)
+  const estimatedTokens = estimateTokens("insights_generate");
   const tokenCheck = await checkTokenAvailability(body.userId ?? "", body.planTier, estimatedTokens, "insights_generate", "text");
   if (!tokenCheck.allowed) {
     return {
@@ -150,26 +179,6 @@ async function generateInsightsServerSide(body: AuthenticatedRequestPayload & { 
     } as InsightResponse & { __quotaExceeded?: boolean };
   }
 
-  const upgradeBlock = getUpgradeBlock(body.planTier, FEATURE_KEY);
-  if (upgradeBlock) {
-    return {
-      insights: [
-        {
-          id: "insight-upgrade",
-          kind: "upgrade",
-          title: "Unlock deeper insights",
-          body: upgradeBlock,
-          action: "Visit Account & Plan to upgrade",
-        },
-      ],
-      insight: null,
-      patterns: body.patterns ?? null,
-      emotionalShift,
-      tokensUsed: 0,
-      mode: "lite",
-    };
-  }
-
   if (!openai) {
     return {
       insights: liteInsights,
@@ -181,70 +190,85 @@ async function generateInsightsServerSide(body: AuthenticatedRequestPayload & { 
     };
   }
 
-  try {
-    const userSettings = await loadServerVellaSettings(body.userId);
-    const moodState = deriveMoodState(body.mood ?? recentCheckins[0]?.mood);
-    const emotionalState = deriveEmotionalState(body, recentCheckins);
-    const delivery = computeDeliveryHints({
-      voiceId: userSettings.voiceModel,
-      moodState,
-      emotionalState,
-    });
-    const resolvedVoiceModel: VellaVoiceId =
-      normalizeVellaVoiceId((body.voiceModel as string | null | undefined) ?? userSettings.voiceModel) ??
-      DEFAULT_VELLA_VOICE_ID;
-    const resolvedToneStyle: TonePreference =
-      (body.toneStyle as TonePreference | null | undefined) ??
-      userSettings.toneStyle ??
-      userSettings.tone ??
-      "soft";
-    const resolvedRelationship: RelationshipMode =
-      (body.relationshipMode as RelationshipMode | null | undefined) ??
-      userSettings.relationshipMode ??
-      "best_friend";
-    const rawLocale = body.locale ?? resolveServerLocale();
-    const locale = normalizeLocale(rawLocale) as UILanguageCode;
-    console.log("🌐 API /insights/generate - Detected locale:", locale, "(raw:", rawLocale, ")");
-    const resolvedLanguage: SupportedLanguage =
-      (body.language as SupportedLanguage | null | undefined) ?? (locale as SupportedLanguage) ?? FALLBACK_LANGUAGE;
+  // Step 6: ABORT-SAFE MONETISED OPERATION
+  const userSettings = await loadServerVellaSettings(body.userId);
+  const moodState = deriveMoodState(body.mood ?? recentCheckins[0]?.mood);
+  const emotionalState = deriveEmotionalState(body, recentCheckins);
+  const delivery = computeDeliveryHints({
+    voiceId: userSettings.voiceModel,
+    moodState,
+    emotionalState,
+  });
+  const resolvedVoiceModel: VellaVoiceId =
+    normalizeVellaVoiceId((body.voiceModel as string | null | undefined) ?? userSettings.voiceModel) ??
+    DEFAULT_VELLA_VOICE_ID;
+  const resolvedToneStyle: TonePreference =
+    (body.toneStyle as TonePreference | null | undefined) ??
+    userSettings.toneStyle ??
+    userSettings.tone ??
+    "soft";
+  const resolvedRelationship: MemoryProfile["relationshipMode"] =
+    (body.relationshipMode as MemoryProfile["relationshipMode"] | null | undefined) ??
+    userSettings.relationshipMode ??
+    "best_friend";
+  const rawLocale = body.locale ?? resolveServerLocale();
+  const locale = normalizeLocale(rawLocale) as UILanguageCode;
+  const resolvedLanguage: SupportedLanguage =
+    (body.language as SupportedLanguage | null | undefined) ?? (locale as SupportedLanguage) ?? FALLBACK_LANGUAGE;
 
-    const personaInstruction = await buildPersonaInstruction({
-      voiceId: resolvedVoiceModel,
-      moodState,
-      delivery,
+  const personaInstruction = await buildPersonaInstruction({
+    voiceId: resolvedVoiceModel,
+    moodState,
+    delivery,
+    relationshipMode: resolvedRelationship,
+    userSettings: {
+      voiceModel: resolvedVoiceModel,
+      tone: resolvedToneStyle,
+      toneStyle: resolvedToneStyle,
       relationshipMode: resolvedRelationship,
-      userSettings: {
-        voiceModel: resolvedVoiceModel,
-        tone: resolvedToneStyle,
-        toneStyle: resolvedToneStyle,
-        relationshipMode: resolvedRelationship,
-        voiceHud: userSettings.voiceHud ?? DEFAULT_VOICE_HUD,
-      },
-      emotionalState,
-      behaviourVector: (body.behaviourVector as BehaviourVector | null) ?? null,
-      healthState: monitoringToHealthState(body.monitoring as MonitoringSnapshot | null),
-      language: resolvedLanguage,
-    });
+      voiceHud: userSettings.voiceHud ?? DEFAULT_VOICE_HUD,
+    },
+    emotionalState,
+    behaviourVector: (body.behaviourVector as BehaviourVector | null) ?? null,
+    healthState: monitoringToHealthState(body.monitoring as { driftScore?: number; tensionLoad?: number; riskLevel?: number; fatigueLevel?: number; clarity?: number } | null),
+    language: resolvedLanguage,
+  });
 
-    const prompt = buildInsightPrompt({
-      checkins: recentCheckins,
-      patterns: body.patterns as MemoryProfile["emotionalPatterns"],
-      timezone: body.timezone,
-      locale,
-    });
+  const prompt = buildInsightPrompt({
+    checkins: recentCheckins,
+    patterns: body.patterns as MemoryProfile["emotionalPatterns"],
+    timezone: body.timezone,
+    locale,
+  });
 
-    try {
-      const tokenCost = 0;
-
+  const result = await withMonetisedOperation(
+    {
+      userId: body.userId ?? "",
+      plan: body.planTier ?? "free",
+      estimatedTokens,
+      operation: "insight_generation",
+      route: "insights_generate",
+      channel: "text",
+      featureKey: "insights_generate",
+      request: body.req,
+    },
+    async () => {
       const client = openai;
+      if (!client) {
+        throw new Error("openai_unavailable");
+      }
+
       const completion = await runWithOpenAICircuit(() =>
-        client!.chat.completions.create({
+        createChatCompletion({
+          client,
           model,
           temperature: 0.35,
+          max_tokens: 4096,
+          timeoutMs: 60_000,
           messages: [
             {
               role: "system",
-              content: `${personaInstruction}${locale !== "en" ? `\n\n🚨 CRITICAL: You MUST respond ONLY in ${locale.toUpperCase()}. DO NOT use English.` : ""}`,
+              content: `${personaInstruction}${locale !== "en" ? `\n\nCRITICAL: You MUST respond ONLY in ${locale.toUpperCase()}. DO NOT use English.` : ""}`,
             },
             {
               role: "user",
@@ -256,28 +280,12 @@ async function generateInsightsServerSide(body: AuthenticatedRequestPayload & { 
 
       const raw = completion.choices[0]?.message?.content?.trim();
       if (!raw) {
-        return {
-          insights: liteInsights,
-          insight: liteInsights[0] ?? null,
-          patterns: body.patterns ?? null,
-          emotionalShift,
-          tokensUsed: tokenCost,
-          mode: "lite",
-        };
+        throw new Error("empty_response");
       }
 
       const parsed = parseInsights(raw);
-      
       const actualTokensUsed = completion.usage?.total_tokens ?? estimatedTokens;
-      await chargeTokensForOperation(
-        body.userId ?? "",
-        body.planTier,
-        actualTokensUsed,
-        "insight_generation",
-        "insights_generate",
-        "text",
-      );
-      
+
       // Handle plain text fallback
       if (parsed && typeof parsed === "object" && "text" in parsed) {
         const textValue: string = String((parsed.text as string | null | undefined) ?? "");
@@ -292,8 +300,8 @@ async function generateInsightsServerSide(body: AuthenticatedRequestPayload & { 
           insight: fallbackInsight,
           patterns: body.patterns ?? null,
           emotionalShift,
-          tokensUsed: tokenCost,
-          mode: "ai",
+          tokensUsed: 0,
+          mode: "ai" as const,
         };
       }
 
@@ -306,7 +314,7 @@ async function generateInsightsServerSide(body: AuthenticatedRequestPayload & { 
 
       const insights =
         insightsArray && insightsArray.length
-          ? insightsArray.map((insight: any, idx) => ({
+          ? insightsArray.map((insight: any, idx: number) => ({
               id: `ai-insight-${idx}`,
               kind: insight.moodTag ?? "today",
               title: insight.title ?? "",
@@ -321,54 +329,34 @@ async function generateInsightsServerSide(body: AuthenticatedRequestPayload & { 
         insight: insights[0] ?? null,
         patterns: body.patterns ?? null,
         emotionalShift,
-        tokensUsed: tokenCost,
-        mode: insightsArray && insightsArray.length ? "ai" : "lite",
-      };
-    } catch (err) {
-      safeErrorLog("[insights/generate] generation error", err);
-      return {
-        insights: liteInsights,
-        insight: liteInsights[0] ?? null,
-        patterns: body.patterns ?? null,
-        emotionalShift,
         tokensUsed: 0,
-        mode: "lite",
+          mode: (insightsArray && insightsArray.length ? "ai" : "lite") as "ai" | "lite",
       };
     }
-  } catch (error) {
-    safeErrorLog("[api] insights/generate premium path failed", error);
+  );
+
+  if (!result.success) {
+    // Return lite insights on failure (refund already handled by wrapper)
+    safeErrorLog("[insights/generate] monetised operation failed", new Error(result.error));
     return {
       insights: liteInsights,
       insight: liteInsights[0] ?? null,
       patterns: body.patterns ?? null,
       emotionalShift,
       tokensUsed: 0,
-      mode: "lite",
+      mode: "lite" as const,
     };
   }
+
+  return result.data;
 }
 
 async function loadServerVellaSettings(userId: string | null) {
   if (!userId) {
     return DEFAULT_SETTINGS;
   }
-  // Local-first: load from localStorage
-  try {
-    const settings = loadLocal<VellaSettings>(`vella_settings:${userId}`);
-    if (!settings) {
-      return DEFAULT_SETTINGS;
-    }
-    return {
-      voiceModel: normalizeVellaVoiceId(settings.voiceModel) ?? DEFAULT_VELLA_VOICE_ID,
-      tone: settings.tone ?? DEFAULT_SETTINGS.tone,
-      toneStyle: settings.toneStyle ?? DEFAULT_SETTINGS.toneStyle,
-      relationshipMode: settings.relationshipMode ?? DEFAULT_SETTINGS.relationshipMode,
-      voiceHud: settings.voiceHud ?? DEFAULT_VOICE_HUD,
-    };
-  } catch (error) {
-    safeErrorLog("[insights/generate] loadServerVellaSettings error", error);
-    return DEFAULT_SETTINGS;
-  }
+  // Return defaults - localStorage not available server-side
+  return DEFAULT_SETTINGS;
 }
 
 function deriveMoodState(mood?: number | null): MoodState {
@@ -394,7 +382,7 @@ function deriveEmotionalState(
   });
 }
 
-function monitoringToHealthState(snapshot?: MonitoringSnapshot | null): HealthState | undefined {
+function monitoringToHealthState(snapshot?: { driftScore?: number; tensionLoad?: number; riskLevel?: number; fatigueLevel?: number; clarity?: number } | null) {
   if (!snapshot) return undefined;
   return {
     driftScore: snapshot.driftScore ?? 0,
@@ -430,4 +418,3 @@ function parseInsights(raw: string) {
 function clamp(value: number, min = 0, max = 1) {
   return Math.min(max, Math.max(min, value));
 }
-

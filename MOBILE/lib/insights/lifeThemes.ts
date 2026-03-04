@@ -8,6 +8,7 @@ import { callVellaReflectionAPI } from "@/lib/ai/reflection";
 import { loadServerPersonaSettings } from "@/lib/ai/personaServer";
 import type { LocalJournalEntry } from "@/lib/local/journalLocal";
 import { getAllCheckIns, type CheckinRow } from "@/lib/checkins/getAllCheckIns";
+import { getDefaultEntitlements } from "@/lib/plans/defaultEntitlements";
 
 type JournalRow = LocalJournalEntry;
 
@@ -38,7 +39,8 @@ export async function extractLifeThemes(userId: string): Promise<LifeTheme[]> {
       loadServerPersonaSettings(userId),
     ]);
 
-  if (planTier === "free") {
+  const _ent = getDefaultEntitlements(planTier);
+  if (!_ent.enableDeepDive) {
     return buildLiteThemes(checkins, journals, journalThemes);
   }
 

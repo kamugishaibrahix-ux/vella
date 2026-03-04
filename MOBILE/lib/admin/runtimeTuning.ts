@@ -3,34 +3,12 @@
 import type { AdminAIConfig } from "@/lib/admin/adminConfigTypes";
 
 /**
- * Runtime tuning adapter - converts AdminAIConfig into runtime dials.
- * All values are clamped to safe ranges and validated.
+ * Minimal runtime tuning adapter for local-first architecture.
+ * Only includes runtime guardrails, safety controls, and global flags.
+ * Persona/behaviour/voice/memory tuning removed (handled locally per-device).
  */
 export type RuntimeTuning = {
-  persona: {
-    empathy: number; // 0–100
-    directness: number; // 0–100
-    energy: number; // 0–100
-  };
-  behaviour: {
-    empathyRegulation: number;
-    directness: number;
-    emotionalContainment: number;
-    analyticalDepth: number;
-    playfulness: number;
-    introspectionDepth: number;
-    conciseness: number;
-    safetyStrictness: number;
-  };
-  voice: {
-    softness: number;
-    cadence: number;
-    breathiness: number;
-    pauseLength: number;
-    whisperSensitivity: number;
-    warmth: number;
-    interruptionRecovery: number;
-  };
+  // Runtime Configuration
   generation: {
     temperature: number; // 0–2
     topP: number; // 0–1
@@ -42,19 +20,50 @@ export type RuntimeTuning = {
     embeddingModel: string;
     reasoningDepth: "Light" | "Normal" | "Analytical" | "Deep";
   };
-  memory: {
-    selectivity: number;
-    maxContextTurns: number;
-    ragRecallStrength: number;
-    emotionalWeighting: number;
-  };
+
+  // Safety & Guardrails
   safety: {
-    filterStrength: number;
-    redFlagSensitivity: number;
-    outputSmoothing: number;
+    safetyStrictness: number; // 0–100
+    redFlagSensitivity: number; // 0–100
+    attachmentPrevention: boolean;
+    hallucinationReducer: boolean;
+    destabilizationGuard: boolean;
+    filterStrength: number; // 0–100
+    outputSmoothing: number; // 0–100
   };
-  automation: {
-    [key: string]: boolean;
+
+  // Persona (admin-blended dials; 0–100)
+  persona: {
+    empathy: number;
+    directness: number;
+    energy: number;
+  };
+
+  // Behaviour (admin-blended dials; 0–100)
+  behaviour: {
+    playfulness: number;
+    emotionalContainment: number;
+    analyticalDepth: number;
+    introspectionDepth: number;
+    conciseness: number;
+  };
+
+  // Memory (for distress scoring etc.)
+  memory: {
+    emotionalWeighting: number; // 0–100
+  };
+
+  // Global Flags
+  flags: {
+    maintenanceMode: boolean;
+    enableVoice: boolean;
+    enableRealtime: boolean;
+    enableMusicMode: boolean;
+  };
+
+  // Token Limits
+  limits: {
+    maxDailyTokensPerUser: number;
   };
 };
 
@@ -124,33 +133,9 @@ export async function loadRuntimeTuning(): Promise<RuntimeTuning> {
 
 function adaptConfigToTuning(config: AdminAIConfig): RuntimeTuning {
   return {
-    persona: {
-      empathy: clampPercent(config.persona?.empathy, 80),
-      directness: clampPercent(config.persona?.directness, 45),
-      energy: clampPercent(config.persona?.energy, 55),
-    },
-    behaviour: {
-      empathyRegulation: clampPercent(config.behaviour?.empathy_regulation, 72),
-      directness: clampPercent(config.behaviour?.directness, 48),
-      emotionalContainment: clampPercent(config.behaviour?.emotional_containment, 63),
-      analyticalDepth: clampPercent(config.behaviour?.analytical_depth, 67),
-      playfulness: clampPercent(config.behaviour?.playfulness, 34),
-      introspectionDepth: clampPercent(config.behaviour?.introspection_depth, 58),
-      conciseness: clampPercent(config.behaviour?.conciseness, 41),
-      safetyStrictness: clampPercent(config.behaviour?.safety_strictness, 82),
-    },
-    voice: {
-      softness: clampPercent(config.voice?.softness, 65),
-      cadence: clampPercent(config.voice?.cadence, 54),
-      breathiness: clampPercent(config.voice?.breathiness, 46),
-      pauseLength: clampPercent(config.voice?.pause_length, 38),
-      whisperSensitivity: clampPercent(config.voice?.whisper_sensitivity, 42),
-      warmth: clampPercent(config.voice?.warmth, 71),
-      interruptionRecovery: clampPercent(config.voice?.interruption_recovery, 58),
-    },
     generation: {
       temperature: clampRange(config.model?.temperature, 0, 2, 0.4),
-      topP: clampRange(config.model?.top_p, 0, 1, 0.9),
+      topP: 0.9,
       maxOutputTokens: clampRange(config.model?.max_output, 200, 4000, 2000),
     },
     models: {
@@ -167,49 +152,44 @@ function adaptConfigToTuning(config: AdminAIConfig): RuntimeTuning {
       ),
       reasoningDepth: safeReasoningDepth(config.models?.reasoning_depth),
     },
-    memory: {
-      selectivity: clampPercent(config.memory?.selectivity, 58),
-      maxContextTurns: clampRange(config.memory?.context_history, 5, 50, 18),
-      ragRecallStrength: clampPercent(config.memory?.rag_recall_strength, 64),
-      emotionalWeighting: clampPercent(config.memory?.emotional_weighting, 52),
-    },
-    safety: {
-      filterStrength: clampPercent(config.safety?.filter_strength, 90),
+  safety: {
+      safetyStrictness: clampPercent(config.safety?.safety_strictness, 82),
       redFlagSensitivity: clampPercent(config.safety?.red_flag_sensitivity, 76),
-      outputSmoothing: clampPercent(config.safety?.output_smoothing, 48),
+      attachmentPrevention: config.safety?.attachment_prevention ?? true,
+      hallucinationReducer: config.safety?.hallucination_reducer ?? true,
+      destabilizationGuard: config.safety?.destabilization_guard ?? true,
+      filterStrength: clampPercent((config.safety as { filter_strength?: number })?.filter_strength, 90),
+      outputSmoothing: clampPercent((config.safety as { output_smoothing?: number })?.output_smoothing, 50),
     },
-    automation: {
-      ...(config.automation ?? {}),
+    persona: {
+      empathy: clampPercent((config as { persona?: { empathy?: number } }).persona?.empathy, 75),
+      directness: clampPercent((config as { persona?: { directness?: number } }).persona?.directness, 60),
+      energy: clampPercent((config as { persona?: { energy?: number } }).persona?.energy, 50),
+    },
+    behaviour: {
+      playfulness: clampPercent((config as { behaviour?: { playfulness?: number } }).behaviour?.playfulness, 40),
+      emotionalContainment: clampPercent((config as { behaviour?: { emotional_containment?: number } }).behaviour?.emotional_containment, 70),
+      analyticalDepth: clampPercent((config as { behaviour?: { analytical_depth?: number } }).behaviour?.analytical_depth, 50),
+      introspectionDepth: clampPercent((config as { behaviour?: { introspection_depth?: number } }).behaviour?.introspection_depth, 50),
+      conciseness: clampPercent((config as { behaviour?: { conciseness?: number } }).behaviour?.conciseness, 60),
+    },
+    memory: {
+      emotionalWeighting: clampPercent((config as { memory?: { emotional_weighting?: number } }).memory?.emotional_weighting, 52),
+    },
+    flags: {
+      maintenanceMode: config.flags?.maintenanceMode ?? false,
+      enableVoice: config.flags?.enableVoice ?? true,
+      enableRealtime: config.flags?.enableRealtime ?? true,
+      enableMusicMode: config.flags?.enableMusicMode ?? false,
+    },
+    limits: {
+      maxDailyTokensPerUser: config.limits?.maxDailyTokensPerUser ?? 50000,
     },
   };
 }
 
 function getDefaultTuning(): RuntimeTuning {
   return {
-    persona: {
-      empathy: 80,
-      directness: 45,
-      energy: 55,
-    },
-    behaviour: {
-      empathyRegulation: 72,
-      directness: 48,
-      emotionalContainment: 63,
-      analyticalDepth: 67,
-      playfulness: 34,
-      introspectionDepth: 58,
-      conciseness: 41,
-      safetyStrictness: 82,
-    },
-    voice: {
-      softness: 65,
-      cadence: 54,
-      breathiness: 46,
-      pauseLength: 38,
-      whisperSensitivity: 42,
-      warmth: 71,
-      interruptionRecovery: 58,
-    },
     generation: {
       temperature: 0.4,
       topP: 0.9,
@@ -221,18 +201,38 @@ function getDefaultTuning(): RuntimeTuning {
       embeddingModel: DEFAULT_EMBEDDING_MODEL,
       reasoningDepth: "Normal",
     },
+    safety: {
+      safetyStrictness: 82,
+      redFlagSensitivity: 76,
+      attachmentPrevention: true,
+      hallucinationReducer: true,
+      destabilizationGuard: true,
+      filterStrength: 90,
+      outputSmoothing: 50,
+    },
+    persona: {
+      empathy: 75,
+      directness: 60,
+      energy: 50,
+    },
+    behaviour: {
+      playfulness: 40,
+      emotionalContainment: 70,
+      analyticalDepth: 50,
+      introspectionDepth: 50,
+      conciseness: 60,
+    },
     memory: {
-      selectivity: 58,
-      maxContextTurns: 18,
-      ragRecallStrength: 64,
       emotionalWeighting: 52,
     },
-    safety: {
-      filterStrength: 90,
-      redFlagSensitivity: 76,
-      outputSmoothing: 48,
+    flags: {
+      maintenanceMode: false,
+      enableVoice: true,
+      enableRealtime: true,
+      enableMusicMode: false,
     },
-    automation: {},
+    limits: {
+      maxDailyTokensPerUser: 50000,
+    },
   };
 }
-

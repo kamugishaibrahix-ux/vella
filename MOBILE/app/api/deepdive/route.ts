@@ -2,14 +2,16 @@ import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { runDeepDive } from "@/lib/ai/agents";
 import { isCircuitOpenError } from "@/lib/ai/circuitBreaker";
-import { requireUserId } from "@/lib/supabase/server-auth";
-import { rateLimit, isRateLimitError, rateLimit429Response } from "@/lib/security/rateLimit";
+import { rateLimit, rateLimit429Response, rateLimit503Response } from "@/lib/security/rateLimit";
 import { serviceUnavailableResponse, serverErrorResponse } from "@/lib/security/consistentErrors";
-import { checkTokenAvailability, chargeTokensForOperation } from "@/lib/tokens/enforceTokenLimits";
+import { checkTokenAvailability } from "@/lib/tokens/enforceTokenLimits";
+import { withMonetisedOperation } from "@/lib/tokens/withMonetisedOperation";
 import { quotaExceededResponse } from "@/lib/tokens/quotaExceededResponse";
-import { getUserPlanTier } from "@/lib/tiers/server";
+import { estimateTokens } from "@/lib/tokens/costSchedule";
+import { requireEntitlement, isEntitlementBlocked } from "@/lib/plans/requireEntitlement";
 import { isAIDisabled } from "@/lib/security/killSwitch";
 import { safeErrorLog } from "@/lib/security/logGuard";
+import { assertNoPII, PIIFirewallError, piiBlockedJsonResponse } from "@/lib/security/piiFirewall";
 
 const bodySchema = z
   .object({
@@ -20,56 +22,118 @@ const bodySchema = z
 
 const RATE_LIMIT_WINDOW = 10 * 60;
 const RATE_LIMIT_MAX = 2;
-const ESTIMATED_TOKENS = 1200;
 
 const AI_DISABLED_RESPONSE = { error: "ai_unavailable", message: "AI is temporarily disabled" };
 
+/**
+ * PHASE SEAL HARDENING (20260240):
+ * This route processes personal text IN MEMORY ONLY via AI agent.
+ * - Accepts text for deep AI processing (runDeepDive)
+ * - Text is processed and results returned
+ * - Text is NEVER stored in Supabase
+ * - Only token usage metadata is recorded
+ *
+ * ABORT-SAFE REFUND (20260301):
+ * Uses withMonetisedOperation wrapper to guarantee refund on client abort.
+ */
 export async function POST(req: NextRequest) {
   if (isAIDisabled()) {
     return NextResponse.json(AI_DISABLED_RESPONSE, { status: 503 });
   }
-  const userIdOr401 = await requireUserId();
-  if (userIdOr401 instanceof Response) return userIdOr401;
-  const userId = userIdOr401;
+  // Step 1+2: Require entitlement (includes active user check + enableDeepDive gating)
+  const entitlement = await requireEntitlement("deepdive");
+  if (isEntitlementBlocked(entitlement)) return entitlement;
+  const { userId, plan } = entitlement;
 
-  try {
-    await rateLimit({
-      key: `deepdive:${userId}`,
-      limit: RATE_LIMIT_MAX,
-      window: RATE_LIMIT_WINDOW,
-    });
+  // Step 3: Rate limit (must be before token operations)
+  const rateLimitResult = await rateLimit({
+    key: `deepdive:${userId}`,
+    limit: RATE_LIMIT_MAX,
+    window: RATE_LIMIT_WINDOW,
+    routeKey: "deepdive",
+  });
+  if (!rateLimitResult.allowed) {
+    if (rateLimitResult.status === 503) {
+      return rateLimit503Response("Rate limiting unavailable. Cannot process monetized requests.");
+    }
+    return rateLimit429Response(rateLimitResult.retryAfterSeconds);
+  }
 
-    const plan = await getUserPlanTier(userId).catch(() => "free" as const);
-    const tokenCheck = await checkTokenAvailability(userId, plan, ESTIMATED_TOKENS, "deepdive", "text");
-    if (!tokenCheck.allowed) {
-      return quotaExceededResponse();
+  // Step 4: Token availability pre-check (early 402)
+  const estimatedTokens = estimateTokens("deepdive");
+  const tokenCheck = await checkTokenAvailability(userId, plan, estimatedTokens, "deepdive", "text");
+  if (!tokenCheck.allowed) {
+    return quotaExceededResponse();
+  }
+
+  // Step 5: Request validation
+  const parsed = bodySchema.safeParse(await req.json().catch(() => ({})));
+  if (!parsed.success) {
+    return NextResponse.json({ error: "VALIDATION_ERROR" }, { status: 400 });
+  }
+  const body = parsed.data;
+
+  // Step 6: ABORT-SAFE MONETISED OPERATION
+  // The wrapper guarantees refund if client aborts or any error occurs
+  const result = await withMonetisedOperation(
+    {
+      userId,
+      plan,
+      estimatedTokens,
+      operation: "deepdive",
+      route: "deepdive",
+      channel: "text",
+      featureKey: "deepdive",
+      request: req,
+    },
+    async () => {
+      // OpenAI call (may throw or be aborted)
+      const engineResult = await runDeepDive({
+        section: body.section ?? "",
+        text: body.text ?? "",
+      });
+
+      // Check for error response
+      if (engineResult && "error" in engineResult) {
+        throw new Error("deepdive_failed");
+      }
+
+      if (!engineResult) {
+        throw new Error("no_result");
+      }
+
+      // Phase Seal: Verify no personal text in metadata (PII firewall)
+      try {
+        assertNoPII({ userId, tokens: estimatedTokens, feature: "deepdive" }, "token_usage");
+      } catch (piiError) {
+        if (piiError instanceof PIIFirewallError) {
+          throw new Error("pii_firewall_violation");
+        }
+        throw piiError;
+      }
+
+      return engineResult;
+    }
+  );
+
+  // Handle operation result
+  if (!result.success) {
+    // Determine appropriate error response
+    const errorMsg = result.error?.toLowerCase() || "";
+
+    if (errorMsg.includes("pii_firewall")) {
+      return NextResponse.json(piiBlockedJsonResponse(), { status: 403 });
     }
 
-    const parsed = bodySchema.safeParse(await req.json().catch(() => ({})));
-    if (!parsed.success) {
-      return NextResponse.json({ error: "VALIDATION_ERROR" }, { status: 400 });
-    }
-    const body = parsed.data;
-    const result = await runDeepDive({
-      section: body.section ?? "",
-      text: body.text ?? "",
-    }).catch(() => ({ error: "deepdive_failed" as const }));
-    if (result && "error" in result) {
-      return serverErrorResponse();
-    }
-    if (result) {
-      await chargeTokensForOperation(userId, plan, ESTIMATED_TOKENS, "deepdive", "deepdive", "text");
-    }
-    return NextResponse.json(result);
-  } catch (err: unknown) {
-    if (isRateLimitError(err)) {
-      return rateLimit429Response(err.retryAfterSeconds);
-    }
-    if (isCircuitOpenError(err)) {
+    if (errorMsg.includes("circuit") || errorMsg.includes("circuit_open")) {
       return serviceUnavailableResponse();
     }
-    safeErrorLog("[deepdive] route error", err);
+
+    // Log error for monitoring (refund already handled by wrapper)
+    safeErrorLog("[deepdive] operation failed", new Error(result.error));
     return serverErrorResponse();
   }
-}
 
+  // Success - return data
+  return NextResponse.json(result.data);
+}

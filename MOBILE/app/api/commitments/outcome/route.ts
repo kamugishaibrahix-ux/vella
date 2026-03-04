@@ -6,23 +6,28 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import { requireUserId } from "@/lib/supabase/server-auth";
-import { rateLimit, isRateLimitError, rateLimit429Response } from "@/lib/security/rateLimit";
+import { rateLimit, rateLimit429Response, rateLimit503Response } from "@/lib/security/rateLimit";
 import { LogOutcomeSchema } from "@/lib/execution/validation";
 import { logOutcome, getOutcomeEvents } from "@/lib/execution/outcomeStore";
 import { getCommitment } from "@/lib/execution/commitmentStore";
 
 const RATE = { limit: 60, window: 60 };
+const ROUTE_KEY = "commitments_outcome";
 
 export async function POST(req: NextRequest) {
   const userIdOr401 = await requireUserId();
   if (userIdOr401 instanceof Response) return userIdOr401;
   const userId = userIdOr401;
 
-  try {
-    await rateLimit({ key: `user:commitments:outcome:${userId}`, limit: RATE.limit, window: RATE.window });
-  } catch (err: unknown) {
-    if (isRateLimitError(err)) return rateLimit429Response(err.retryAfterSeconds);
-    throw err;
+  const rateLimitResult = await rateLimit({
+    key: `user:commitments:outcome:${userId}`,
+    limit: RATE.limit,
+    window: RATE.window,
+    routeKey: ROUTE_KEY,
+  });
+  if (!rateLimitResult.allowed) {
+    if (rateLimitResult.status === 503) return rateLimit503Response();
+    return rateLimit429Response(rateLimitResult.retryAfterSeconds);
   }
 
   let body: unknown;
@@ -69,11 +74,15 @@ export async function GET(req: NextRequest) {
   if (userIdOr401 instanceof Response) return userIdOr401;
   const userId = userIdOr401;
 
-  try {
-    await rateLimit({ key: `user:commitments:outcome:read:${userId}`, limit: RATE.limit, window: RATE.window });
-  } catch (err: unknown) {
-    if (isRateLimitError(err)) return rateLimit429Response(err.retryAfterSeconds);
-    throw err;
+  const rateLimitResult = await rateLimit({
+    key: `user:commitments:outcome:read:${userId}`,
+    limit: RATE.limit,
+    window: RATE.window,
+    routeKey: ROUTE_KEY,
+  });
+  if (!rateLimitResult.allowed) {
+    if (rateLimitResult.status === 503) return rateLimit503Response();
+    return rateLimit429Response(rateLimitResult.retryAfterSeconds);
   }
 
   const { searchParams } = new URL(req.url);

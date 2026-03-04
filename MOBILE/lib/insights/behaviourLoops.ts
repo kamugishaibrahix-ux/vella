@@ -9,6 +9,7 @@ import { loadServerPersonaSettings } from "@/lib/ai/personaServer";
 import type { LocalJournalEntry } from "@/lib/local/journalLocal";
 import { getAllCheckIns, type CheckinRow } from "@/lib/checkins/getAllCheckIns";
 import { listLocalJournals } from "@/lib/local/journalLocal";
+import { getDefaultEntitlements } from "@/lib/plans/defaultEntitlements";
 
 type JournalRow = LocalJournalEntry;
 
@@ -39,7 +40,8 @@ export async function detectBehaviourLoops(userId: string | null): Promise<Behav
     loadServerPersonaSettings(userId),
   ]);
 
-  if (planTier === "free") {
+  const _ent = getDefaultEntitlements(planTier);
+  if (!_ent.enableDeepDive) {
     return heuristicLoops(checkins);
   }
 

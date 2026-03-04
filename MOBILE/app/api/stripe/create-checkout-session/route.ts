@@ -1,7 +1,7 @@
 import { NextRequest } from "next/server";
 import { PLAN_PRICE_IDS, type PlanId, stripe } from "@/lib/payments/stripe";
 import { requireUserId } from "@/lib/supabase/server-auth";
-import { rateLimit, isRateLimitError, rateLimit429Response } from "@/lib/security/rateLimit";
+import { rateLimit, rateLimit429Response, rateLimit503Response } from "@/lib/security/rateLimit";
 import { stripeCheckoutSessionSchema } from "@/lib/security/validationSchemas";
 import { validationErrorResponse, formatZodError } from "@/lib/security/validationErrors";
 import { getValidatedOrigin } from "@/lib/payments/originValidation";
@@ -22,13 +22,17 @@ export async function POST(req: NextRequest) {
   if (userIdOr401 instanceof Response) return userIdOr401;
   const userId = userIdOr401;
 
-  try {
-    await rateLimit({ key: `stripe_checkout:${userId}`, limit: RATE_LIMIT_CHECKOUT.limit, window: RATE_LIMIT_CHECKOUT.window });
-  } catch (err: unknown) {
-    if (isRateLimitError(err)) {
-      return rateLimit429Response(err.retryAfterSeconds);
+  const rateLimitResult = await rateLimit({
+    key: `stripe_checkout:${userId}`,
+    limit: RATE_LIMIT_CHECKOUT.limit,
+    window: RATE_LIMIT_CHECKOUT.window,
+    routeKey: "stripe_checkout",
+  });
+  if (!rateLimitResult.allowed) {
+    if (rateLimitResult.status === 503) {
+      return rateLimit503Response("Rate limiting unavailable. Cannot process checkout.");
     }
-    throw err;
+    return rateLimit429Response(rateLimitResult.retryAfterSeconds);
   }
 
   if (!stripe) {

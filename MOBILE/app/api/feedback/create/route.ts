@@ -3,7 +3,7 @@ import { z } from "zod";
 import { supabaseAdmin } from "@/lib/supabase/admin";
 import { safeInsert } from "@/lib/safe/safeSupabaseWrite";
 import { requireUserId } from "@/lib/supabase/server-auth";
-import { rateLimit, isRateLimitError, rateLimit429Response } from "@/lib/security/rateLimit";
+import { rateLimit, rateLimit429Response, rateLimit503Response } from "@/lib/security/rateLimit";
 import { safeErrorLog } from "@/lib/security/logGuard";
 
 const bodySchema = z
@@ -16,6 +16,7 @@ const bodySchema = z
   .strict();
 
 const RATE_LIMIT_FEEDBACK = { limit: 10, window: 60 };
+const ROUTE_KEY = "feedback_create";
 
 export async function POST(request: Request) {
   try {
@@ -23,13 +24,15 @@ export async function POST(request: Request) {
     if (userIdOr401 instanceof Response) return userIdOr401;
     const userId = userIdOr401;
 
-    try {
-      await rateLimit({ key: `feedback_create:${userId}`, limit: RATE_LIMIT_FEEDBACK.limit, window: RATE_LIMIT_FEEDBACK.window });
-    } catch (err: unknown) {
-      if (isRateLimitError(err)) {
-        return rateLimit429Response(err.retryAfterSeconds);
-      }
-      throw err;
+    const rateLimitResult = await rateLimit({
+      key: `feedback_create:${userId}`,
+      limit: RATE_LIMIT_FEEDBACK.limit,
+      window: RATE_LIMIT_FEEDBACK.window,
+      routeKey: ROUTE_KEY,
+    });
+    if (!rateLimitResult.allowed) {
+      if (rateLimitResult.status === 503) return rateLimit503Response();
+      return rateLimit429Response(rateLimitResult.retryAfterSeconds);
     }
 
     const body = bodySchema.parse(await request.json());

@@ -35,6 +35,7 @@ import type { LocalJournalEntry } from "@/lib/local/journalLocal";
 import { getAllCheckIns, type CheckinRow } from "@/lib/checkins/getAllCheckIns";
 import type { UILanguageCode } from "@/i18n/types";
 import { z } from "zod";
+import { getDefaultEntitlements } from "@/lib/plans/defaultEntitlements";
 
 type JournalRow = LocalJournalEntry;
 
@@ -200,7 +201,8 @@ export async function generateGrowthRoadmap(input: GrowthRoadmapInput): Promise<
     goals: input.goals,
   });
 
-  if (planTier === "free") {
+  const _ent = getDefaultEntitlements(planTier);
+  if (!_ent.enableGrowthRoadmap) {
     return liteRoadmap;
   }
 

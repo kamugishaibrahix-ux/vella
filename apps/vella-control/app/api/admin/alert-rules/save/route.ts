@@ -8,8 +8,19 @@ import { rateLimitAdmin, isRateLimitError, rateLimit429Response } from "@/lib/se
 const ADMIN_ACTOR_ID = process.env.ADMIN_ACTIVITY_ACTOR_ID ?? "00000000-0000-0000-0000-000000000000";
 const ALERT_RULES_LABEL = "alert_rules";
 
+const alertRuleSchema = z.object({
+  id: z.string().max(64).optional(),
+  name: z.string().max(128),
+  condition: z.string().max(256),
+  threshold: z.number().min(0).max(1_000_000),
+  action: z.enum(["notify", "disable", "flag", "escalate"]),
+  enabled: z.boolean(),
+  severity: z.enum(["low", "medium", "high", "critical"]).optional(),
+  cooldownMinutes: z.number().int().min(0).max(10080).optional(),
+});
+
 const bodySchema = z.object({
-  rules: z.array(z.unknown()),
+  rules: z.array(alertRuleSchema).max(50),
 });
 
 export async function POST(request: Request) {
@@ -58,12 +69,13 @@ export async function POST(request: Request) {
       throw insertError;
     }
 
-    // Log admin activity
+    // Log admin activity — store rule count + IDs only (not full payloads)
+    const previousRules = currentConfig ? ((currentConfig.config as { rules?: { id?: string }[] })?.rules ?? []) : [];
     await supabase.from("admin_activity_log").insert({
       admin_id: ADMIN_ACTOR_ID,
       action: "alert_rules.save",
-      previous: currentConfig ? { rules: (currentConfig.config as { rules?: unknown[] })?.rules ?? [] } : null,
-      next: { rules: payload.rules },
+      previous: currentConfig ? { rule_count: previousRules.length, rule_ids: previousRules.map(r => r.id).filter(Boolean) } : null,
+      next: { rule_count: payload.rules.length, rule_ids: payload.rules.map(r => r.id).filter(Boolean) },
     });
 
     return NextResponse.json({

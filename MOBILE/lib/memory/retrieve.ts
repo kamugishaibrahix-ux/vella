@@ -1,6 +1,9 @@
 /**
- * Phase 6C: Top-K memory retrieval. Cosine similarity + recency blend.
- * Fallback: recency-only when embeddings unavailable (AI disabled or free plan).
+ * Phase 6C + Phase 1 + Phase 2 + Phase 3: Top-K memory retrieval with tier scaling.
+ * Cosine similarity + recency blend with strict tier-based limits.
+ * Fallback: recency-only when embeddings unavailable (AI disabled or free tier).
+ * Deterministic: consistent scoring, hard caps, stable tie-breaking by created_at desc.
+ * Phase 3: Narrative memory layer (Elite only) - long-term context before recent memory.
  */
 
 import { embedText, AIDisabledError } from "@/lib/memory/embed";
@@ -8,6 +11,18 @@ import { getRecentEmbeddedChunks, getRecentChunks } from "@/lib/memory/db";
 import type { MemoryChunkRecord } from "@/lib/memory/db";
 import { getUserPlanTier } from "@/lib/tiers/server";
 import { isAIDisabled } from "@/lib/security/killSwitch";
+import {
+  type MemoryTier,
+  type MemoryTierConfig,
+  getMemoryTierConfig,
+  filterByRecencyWindow,
+} from "@/lib/memory/memoryTierConfig";
+import {
+  buildNarrativeMemoryContext,
+  formatCompleteMemoryContext,
+  calculateTotalMemorySize,
+  type NarrativeMemoryContext,
+} from "@/lib/memory/narrative";
 
 export type MemoryBlock = {
   sourceType: "journal" | "conversation" | "snapshot";
@@ -24,10 +39,10 @@ export type RetrieveOptions = {
   sourceTypes?: ("journal" | "conversation" | "snapshot")[];
   maxCharsTotal?: number;
   useEmbeddings?: boolean;
+  /** Phase 2: Explicit tier override (defaults to looking up from user plan) */
+  tier?: MemoryTier;
 };
 
-const DEFAULT_K = 6;
-const DEFAULT_MAX_CHARS = 1500;
 const RECENCY_WEIGHT = 0.15;
 const SIM_WEIGHT = 0.85;
 
@@ -65,55 +80,126 @@ function truncateExcerpt(content: string, maxLen: number): string {
 }
 
 /**
- * Retrieve top-K memory blocks. If embeddings allowed and available: similarity + recency.
- * Else: recency-only (deterministic). Caps total excerpt length to maxCharsTotal.
+ * Phase 2: Retrieve top-K memory blocks with tier-based scaling.
+ * 
+ * Tier enforcement:
+ * - Free: Recency-only, 30-day window, 3 chunks, 800 chars
+ * - Pro: Similarity enabled, 90-day window, 6 chunks, 1500 chars  
+ * - Elite: Similarity enabled, full history, 18 chunks, 4000 chars
+ * 
+ * Time filtering is applied BEFORE similarity scoring (strict enforcement).
  */
 export async function retrieveTopK(opts: RetrieveOptions): Promise<MemoryBlock[]> {
-  const k = Math.min(opts.k ?? DEFAULT_K, 20);
-  const maxCharsTotal = opts.maxCharsTotal ?? DEFAULT_MAX_CHARS;
+  // Phase 2: Resolve tier and get configuration
+  let planTier: MemoryTier;
+  if (opts.tier) {
+    planTier = opts.tier;
+  } else {
+    try {
+      planTier = await getUserPlanTier(opts.userId);
+    } catch {
+      planTier = "free";
+      console.error("[retrieveTopK] getUserPlanTier failed – falling back to free tier config (restrictive)", { userId: opts.userId });
+    }
+  }
+  const tierConfig = getMemoryTierConfig(planTier);
+  
+  // Apply tier-based hard caps (opts can only reduce, never exceed tier limits)
+  const k = Math.min(opts.k ?? tierConfig.maxChunks, tierConfig.maxChunks);
+  const maxCharsTotal = Math.min(
+    opts.maxCharsTotal ?? tierConfig.maxCharsTotal,
+    tierConfig.maxCharsTotal
+  );
   const sourceTypes = opts.sourceTypes;
-  const planTier = await getUserPlanTier(opts.userId).catch(() => "free" as const);
-  const paid = planTier === "pro" || planTier === "elite";
-  const useEmbeddings = opts.useEmbeddings !== false && paid && !isAIDisabled();
+  
+  // Phase 2: Determine if embeddings enabled (tier-based + kill switch)
+  const useEmbeddings = opts.useEmbeddings !== false && 
+                        tierConfig.useSimilarity && 
+                        !isAIDisabled();
 
   let candidates: MemoryChunkRecord[];
   let queryEmbedding: number[] | null = null;
 
   if (useEmbeddings) {
     try {
+      // Phase 2: Use tier-based candidate pool limit
       const [emb, embeddedChunks] = await Promise.all([
         embedText([opts.queryText]).then((arr) => arr[0] ?? null),
-        getRecentEmbeddedChunks({ userId: opts.userId, limit: 200, sourceTypes }),
+        getRecentEmbeddedChunks({ 
+          userId: opts.userId, 
+          limit: tierConfig.candidatePoolLimit, 
+          sourceTypes 
+        }),
       ]);
       queryEmbedding = emb;
-      candidates = embeddedChunks.filter((c) => c.embedding != null && c.embedding.length > 0);
+      
+      // Phase 2: Apply time filtering BEFORE similarity scoring (strict enforcement)
+      candidates = filterByRecencyWindow(
+        embeddedChunks.filter((c) => c.embedding != null && c.embedding.length > 0),
+        tierConfig.recencyDaysCap
+      );
+      
       if (queryEmbedding && candidates.length === 0) return [];
       if (!queryEmbedding || candidates.length === 0) {
-        candidates = await getRecentChunks({ userId: opts.userId, limit: 30, sourceTypes });
+        candidates = await getRecentChunks({ 
+          userId: opts.userId, 
+          limit: tierConfig.candidatePoolLimit, 
+          sourceTypes 
+        });
+        // Apply time filter to recency fallback too
+        candidates = filterByRecencyWindow(candidates, tierConfig.recencyDaysCap);
         return buildRecencyOnly(candidates, k, maxCharsTotal);
       }
     } catch (err) {
       if (err instanceof AIDisabledError) {
-        candidates = await getRecentChunks({ userId: opts.userId, limit: 30, sourceTypes });
+        candidates = await getRecentChunks({ 
+          userId: opts.userId, 
+          limit: tierConfig.candidatePoolLimit, 
+          sourceTypes 
+        });
+        candidates = filterByRecencyWindow(candidates, tierConfig.recencyDaysCap);
         return buildRecencyOnly(candidates, k, maxCharsTotal);
       }
-      candidates = await getRecentChunks({ userId: opts.userId, limit: 30, sourceTypes });
+      candidates = await getRecentChunks({ 
+        userId: opts.userId, 
+        limit: tierConfig.candidatePoolLimit, 
+        sourceTypes 
+      });
+      candidates = filterByRecencyWindow(candidates, tierConfig.recencyDaysCap);
       return buildRecencyOnly(candidates, k, maxCharsTotal);
     }
   } else {
-    candidates = await getRecentChunks({ userId: opts.userId, limit: 30, sourceTypes });
+    // Phase 2: Recency-only path (free tier or embeddings disabled)
+    candidates = await getRecentChunks({ 
+      userId: opts.userId, 
+      limit: tierConfig.candidatePoolLimit, 
+      sourceTypes 
+    });
+    // Apply time filter
+    candidates = filterByRecencyWindow(candidates, tierConfig.recencyDaysCap);
     return buildRecencyOnly(candidates, k, maxCharsTotal);
   }
 
-  if (!queryEmbedding) return buildRecencyOnly(candidates, k, maxCharsTotal);
+  if (!queryEmbedding) {
+    candidates = filterByRecencyWindow(candidates, tierConfig.recencyDaysCap);
+    return buildRecencyOnly(candidates, k, maxCharsTotal);
+  }
 
+  // Phase 2: Similarity scoring with time-filtered candidates
   const scored = candidates.map((c) => {
     const sim = cosineSimilarity(queryEmbedding!, c.embedding!);
     const rec = recencyBoost(c.created_at);
     const score = sim * SIM_WEIGHT + rec * RECENCY_WEIGHT;
-    return { chunk: c, score };
+    return { chunk: c, score, createdAt: c.created_at };
   });
-  scored.sort((a, b) => b.score - a.score);
+  
+  // Deterministic sort: primary by score desc, tie-break by created_at desc (newer first)
+  scored.sort((a, b) => {
+    const scoreDiff = b.score - a.score;
+    if (Math.abs(scoreDiff) > 1e-10) return scoreDiff;
+    return b.createdAt.localeCompare(a.createdAt);
+  });
+  
   const top = scored.slice(0, k);
   return buildBlocks(top.map((t) => t.chunk), top.map((t) => t.score), maxCharsTotal);
 }
@@ -166,3 +252,51 @@ export function formatMemoryContext(blocks: MemoryBlock[], includeExcerpts: bool
   });
   return `Relevant memory:\n${lines.join("\n")}`;
 }
+
+/**
+ * Phase 3: Build complete memory context including narrative layer.
+ * 
+ * Structure:
+ * 1. Narrative layer (enableDeepMemory entitlement) - long-term trajectory and themes
+ * 2. Recent memory - specific recent chunks
+ * 
+ * This function handles entitlement gating internally - NOT tier strings.
+ */
+export async function buildCompleteMemoryContext(opts: {
+  userId: string;
+  tier: MemoryTier;
+  recentBlocks: MemoryBlock[];
+  includeExcerpts: boolean;
+  /**
+   * Deep Memory entitlement - REQUIRED for narrative layer.
+   * This is the PURE abstraction gate - no tier strings allowed.
+   */
+  entitlements: import("@/lib/plans/types").PlanEntitlement;
+}): Promise<{
+  context: string;
+  charCount: number;
+  tokenEstimate: number;
+  hasNarrative: boolean;
+}> {
+  // Phase 3: Build narrative layer (Deep Memory entitlement)
+  const narrativeContext = await buildNarrativeMemoryContext(opts.userId, opts.entitlements);
+  
+  // Format recent memory
+  const recentMemoryContext = formatMemoryContext(opts.recentBlocks, opts.includeExcerpts);
+  
+  // Combine: Narrative comes FIRST, then recent specific memory
+  const completeContext = formatCompleteMemoryContext(narrativeContext, recentMemoryContext);
+  
+  // Calculate total size for token estimation
+  const totalChars = calculateTotalMemorySize(narrativeContext, recentMemoryContext.length);
+  
+  return {
+    context: completeContext,
+    charCount: totalChars,
+    tokenEstimate: Math.ceil(totalChars / 4),
+    hasNarrative: narrativeContext.hasNarrative,
+  };
+}
+
+// Re-export types for convenience
+export type { NarrativeMemoryContext };

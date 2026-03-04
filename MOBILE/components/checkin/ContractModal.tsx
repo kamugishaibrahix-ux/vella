@@ -16,10 +16,11 @@ const FOCUS_AREAS: FocusDomain[] = [
   "self-mastery",
   "addiction-recovery",
   "relationships",
-  "emotional-regulation",
-  "decision-clarity",
+  "emotional-intelligence",
   "performance-focus",
-  "identity-direction",
+  "identity-purpose",
+  "physical-health",
+  "financial-discipline",
 ];
 
 export function ContractModal({ isOpen, onClose, onCreate, isDisabled, helperText }: ContractModalProps) {

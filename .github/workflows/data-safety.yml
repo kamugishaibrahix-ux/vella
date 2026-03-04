@@ -26,4 +26,8 @@ jobs:
       - name: Run Data Safety Checks
         run: pnpm check:data
 
+      - name: No direct Supabase writes
+        run: pnpm --filter MOBILE lint:dbpayload
 
+      - name: Hardening Release Gate
+        run: pnpm --filter MOBILE hardening:gate

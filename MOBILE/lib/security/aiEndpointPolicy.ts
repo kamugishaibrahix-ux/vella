@@ -45,8 +45,6 @@ export const AI_ENDPOINTS = {
   /** Reflection, audio, voice, realtime */
   reflection: { auth: "required" as const, rateLimitKey: "reflection" },
   "audio/vella": { auth: "required" as const, rateLimitKey: "audio_vella" },
-  "voice/speak": { auth: "required" as const, rateLimitKey: "voice_speak" },
-  "realtime/token": { auth: "required" as const, rateLimitKey: "realtime_token" },
   "realtime/offer": { auth: "required" as const, rateLimitKey: "realtime_offer" },
 } as const;
 

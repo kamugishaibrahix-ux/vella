@@ -98,6 +98,35 @@ Each runbook SQL file should have a header comment block at the top describing: 
 
 ---
 
+## Tier invariant constraints rollout
+
+Migration `20260233_tier_invariant_constraints.sql` adds CHECK constraints to `subscriptions.plan` and `users.plan` restricting values to `('free', 'pro', 'elite')`. This will **fail** if existing rows contain invalid plan values.
+
+**Rollout procedure:**
+
+1. **Step 1 — Preflight.** Run `MOBILE/supabase/runbook-sql/20260233_preflight_tier_invariant.sql` against the target environment. Review the counts and sample rows. If both counts are 0, skip to Step 3.
+
+2. **Step 2 — Cleanup.** If any invalid rows were found, run `MOBILE/supabase/runbook-sql/20260233_cleanup_invalid_tiers.sql`. This quarantines rows with active Stripe links into `tier_corruption_quarantine` and sets orphaned rows to `'free'` or `NULL`. Verify the final counts are 0.
+
+3. **Step 3 — Apply constraint.** Apply migration `MOBILE/supabase/migrations/20260233_tier_invariant_constraints.sql` via the normal migration runner (`supabase db push` or equivalent).
+
+4. **Step 4 — Confirm.** Re-run the preflight SQL. Both counts must be 0. Confirm the constraints exist:
+   ```sql
+   SELECT conname, consrc FROM pg_constraint
+   WHERE conname IN ('subscriptions_plan_valid', 'users_plan_valid');
+   ```
+
+**Important:** This migration must NOT be applied until the admin dashboard and all hardening changes are deployed. The application code must be updated before the database constraint, since the constraint will reject any writes with invalid tier values.
+
+**Rollback:** Drop the constraints:
+```sql
+ALTER TABLE subscriptions DROP CONSTRAINT IF EXISTS subscriptions_plan_valid;
+ALTER TABLE users DROP CONSTRAINT IF EXISTS users_plan_valid;
+```
+Quarantined data remains in `tier_corruption_quarantine` for investigation.
+
+---
+
 ## Related
 
 - [ROLLBACK_RUNBOOK.md](./ROLLBACK_RUNBOOK.md) — When and how to roll back code and data.

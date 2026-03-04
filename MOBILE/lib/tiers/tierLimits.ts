@@ -19,7 +19,7 @@ export type PlanTier = "free" | "pro" | "elite";
  */
 export const PLAN_LIMITS = {
   free: {
-    monthlyTextTokens: 30000,        // 30k text tokens per month
+    monthlyTextTokens: 10000,        // 10k text tokens per month (matches DEFAULT_FREE_ENTITLEMENTS)
     monthlyVoiceMinutes: 0,          // Free tier has no voice access
     dailyVoiceSoftCapMinutes: 0,     // No soft cap because voice is disabled
     monthlyAudioClips: 0,            // Free audio generation not allowed

@@ -1,9 +1,19 @@
 "use server";
 
-import { runFullAI } from "@/lib/ai/fullAI";
+import { runFullAI } from "./fullAI";
+import type { Capabilities } from "@/lib/plans/capabilities";
+import { buildRefinementGuidance } from "@/lib/plans/capabilities";
 
 export type RefinementContext = {
-  tier: "free" | "pro" | "elite";
+  /**
+   * User capabilities derived from entitlements.
+   * Replaces tier for PURE abstraction.
+   */
+  capabilities: Capabilities;
+  /**
+   * @deprecated Use capabilities instead
+   */
+  tier?: never;
   personality?: unknown;
   style?: unknown;
   overload?: number;
@@ -17,19 +27,17 @@ export async function refineResponse(raw: string, context: RefinementContext): P
 
   const systemLines: string[] = [
     "You are a refinement layer for Vella's response.",
-    "You MUST preserve the meaning, safety, and intent.",
+    "You MUST preserve the meaning, safety, and the intent.",
     "You may rewrite wording, structure, and tone.",
     "NEVER add new factual claims.",
     "NEVER remove safety-related content.",
     "Output ONLY the final user-facing message, no explanations.",
   ];
 
-  if (context.tier === "free") {
-    systemLines.push("Keep responses short, simple, and friendly. Avoid depth and long analysis.");
-  } else if (context.tier === "pro") {
-    systemLines.push("Provide clear, structured but still concise responses. Some depth, no essays.");
-  } else if (context.tier === "elite") {
-    systemLines.push("Allow deeper, more nuanced responses, but avoid rambling and repetition.");
+  // PURE abstraction: Use capabilities instead of tier strings
+  const refinementGuidance = buildRefinementGuidance(context.capabilities);
+  if (refinementGuidance) {
+    systemLines.push(refinementGuidance);
   }
 
   if (context.overload && context.overload >= 0.7) {
@@ -61,3 +69,15 @@ export async function refineResponse(raw: string, context: RefinementContext): P
   }
 }
 
+/**
+ * @deprecated Use refineResponse with capabilities instead of tier
+ */
+export async function refineResponseWithTier(
+  _raw: string,
+  _context: { tier: string }
+): Promise<never> {
+  throw new Error(
+    "refineResponseWithTier() is removed. Use refineResponse() with capabilities. " +
+    "See lib/plans/NO_TIER_STRINGS_RULE.md"
+  );
+}

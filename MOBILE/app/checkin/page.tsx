@@ -17,17 +17,98 @@ import {
   addCheckin,
   hasCheckedInToday,
   calculateDailyScore,
+  migrateContractOrigin,
 } from "@/app/checkin/engine";
 import { getUserAllowed, getLimitMessage } from "@/app/checkin/limits";
+import { getSelectedDomainLabels } from "@/lib/focusAreas";
+import { addLocalBehaviourEvent } from "@/lib/local/behaviourEventsLocal";
 
 const STORAGE_KEY = "vella-checkin-v1";
 
+// ---------------------------------------------------------------------------
+// OS State types (mirrors GET /api/checkin/contracts response)
+// ---------------------------------------------------------------------------
+interface OSWeekly {
+  used: number;
+  cap: number;
+  remaining: number;
+}
+
+interface OSSystem {
+  phase: string;
+  top_priority_domain: string;
+  urgency_level: number | null;
+  enforcement_mode: string;
+  updated_at: string;
+}
+
+interface OSBudget {
+  constraint_level: string;
+}
+
+interface OSContract {
+  id: string;
+  template_id: string;
+  domain: string;
+  origin: string;
+  severity: string;
+  enforcement_mode: string;
+  duration_days: number;
+  budget_weight: number;
+  created_at: string;
+  expires_at: string;
+}
+
+interface OSPayload {
+  ok: boolean;
+  planTier: string;
+  weekly: OSWeekly;
+  system: OSSystem | null;
+  budget: OSBudget | null;
+  contracts: OSContract[];
+  warnings?: string[];
+}
+
+// ---------------------------------------------------------------------------
+// Local app state
+// ---------------------------------------------------------------------------
 interface AppState {
   weekKey: string;
   contracts: WeeklyContract[];
   todayRatings: Record<string, Rating>;
   isLocked: boolean;
   completedDays: number;
+}
+
+// ---------------------------------------------------------------------------
+// Capacity bar component
+// ---------------------------------------------------------------------------
+function CapacityBar({ used, cap, constraintLevel }: { used: number; cap: number; constraintLevel?: string }) {
+  const total = 5;
+  const filled = Math.min(used, cap);
+  // Constraint-level responsive fill color
+  const fillColor =
+    constraintLevel === "critical" ? "bg-red-500" :
+    constraintLevel === "elevated" ? "bg-amber-500" :
+    "bg-emerald-500";
+  return (
+    <div className="flex gap-1">
+      {Array.from({ length: total }, (_, i) => (
+        <div
+          key={i}
+          className={`h-1.5 flex-1 rounded-full ${
+            i < filled
+              ? i < cap
+                ? fillColor
+                : "bg-red-400"
+              : i < cap
+                ? "bg-slate-200"
+                : "bg-slate-100"
+          }`}
+        />
+      ))}
+    </div>
+  );
 }
 
 export default function CheckinPage() {
@@ -40,6 +121,14 @@ export default function CheckinPage() {
   });
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isHydrated, setIsHydrated] = useState(false);
+
+  // OS state from API
+  const [osWeekly, setOsWeekly] = useState<OSWeekly | null>(null);
+  const [osSystem, setOsSystem] = useState<OSSystem | null>(null);
+  const [osBudget, setOsBudget] = useState<OSBudget | null>(null);
+
+  // Selected domains from canonical focus areas store (not derived from contracts)
+  const [selectedDomains, setSelectedDomains] = useState<string[]>([]);
 
   // Refs for sigil animation - detect completedDays delta
   const prevCompletedDaysRef = useRef(state.completedDays);
@@ -56,18 +145,33 @@ export default function CheckinPage() {
 
         // Check if week rolled over
         if (parsed.weekKey === currentWeek) {
+          // Migrate legacy "vella" origins at read boundary
+          const migratedContracts = (parsed.contracts || []).map(
+            (c: WeeklyContract & { origin: string }) => ({
+              ...c,
+              origin: migrateContractOrigin(c.origin),
+            })
+          );
           setState({
             weekKey: parsed.weekKey,
-            contracts: parsed.contracts || [],
+            contracts: migratedContracts,
             todayRatings: parsed.todayRatings || {},
             isLocked: parsed.isLocked || false,
             completedDays: parsed.completedDays || 0,
           });
         } else {
-          // Week changed - reset but keep vella contracts (in real app, these come from API)
+          // Week changed - reset, system contracts will come from API
+          const migratedContracts = (parsed.contracts || []).map(
+            (c: WeeklyContract & { origin: string }) => ({
+              ...c,
+              origin: migrateContractOrigin(c.origin),
+            })
+          );
           setState({
             weekKey: currentWeek,
-            contracts: (parsed.contracts || []).filter((c: WeeklyContract) => c.origin === "vella"),
+            contracts: migratedContracts.filter(
+              (c: WeeklyContract) => c.origin === "user"
+            ),
             todayRatings: {},
             isLocked: false,
             completedDays: 0,
@@ -78,6 +182,54 @@ export default function CheckinPage() {
       }
     }
     setIsHydrated(true);
+
+    // Load selected domains from focus areas store
+    setSelectedDomains(getSelectedDomainLabels());
+  }, []);
+
+  // Fetch OS contracts on mount
+  useEffect(() => {
+    let cancelled = false;
+    async function fetchOS() {
+      try {
+        const res = await fetch("/api/checkin/contracts");
+        if (!res.ok) return;
+        const data: OSPayload = await res.json();
+        if (cancelled) return;
+
+        // Store weekly + system + budget metadata
+        setOsWeekly(data.weekly);
+        setOsSystem(data.system);
+        setOsBudget(data.budget ?? null);
+
+        // Convert API contracts to local WeeklyContract shape
+        const systemContracts: WeeklyContract[] = data.contracts.map((c) => ({
+          id: c.id,
+          title: c.template_id,
+          focusArea: c.domain,
+          origin: "system" as const,
+          createdAt: c.created_at,
+          weekKey: getWeekKey(),
+        }));
+
+        // Merge: replace system contracts, keep local user contracts clamped to remaining slots
+        setState((prev) => {
+          const localUserContracts = prev.contracts.filter(
+            (c) => c.origin === "user"
+          );
+          const maxUserSlots = Math.max(0, data.weekly.cap - systemContracts.length);
+          const clampedUser = localUserContracts.slice(0, maxUserSlots);
+          return {
+            ...prev,
+            contracts: [...systemContracts, ...clampedUser],
+          };
+        });
+      } catch {
+        // API unavailable — continue with local-only contracts
+      }
+    }
+    fetchOS();
+    return () => { cancelled = true; };
   }, []);
 
   // Save to localStorage on change
@@ -86,11 +238,23 @@ export default function CheckinPage() {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
   }, [state, isHydrated]);
 
-  // Calculate counts
+  // Calculate counts — use OS weekly if available, else local fallback
   const { vellaCount, userCount } = countContracts(state.contracts);
-  const userAllowed = getUserAllowed(vellaCount);
-  const canAdd = userCount < userAllowed && vellaCount + userCount < 6;
-  const limitText = getLimitMessage(vellaCount, userCount);
+  const osRemaining = osWeekly ? osWeekly.remaining : null;
+  const isObserveMode = osSystem?.enforcement_mode === "observe";
+  const isStrictMode = osSystem?.enforcement_mode === "strict";
+  const canAdd = isObserveMode
+    ? false
+    : osRemaining !== null
+      ? osRemaining > 0 && userCount < (osWeekly!.cap - vellaCount)
+      : userCount < getUserAllowed(vellaCount) && vellaCount + userCount < 6;
+  const limitText = isObserveMode
+    ? "Observe mode active"
+    : isStrictMode
+      ? "Strict mode: duration limited to 7 days"
+      : osRemaining !== null && osRemaining <= 0
+        ? "Weekly capacity reached"
+        : getLimitMessage(vellaCount, userCount);
 
   // Handlers
   const handleCreateContract = useCallback((data: { title: string; focusArea: string; purpose?: string }) => {
@@ -163,6 +327,11 @@ export default function CheckinPage() {
         isLocked: true,
         completedDays: prev.completedDays + 1,
       }));
+      // Write local behaviour event for completed check-in (best-effort)
+      addLocalBehaviourEvent({
+        event_type: "commitment_completed",
+        occurred_at: new Date().toISOString(),
+      }).catch(() => {});
     }
   }, [state.weekKey, state.contracts, state.todayRatings]);
 
@@ -222,7 +391,9 @@ export default function CheckinPage() {
               disabled={!canAdd}
               className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
                 canAdd
-                  ? "bg-emerald-600/10 text-emerald-700 hover:bg-emerald-600/20"
+                  ? isStrictMode
+                    ? "bg-amber-600/10 text-amber-700 hover:bg-amber-600/20"
+                    : "bg-emerald-600/10 text-emerald-700 hover:bg-emerald-600/20"
                   : "bg-slate-200 text-slate-400 cursor-not-allowed"
               }`}
               title={limitText || "Create contract"}
@@ -240,6 +411,56 @@ export default function CheckinPage() {
             </div>
           </div>
         </div>
+
+        {/* OS Header Layer */}
+        {(selectedDomains.length > 0 || osWeekly || osSystem) && (
+          <div className="mt-3 space-y-2">
+            {/* A) Selected Domains */}
+            {selectedDomains.length > 0 && (
+              <div className="flex flex-wrap gap-1.5">
+                {selectedDomains.map((d) => (
+                  <span
+                    key={d}
+                    className="px-2 py-0.5 rounded-full text-[10px] font-medium bg-slate-100 text-slate-500"
+                  >
+                    {d}
+                  </span>
+                ))}
+              </div>
+            )}
+
+            {/* B) Weekly Capacity */}
+            {osWeekly && (
+              <div className="space-y-1">
+                <p className="text-[11px] text-slate-500">
+                  Weekly Capacity: {osWeekly.used} / {osWeekly.cap}
+                </p>
+                <CapacityBar used={osWeekly.used} cap={osWeekly.cap} constraintLevel={osBudget?.constraint_level} />
+              </div>
+            )}
+
+            {/* C) Enforcement Mode */}
+            {osSystem && (
+              <span className={`inline-block px-2 py-0.5 rounded text-[10px] font-medium ${
+                isObserveMode ? "bg-slate-200 text-slate-500" :
+                isStrictMode ? "bg-amber-50 text-amber-600" :
+                "bg-slate-100 text-slate-500"
+              }`}>
+                Mode: {osSystem.enforcement_mode}
+              </span>
+            )}
+
+            {/* Observe mode inline message */}
+            {isObserveMode && (
+              <p className="text-[10px] text-slate-400">Observe mode active</p>
+            )}
+
+            {/* Capacity reached hint */}
+            {osWeekly && osWeekly.remaining <= 0 && (
+              <p className="text-[10px] text-slate-400">Weekly capacity reached</p>
+            )}
+          </div>
+        )}
       </header>
 
       {/* Main content */}
@@ -282,6 +503,7 @@ export default function CheckinPage() {
                     onDelete={() => handleDeleteContract(contract.id)}
                     isDeleteConfirm={deleteConfirmId === contract.id}
                     onCancelDelete={() => setDeleteConfirmId(null)}
+                    topPriorityDomain={osSystem?.top_priority_domain}
                   />
                 ))
               )}

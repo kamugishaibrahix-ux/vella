@@ -69,9 +69,9 @@ export async function getRecentMessages(userId: string | undefined, limit = 10):
     try {
       const { loadRuntimeTuning } = await import("@/lib/admin/runtimeTuning");
       const tuning = await loadRuntimeTuning();
-      // Blend admin maxContextTurns with requested limit
-      effectiveLimit = Math.max(limit, Math.min(tuning.memory.maxContextTurns, 50));
-      selectivity = tuning.memory.selectivity;
+      const memory = (tuning as { memory?: { maxContextTurns?: number; selectivity?: number } }).memory;
+      effectiveLimit = Math.max(limit, Math.min(memory?.maxContextTurns ?? 50, 50));
+      selectivity = memory?.selectivity ?? 50;
     } catch {
       // Fall back to requested limit if admin tuning unavailable
     }

@@ -56,68 +56,61 @@ describe("validationSchemas", () => {
     });
   });
 
-  describe("journalCreateSchema", () => {
-    it("accepts valid journal entry", () => {
-      const result = journalCreateSchema.safeParse({
-        text: "My journal entry",
-        title: "Optional title",
-      });
+  describe("journalCreateSchema (metadata-only)", () => {
+    const validMeta = {
+      id: "a0000000-0000-4000-8000-000000000001",
+      word_count: 5,
+      local_hash: "a".repeat(64),
+      processing_mode: "private" as const,
+    };
+
+    it("accepts valid metadata payload", () => {
+      const result = journalCreateSchema.safeParse(validMeta);
       expect(result.success).toBe(true);
     });
 
-    it("rejects empty text", () => {
-      const result = journalCreateSchema.safeParse({
-        text: "",
-      });
+    it("rejects payload with text field (strict)", () => {
+      const result = journalCreateSchema.safeParse({ ...validMeta, text: "smuggled" });
       expect(result.success).toBe(false);
     });
 
-    it("rejects text over 10000 characters", () => {
-      const result = journalCreateSchema.safeParse({
-        text: "a".repeat(10001),
-      });
+    it("rejects invalid local_hash length", () => {
+      const result = journalCreateSchema.safeParse({ ...validMeta, local_hash: "short" });
       expect(result.success).toBe(false);
     });
 
-    it("rejects title over 200 characters", () => {
-      const result = journalCreateSchema.safeParse({
-        text: "Valid text",
-        title: "a".repeat(201),
-      });
+    it("rejects invalid UUID", () => {
+      const result = journalCreateSchema.safeParse({ ...validMeta, id: "not-a-uuid" });
       expect(result.success).toBe(false);
     });
 
     it("rejects unknown fields", () => {
-      const result = journalCreateSchema.safeParse({
-        text: "Valid text",
-        unknownField: "should be rejected",
-      });
+      const result = journalCreateSchema.safeParse({ ...validMeta, unknownField: "x" });
       expect(result.success).toBe(false);
     });
   });
 
-  describe("journalUpdateSchema", () => {
-    it("accepts valid update", () => {
-      const result = journalUpdateSchema.safeParse({
-        id: "entry-123",
-        text: "Updated text",
-      });
+  describe("journalUpdateSchema (metadata-only)", () => {
+    const validUpdate = {
+      id: "entry-123",
+      word_count: 10,
+      local_hash: "b".repeat(64),
+      processing_mode: "signals_only" as const,
+    };
+
+    it("accepts valid metadata update", () => {
+      const result = journalUpdateSchema.safeParse(validUpdate);
       expect(result.success).toBe(true);
     });
 
     it("rejects missing id", () => {
-      const result = journalUpdateSchema.safeParse({
-        text: "Text without id",
-      });
+      const { id: _, ...noId } = validUpdate;
+      const result = journalUpdateSchema.safeParse(noId);
       expect(result.success).toBe(false);
     });
 
     it("rejects unknown fields", () => {
-      const result = journalUpdateSchema.safeParse({
-        id: "entry-123",
-        text: "Valid text",
-        unknownField: "should be rejected",
-      });
+      const result = journalUpdateSchema.safeParse({ ...validUpdate, unknownField: "x" });
       expect(result.success).toBe(false);
     });
   });

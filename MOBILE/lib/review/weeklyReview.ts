@@ -14,6 +14,7 @@ import type { DailyCheckIn } from "@/lib/memory/types";
 import { getAllCheckIns, type CheckinRow } from "@/lib/checkins/getAllCheckIns";
 import { loadLocalTraitHistory } from "@/lib/local/traitsLocal";
 import { z } from "zod";
+import { getDefaultEntitlements } from "@/lib/plans/defaultEntitlements";
 
 export type WeeklyMetricDelta = TraitDelta;
 
@@ -80,14 +81,15 @@ export async function generateWeeklyReview(userId: string): Promise<WeeklyReview
   const deltas = computeTraitDeltaList(signals.traitsNow, signals.traitsPrev);
   const planTier = await getUserPlanTier(userId);
 
+  const _ent = getDefaultEntitlements(planTier);
   let review: WeeklyReview;
-  if (planTier === "free") {
+  if (!_ent.enableDeepDive) {
     review = await buildRuleBasedReview(signals, deltas);
   } else {
     review = (await buildAIReview(userId, planTier, signals, deltas)) ?? (await buildRuleBasedReview(signals, deltas));
   }
 
-  if (planTier === "elite") {
+  if (_ent.enableDeepInsights) {
     const deepBundle = await loadLatestDeepInsights(userId);
     if (deepBundle?.insights?.length) {
       review.deepInsightHighlights = deepBundle.insights

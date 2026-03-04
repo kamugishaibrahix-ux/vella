@@ -99,7 +99,6 @@ Return ONLY the final answer text.
     const raw = await runFullAI({
       system,
       messages: [{ role: "user", content: userPrompt }],
-      tier,
       model: "gpt-4o-mini",
       temperature: 0.4,
     });

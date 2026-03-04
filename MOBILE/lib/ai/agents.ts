@@ -2,6 +2,7 @@
 import { z } from "zod";
 import { openai, model } from "./client";
 import { runWithOpenAICircuit } from "./circuitBreaker";
+import { createChatCompletion } from "./safeOpenAI";
 import { runFullAI, resolveModelForTier } from "@/lib/ai/fullAI";
 import type { DailyContext } from "@/lib/ai/context/buildDailyContext";
 import type { SupportedLanguageCode } from "@/lib/ai/languages";
@@ -37,6 +38,7 @@ import {
 import { determineIntent, type IntentType } from "@/lib/ai/intent/router";
 import { DEFAULT_MEMORY_PROFILE } from "@/lib/memory/types";
 import { getUpgradeBlock, type PlanTier } from "@/lib/tiers/tierCheck";
+import { getDefaultEntitlements } from "@/lib/plans/defaultEntitlements";
 import { storyModePremiumFeaturesEnabled } from "@/lib/tiers/featureGates";
 import { generateLiteResponse } from "@/lib/ai/lite";
 import { resolvePlanTier } from "@/lib/tiers/planUtils";
@@ -344,6 +346,20 @@ const identitySchema = z.object({
   reflectionPrompts: z.array(z.string()).default([]),
 });
 
+// Combined schema for single-call emotion intel analysis (cost optimization)
+const emotionIntelBundleSchema = z.object({
+  emotion: emotionSchema,
+  attachment: attachmentSchema,
+  identity: identitySchema,
+});
+
+const architectSchema = z.object({
+  clarityScore: z.number(),
+  biasTrends: z.array(z.string()).default([]),
+  recurringThemes: z.array(z.string()).default([]),
+  forecast: z.string(),
+});
+
 function mockClarity(): ClaritySections {
   return {
     facts: ["You are facing a decision and feel uncertain."],
@@ -541,10 +557,12 @@ async function callOpenAIJson<T>(
   }
 
   const response = await runWithOpenAICircuit(() =>
-    client.chat.completions.create({
+    createChatCompletion({
+      client,
       model,
       temperature: 0.2,
-      response_format: { type: "json_object" },
+      max_tokens: 4096,
+      timeoutMs: 60_000,
       messages: [
         {
           role: "system",
@@ -554,6 +572,8 @@ async function callOpenAIJson<T>(
         },
         { role: "user", content: user },
       ],
+      extra: { response_format: { type: "json_object" } },
+      responseJsonSchema: schema as z.ZodType<unknown>,
     })
   );
 
@@ -570,7 +590,10 @@ export async function runClarityEngine(input: {
     fear?: string;
   };
 }): Promise<ClaritySections> {
-  if (!openai) return mockClarity();
+  if (!openai) {
+    if (process.env.NODE_ENV === "development") return mockClarity();
+    throw new Error("OpenAI not configured");
+  }
 
   const userPrompt = JSON.stringify(input, null, 2);
 
@@ -602,14 +625,18 @@ Output structure (JSON):
     );
   } catch (err) {
     console.error("runClarityEngine error", err);
-    return mockClarity();
+    if (process.env.NODE_ENV === "development") return mockClarity();
+    throw err;
   }
 }
 
 export async function runStoicStrategist(params: {
   clarity: ClaritySections;
 }): Promise<StrategyResult> {
-  if (!openai) return mockStrategy();
+  if (!openai) {
+    if (process.env.NODE_ENV === "development") return mockStrategy();
+    throw new Error("OpenAI not configured");
+  }
 
   const userPrompt = JSON.stringify(params, null, 2);
 
@@ -640,7 +667,8 @@ Output structure (JSON):
     );
   } catch (err) {
     console.error("runStoicStrategist error", err);
-    return mockStrategy();
+    if (process.env.NODE_ENV === "development") return mockStrategy();
+    throw err;
   }
 }
 
@@ -648,7 +676,10 @@ export async function runDeepDive(input: {
   section: string;
   text: string;
 }): Promise<DeepDiveResult> {
-  if (!openai) return mockDeepDive();
+  if (!openai) {
+    if (process.env.NODE_ENV === "development") return mockDeepDive();
+    throw new Error("OpenAI not configured");
+  }
 
   const userPrompt = JSON.stringify(input, null, 2);
 
@@ -674,14 +705,18 @@ Output structure (JSON):
     );
   } catch (err) {
     console.error("runDeepDive error", err);
-    return mockDeepDive();
+    if (process.env.NODE_ENV === "development") return mockDeepDive();
+    throw err;
   }
 }
 
 export async function runCompassMode(input: {
   raw: string;
 }): Promise<CompassResult> {
-  if (!openai) return mockCompass();
+  if (!openai) {
+    if (process.env.NODE_ENV === "development") return mockCompass();
+    throw new Error("OpenAI not configured");
+  }
 
   const userPrompt = JSON.stringify(input, null, 2);
 
@@ -709,16 +744,53 @@ Output structure (JSON):
     );
   } catch (err) {
     console.error("runCompassMode error", err);
-    return mockCompass();
+    if (process.env.NODE_ENV === "development") return mockCompass();
+    throw err;
   }
 }
 
 export async function runLifeArchitect(userId: string): Promise<ArchitectSummary> {
-  return mockArchitect();
+  if (process.env.NODE_ENV === "development" && !openai) {
+    return mockArchitect();
+  }
+  if (!openai) {
+    throw new Error("OpenAI not configured");
+  }
+  const userPrompt = JSON.stringify({ userId }, null, 2);
+  try {
+    return await callOpenAIJson(
+      architectSchema,
+      `
+You are the Life Architect inside Vella.
+
+Given the user context (or minimal context when only userId is provided), produce a brief behavioural summary:
+- clarityScore: number 0–100 (overall clarity of direction)
+- biasTrends: string[] (1–3 short labels for cognitive bias trends)
+- recurringThemes: string[] (1–3 recurring life themes)
+- forecast: string (one short sentence on what to expect next)
+
+Output structure (JSON):
+{
+  "clarityScore": number,
+  "biasTrends": string[],
+  "recurringThemes": string[],
+  "forecast": string
+}
+      `,
+      userPrompt,
+    );
+  } catch (err) {
+    console.error("runLifeArchitect error", err);
+    if (process.env.NODE_ENV === "development") return mockArchitect();
+    throw err;
+  }
 }
 
 export async function runEmotionLens(input: { text: string }): Promise<EmotionAnalysis> {
-  if (!openai) return mockEmotion();
+  if (!openai) {
+    if (process.env.NODE_ENV === "development") return mockEmotion();
+    throw new Error("OpenAI not configured");
+  }
 
   const userPrompt = JSON.stringify(input, null, 2);
 
@@ -745,12 +817,16 @@ Output structured JSON only.
     );
   } catch (err) {
     console.error("runEmotionLens error", err);
-    return mockEmotion();
+    if (process.env.NODE_ENV === "development") return mockEmotion();
+    throw err;
   }
 }
 
 export async function runAttachmentAnalyzer(input: { text: string }): Promise<AttachmentReport> {
-  if (!openai) return mockAttachment();
+  if (!openai) {
+    if (process.env.NODE_ENV === "development") return mockAttachment();
+    throw new Error("OpenAI not configured");
+  }
 
   const userPrompt = JSON.stringify(input, null, 2);
 
@@ -775,12 +851,16 @@ Output structured JSON only.
     );
   } catch (err) {
     console.error("runAttachmentAnalyzer error", err);
-    return mockAttachment();
+    if (process.env.NODE_ENV === "development") return mockAttachment();
+    throw err;
   }
 }
 
 export async function runIdentityMirror(input: { text: string }): Promise<IdentityProfile> {
-  if (!openai) return mockIdentity();
+  if (!openai) {
+    if (process.env.NODE_ENV === "development") return mockIdentity();
+    throw new Error("OpenAI not configured");
+  }
 
   const userPrompt = JSON.stringify(input, null, 2);
 
@@ -807,16 +887,58 @@ Output structured JSON only.
     );
   } catch (err) {
     console.error("runIdentityMirror error", err);
-    return mockIdentity();
+    if (process.env.NODE_ENV === "development") return mockIdentity();
+    throw err;
   }
 }
 
 export async function runEmotionIntelBundle(input: { text: string }): Promise<EmotionIntelBundle> {
-  const emotion = await runEmotionLens({ text: input.text });
-  const attachment = await runAttachmentAnalyzer({ text: input.text });
-  const identity = await runIdentityMirror({ text: input.text });
+  if (!openai) {
+    if (process.env.NODE_ENV === "development") {
+      return {
+        emotion: mockEmotion(),
+        attachment: mockAttachment(),
+        identity: mockIdentity(),
+      };
+    }
+    throw new Error("OpenAI not configured");
+  }
 
-  return { emotion, attachment, identity };
+  const userPrompt = JSON.stringify(input, null, 2);
+
+  try {
+    // Single OpenAI call for all three analyses (3x cost reduction vs sequential calls)
+    const result = await callOpenAIJson(
+      emotionIntelBundleSchema,
+      `
+You are the combined Emotion Intelligence analyzer for Vella. Perform three analyses in one response:
+
+## 1. EMOTION ANALYSIS (emotion field)
+Identify the user's primary and secondary emotions. Infer possible hidden emotions beneath the surface. Note physical sensations and cognitive patterns. Identify likely triggers and underlying fears. Ask diagnostic questions to help the user explore deeper. Suggest plausible answers based on common patterns (make clear they are possibilities, not facts). Explain what this emotion might be signalling in their life. Offer short, practical regulation strategies. End with a simple, concrete short-term plan for the next 10–30 minutes.
+
+## 2. ATTACHMENT ANALYSIS (attachment field)
+Infer possible attachment style tendencies (anxious, avoidant, secure, mixed), but NEVER state a diagnosis. List textual signals that support your interpretation. Describe recurring relational patterns that might be present. Identify typical triggers for these patterns. Offer protective strategies that move them toward more secure relating. Suggest growth-focused behavioural experiments. Provide journaling prompts for deeper exploration.
+
+## 3. IDENTITY ANALYSIS (identity field)
+Infer core values that seem important to them. Highlight recurring dilemmas they may be facing. Surface self-stories they might be telling themselves. Point out strengths that are visible in how they think/feel. Gently surface likely blind spots. Identify growth edges (where they can mature). Offer reflection prompts that help them understand themselves better. Stay non-pathologising, non-judgemental, and empowering.
+
+Output a single JSON object with emotion, attachment, and identity fields matching the schemas above. No markdown, no commentary outside the JSON.
+      `,
+      userPrompt,
+    );
+
+    return result;
+  } catch (err) {
+    console.error("runEmotionIntelBundle error", err);
+    if (process.env.NODE_ENV === "development") {
+      return {
+        emotion: mockEmotion(),
+        attachment: mockAttachment(),
+        identity: mockIdentity(),
+      };
+    }
+    throw err;
+  }
 }
 
 function mapModeToFeatureKey(mode: ConversationMode): string {
@@ -1042,7 +1164,8 @@ export async function runConversationalGuide(input: {
   let goalsSummary: string | null = null;
 
   if (userId) {
-    const summaryPromise = planTier === "free" ? Promise.resolve(null) : getSummary(userId);
+    const _agentEnt = getDefaultEntitlements(planTier);
+    const summaryPromise = !_agentEnt.enableDeepDive ? Promise.resolve(null) : getSummary(userId);
     const goalsPromise = listGoals(userId).catch((error) => {
       console.error("[agents] listGoals error", error);
       return [];
@@ -1097,11 +1220,14 @@ export async function runConversationalGuide(input: {
   }
 
   if (!openai) {
-    const liteMessage = await generateLiteResponse(anchoredUserMessage, persona);
-    return {
-      type: "lite_mode",
-      message: liteMessage,
-    };
+    if (process.env.NODE_ENV === "development") {
+      const liteMessage = await generateLiteResponse(anchoredUserMessage, persona);
+      return {
+        type: "lite_mode",
+        message: liteMessage,
+      };
+    }
+    throw new Error("OpenAI not configured");
   }
 
   const baseToneProfile = resolveToneProfile(intent);
@@ -1280,7 +1406,6 @@ export async function runConversationalGuide(input: {
       system: combinedSystemPrompt,
       messages: userMessages,
       context: aiContext,
-      tier: planTier,
       personality: personalityProfile ?? undefined,
     });
 
@@ -1468,7 +1593,8 @@ function sanitizeDailyContextForTier(
   context: DailyContext | null,
 ): DailyContext | null {
   if (!context) return null;
-  if (tier !== "free") return context;
+  const _ent = getDefaultEntitlements(tier);
+  if (_ent.enableDeepDive) return context;
   return {
     ...context,
     patterns: null,
@@ -1484,7 +1610,8 @@ function sanitizeDailyContextForTier(
 }
 
 function sanitizeSnapshotForTier(tier: PlanTier, snapshot: unknown): unknown {
-  if (tier !== "free" || !snapshot || typeof snapshot !== "object") {
+  const _ent = getDefaultEntitlements(tier);
+  if (_ent.enableDeepDive || !snapshot || typeof snapshot !== "object") {
     return snapshot;
   }
   const clone: Record<string, unknown> = { ...(snapshot as Record<string, unknown>) };

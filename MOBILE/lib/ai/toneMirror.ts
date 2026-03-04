@@ -53,7 +53,6 @@ Detect tone traits and output JSON only.
       system: systemPrompt,
       messages: [{ role: "user", content: userPrompt }],
       temperature: 0.1,
-      tier: "free",
     });
     const parsed = JSON.parse(response ?? "{}") as Partial<ToneProfile>;
     return normalizeToneProfile(parsed);

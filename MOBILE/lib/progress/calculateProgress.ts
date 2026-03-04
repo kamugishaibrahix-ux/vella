@@ -24,7 +24,7 @@ export async function calculateProgress(
     (recentCheckins.length / 12) * 0.7 + (recentJournals.length / 6) * 0.3,
   );
   const emotionalOpenness = clamp(
-    computeAverageLength(recentJournals.map((j) => j.content ?? "")) / 220 +
+    computeAverageLength(recentJournals.map((j) => (j as { content?: string }).content ?? "")) / 220 +
       computeAverageLength(recentCheckins.map((c) => c.note ?? "")) / 180,
   );
   const improvementScore = computeImprovementScore(checkins);

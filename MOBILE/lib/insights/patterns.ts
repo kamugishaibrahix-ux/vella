@@ -7,6 +7,7 @@ import type { ServerPersonaSettings } from "@/lib/ai/personaServer";
 import type { MemoryProfile, DailyCheckIn } from "@/lib/memory/types";
 import type { LocalJournalEntry } from "@/lib/local/journalLocal";
 import { getAllCheckIns, type CheckinRow } from "@/lib/checkins/getAllCheckIns";
+import { getDefaultEntitlements } from "@/lib/plans/defaultEntitlements";
 
 type JournalRow = LocalJournalEntry;
 
@@ -31,7 +32,8 @@ export async function generateEmotionalPatterns(
     personaSettingsPromise,
   ]);
 
-  if (planTier === "free") {
+  const _ent = getDefaultEntitlements(planTier);
+  if (!_ent.enableDeepDive) {
     return {
       patterns: buildLitePatternSnapshot(checkins, journals),
       planTier,

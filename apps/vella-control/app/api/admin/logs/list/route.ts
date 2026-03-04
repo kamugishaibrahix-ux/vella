@@ -48,10 +48,10 @@ export async function GET(request: Request) {
 
     const now = new Date();
     const nowMs = now.getTime();
-    let cutoffDate: Date;
+    let cutoffDate: Date = new Date();
     if (typeof parsed.data === "number") {
       cutoffDate = new Date(parsed.data);
-    } else if (SINCE_PRESETS.includes(parsed.data)) {
+    } else if ((SINCE_PRESETS as readonly string[]).includes(parsed.data)) {
       switch (parsed.data) {
         case "15m":
           cutoffDate = new Date(nowMs - 15 * 60 * 1000);

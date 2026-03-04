@@ -8,6 +8,7 @@ import { getUserPlanTier } from "@/lib/tiers/server";
 import type { PlanTier } from "@/lib/tiers/tierCheck";
 import { callVellaReflectionAPI } from "@/lib/ai/reflection";
 import type { LocalJournalEntry } from "@/lib/local/journalLocal";
+import { getDefaultEntitlements } from "@/lib/plans/defaultEntitlements";
 
 type JournalRow = LocalJournalEntry;
 
@@ -29,7 +30,8 @@ export async function analyseJournalEntries(userId: string): Promise<JournalThem
     return [];
   }
 
-  if (planTier === "free") {
+  const _ent = getDefaultEntitlements(planTier);
+  if (!_ent.enableDeepDive) {
     return buildLiteThemes(entries);
   }
 

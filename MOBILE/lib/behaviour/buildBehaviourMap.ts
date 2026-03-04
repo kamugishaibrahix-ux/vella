@@ -50,7 +50,6 @@ Output JSON only.
 `.trim(),
       messages: [{ role: "user", content: JSON.stringify(input) }],
       temperature: 0.2,
-      tier: "elite",
     });
     return result ? JSON.parse(result) : {};
   } catch (error) {

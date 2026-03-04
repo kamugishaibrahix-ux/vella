@@ -211,3 +211,25 @@ export type InboxItem = {
   status: InboxItemStatus;
   snooze_until?: string; // ISO timestamp — scheduler ignores until this time
 };
+
+// ---------------------------------------------------------------------------
+// Phase 2.2 — Proposal inbox items (OS-signal pipeline)
+// ---------------------------------------------------------------------------
+
+export const PROPOSAL_INBOX_STATUSES = ["pending", "confirmed", "dismissed"] as const;
+export type ProposalInboxStatus = (typeof PROPOSAL_INBOX_STATUSES)[number];
+
+/** Local-only proposal inbox item stored in IndexedDB. No free text. */
+export type ProposalInboxItem = {
+  id: string;
+  type: "proposal_ready";
+  proposal_id: string;
+  domain: string;
+  severity: "low" | "moderate" | "high";
+  reason_codes: string[];
+  created_at: string;
+  status: ProposalInboxStatus;
+};
+
+/** Union of all inbox item shapes for the local store. */
+export type AnyInboxItem = InboxItem | ProposalInboxItem;
