@@ -227,6 +227,9 @@ export async function POST(req: Request) {
   let sessionId: string | undefined | null;
   let requestedMode: string | null | undefined;
   let osMode: string | null | undefined;
+  let interactionMode: string | null | undefined;
+  let image: string | null = null;
+  let hasImage = false;
   let activeValues: string[] | undefined;
   let conversationHistory: { role: "user" | "assistant"; content: string }[] | undefined;
 
@@ -247,6 +250,8 @@ export async function POST(req: Request) {
     sessionId = undefined;
     requestedMode = null;
     osMode = null;
+    interactionMode = null;
+    image = null;
     activeValues = undefined;
     conversationHistory = undefined;
   } else {
@@ -265,6 +270,10 @@ export async function POST(req: Request) {
     sessionId = parsed.session_id;
     requestedMode = parsed.mode;
     osMode = parsed.osMode;
+    interactionMode = parsed.interactionMode ?? null;
+    image = parsed.image ?? null;
+    hasImage = parsed.hasImage === true;
+    console.log("[VellaVision] ROUTE", { hasImage, imageLength: image?.length ?? 0, imageSlice: image?.slice(0, 50) });
     activeValues = parsed.activeValues;
     conversationHistory = parsed.conversationHistory;
   }
@@ -540,7 +549,7 @@ export async function POST(req: Request) {
       ? (prefsData.selected_focus_domains as FocusDomain[])
       : [];
 
-  const proposal: PendingProposal | null = detectProposal({
+  let proposal: PendingProposal | null = detectProposal({
     contradictionDetected: behaviourSnapshot.contradictionDetected,
     recentCommitmentViolations: behaviourSnapshot.recentCommitmentViolations,
     recentAbstinenceViolations: behaviourSnapshot.recentAbstinenceViolations,
@@ -551,6 +560,11 @@ export async function POST(req: Request) {
     enforcementMode: sysData?.enforcement_mode ?? null,
     selectedDomains,
   });
+
+  // Gate: AI contract proposals only in Plan interaction mode
+  if (interactionMode !== "plan") {
+    proposal = null;
+  }
 
   const prompt = buildVellaTextPrompt({
     userMessage: text,
@@ -578,15 +592,29 @@ export async function POST(req: Request) {
     async () => {
       logTokenLedgerEvent({ eventType: "openai_start", userId, requestId, route: "vella_text" });
 
-      let reply: string;
+      let completionResult: { text: string; visionUsed: boolean };
       try {
         // Pass output cap constraint based on tier
-        reply = await runVellaTextCompletion(prompt, userId, { mode: finalMode, maxTokens: outputCap });
+        completionResult = await runVellaTextCompletion(prompt, userId, {
+          mode: finalMode,
+          interactionMode: (interactionMode as "reflect" | "guide" | "plan" | null) ?? undefined,
+          imageUrl: image,
+          hasImage,
+          userMessage: text,
+          maxTokens: outputCap,
+        });
       } catch (err) {
         trace.openai_call.success = false;
         trace.openai_call.duration_ms = Date.now() - openaiStartMs;
-        trace.openai_call.error_message = err instanceof Error ? err.message : "openai_failed";
+        const errMsg = err instanceof Error ? err.message : "openai_failed";
+        trace.openai_call.error_message = errMsg;
         logTokenLedgerEvent({ eventType: "openai_complete", userId, requestId, route: "vella_text", success: false });
+
+        // Vision hard-fail: return 400 instead of generic 503
+        if (errMsg.startsWith("VISION_IMAGE_REJECTED:")) {
+          const reason = errMsg.split(":")[1] ?? "unknown";
+          throw new Error(`VISION_IMAGE_REJECTED:${reason}`);
+        }
         throw new Error("openai_failed");
       }
 
@@ -594,7 +622,7 @@ export async function POST(req: Request) {
       trace.openai_call.duration_ms = Date.now() - openaiStartMs;
       logTokenLedgerEvent({ eventType: "openai_complete", userId, requestId, route: "vella_text", success: true });
 
-      const safeReply = await filterUnsafeContent(reply);
+      const safeReply = await filterUnsafeContent(completionResult.text);
 
       // Crisis mode event recording
       if (finalMode === "crisis") {
@@ -628,6 +656,7 @@ export async function POST(req: Request) {
         emotionIntel: null,
         sessionState: null,
         proposal: proposal ?? undefined,
+        visionUsed: completionResult.visionUsed,
       };
     }
   );
@@ -670,6 +699,14 @@ export async function POST(req: Request) {
       trace.route_path = "pii_firewall";
       finalizeTrace(trace);
       return piiViolationResponse(requestId, "Metadata validation failed");
+    }
+
+    // Vision image rejected → 400
+    if (errorCode.includes("vision_image_rejected") || result.error?.includes("VISION_IMAGE_REJECTED")) {
+      const reason = result.error?.split(":")[1] ?? "unknown";
+      trace.error = { stage: "vision", message: `Image rejected: ${reason}`, code: "VISION_IMAGE_REJECTED", status: 400 };
+      trace.route_path = "vision_rejected";
+      return tracedResponse({ error: "VISION_IMAGE_REJECTED", reason }, 400, trace, debug);
     }
 
     // True system failures → 503

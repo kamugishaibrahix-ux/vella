@@ -32,10 +32,41 @@ import { useAccountStatus } from "@/app/components/providers/AccountStatusProvid
 // UpgradeModal kept in codebase but no longer mounted from session page
 // import { UpgradeModal } from "@/components/UpgradeModal";
 import { useApiErrorGuard, extractApiError, ERROR_MESSAGES } from "@/hooks/useApiErrorGuard";
-import { OSModeSelector } from "@/components/OSModeSelector";
-import { getStoredOSMode } from "@/lib/system/osModes";
+import { InteractionModeSelector } from "@/components/InteractionModeSelector";
+import { getStoredInteractionMode } from "@/lib/session/interactionMode";
 
 const VELLA_DEBUG = process.env.NEXT_PUBLIC_VELLA_DEBUG === "1";
+
+const MAX_COMPRESSED_IMAGE_LENGTH = 3_500_000;
+
+function compressImageToDataUrl(file: File): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const img = new window.Image();
+    img.onload = () => {
+      const maxDim = 1024;
+      let { width, height } = img;
+      if (width > maxDim || height > maxDim) {
+        if (width > height) {
+          height = Math.round(height * (maxDim / width));
+          width = maxDim;
+        } else {
+          width = Math.round(width * (maxDim / height));
+          height = maxDim;
+        }
+      }
+      const canvas = document.createElement("canvas");
+      canvas.width = width;
+      canvas.height = height;
+      const ctx = canvas.getContext("2d");
+      if (!ctx) { reject(new Error("Canvas not supported")); return; }
+      ctx.drawImage(img, 0, 0, width, height);
+      const dataUrl = canvas.toDataURL("image/jpeg", 0.72);
+      resolve(dataUrl);
+    };
+    img.onerror = () => reject(new Error("Failed to load image"));
+    img.src = URL.createObjectURL(file);
+  });
+}
 
 interface VellaDebugInfo {
   trace_id: string;
@@ -243,11 +274,12 @@ export default function SessionPage() {
       previousMessages.map((m) => ({ role: m.role, content: m.content }))
     );
 
-    // Add user message with image marker if present
-    const userContent = hasImage
-      ? `[Image attached] ${text || "What do you see?"}`
-      : text;
-    addMessage({ sessionId, role: "user", content: userContent });
+    // Add user message — image persisted on the message itself
+    const userContent = text || "";
+    const savedMsg = addMessage({ sessionId, role: "user", content: userContent, image: imageToSend ?? null });
+    if (hasImage && imageToSend) {
+      console.log("[VellaVision] CLIENT", { messageId: savedMsg.id, imageSlice: imageToSend.slice(0, 50) });
+    }
     refreshMessages();
 
     setSending(true);
@@ -257,7 +289,7 @@ export default function SessionPage() {
         message: text || (hasImage ? "What do you see?" : ""),
         session_id: sessionId,
         conversationHistory: history,
-        osMode: getStoredOSMode(),
+        interactionMode: getStoredInteractionMode(),
       };
 
       // If image is present, add it as base64
@@ -375,21 +407,27 @@ export default function SessionPage() {
     [handleSend]
   );
 
-  // Handle image selection
-  const handleImageSelect = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+  // Handle image selection with canvas compression
+  const handleImageSelect = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
     // Validate file type and size
     if (!file.type.startsWith("image/")) return;
-    if (file.size > 10 * 1024 * 1024) return; // 10MB max
+    if (file.size > 10 * 1024 * 1024) return; // 10MB max raw file
 
-    setImageFile(file);
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      setSelectedImage(event.target?.result as string);
-    };
-    reader.readAsDataURL(file);
+    try {
+      const compressed = await compressImageToDataUrl(file);
+      console.log("[VellaVision] CLIENT compressedLength=", compressed.length);
+      if (compressed.length > MAX_COMPRESSED_IMAGE_LENGTH) {
+        setError("Image too large, try a smaller image");
+        return;
+      }
+      setImageFile(file);
+      setSelectedImage(compressed);
+    } catch {
+      setError("Failed to process image");
+    }
   }, []);
 
   // Clear selected image
@@ -432,7 +470,7 @@ export default function SessionPage() {
   const hasText = input.trim().length > 0;
 
   return (
-    <div className="h-dvh flex flex-col overflow-hidden bg-gradient-to-b from-[#f3f6fb] to-[#eef2f7] text-gray-900 max-w-full" style={{ maxWidth: 640, margin: "0 auto", width: "100%" }}>
+    <div className="h-dvh flex flex-col bg-gradient-to-b from-[#f3f6fb] to-[#eef2f7] text-gray-900 max-w-full" style={{ maxWidth: 640, margin: "0 auto", width: "100%" }}>
       {/* Header */}
       <header className="shrink-0 h-14 flex items-center justify-between px-4 w-full" style={{ paddingTop: "env(safe-area-inset-top, 0px)" }}>
         <div className="flex items-center gap-2 min-w-0 flex-1">
@@ -495,7 +533,7 @@ export default function SessionPage() {
           </p>
         )}
         <div className="mt-1">
-          <OSModeSelector variant="compact" />
+          <InteractionModeSelector variant="compact" />
         </div>
       </div>
 
@@ -507,12 +545,13 @@ export default function SessionPage() {
       )}
 
       {/* Message Area */}
-      <div className="flex-1 overflow-y-auto overflow-x-hidden scrollbar-hide bg-gradient-to-b from-neutral-50 to-neutral-100 px-4 sm:px-6 py-6 sm:py-8 space-y-6 min-h-0">
+      <div className="flex-1 overflow-y-auto overflow-x-hidden overscroll-contain scrollbar-hidden bg-gradient-to-b from-neutral-50 to-neutral-100 px-4 sm:px-6 py-6 sm:py-8 space-y-6 min-h-0">
         {messages.map((m) => (
           <div key={m.id}>
             <VellaMessageBubble
               role={m.role}
               content={m.content}
+              image={m.image ?? null}
             />
             {VELLA_DEBUG && m.role === "assistant" && debugInfoMap[m.id] && (
               <div className="ml-4 mt-1">
@@ -653,7 +692,7 @@ export default function SessionPage() {
       </div>
 
       {/* Composer */}
-      <div className="shrink-0 sticky bottom-0 border-t border-gray-200 bg-gradient-to-b from-[#eef2f7] to-[#eef2f7] px-4 py-3" style={{ paddingBottom: "max(12px, env(safe-area-inset-bottom, 0px))" }}>
+      <div className="shrink-0 sticky bottom-0 z-10 border-t border-gray-200 bg-gradient-to-b from-[#eef2f7] to-[#eef2f7] px-4 py-3" style={{ paddingBottom: "max(12px, env(safe-area-inset-bottom, 0px))" }}>
         {/* UX hint banner based on last response */}
         {lastResponseReason === "token_blocked" && (
           <div className="mb-2 px-1 text-xs text-amber-600">

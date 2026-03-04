@@ -285,7 +285,7 @@ describe("POST /api/vella/text", () => {
     mocks.getPriorViolationTrendSnapshot.mockResolvedValue([]);
     mocks.isGovernanceStale.mockReturnValue(false);
     mocks.computeGovernanceState.mockResolvedValue({ success: true });
-    mocks.runVellaTextCompletion.mockResolvedValue("Raw model reply.");
+    mocks.runVellaTextCompletion.mockResolvedValue({ text: "Raw model reply.", visionUsed: false });
     mocks.filterUnsafeContent.mockImplementation((t: string) => Promise.resolve(t));
     mocks.recordConversationMetadataV2.mockResolvedValue(undefined);
   });
@@ -319,7 +319,7 @@ describe("POST /api/vella/text", () => {
   });
 
   it("applies filterUnsafeContent to model reply before returning", async () => {
-    mocks.runVellaTextCompletion.mockResolvedValue("Unfiltered reply from model.");
+    mocks.runVellaTextCompletion.mockResolvedValue({ text: "Unfiltered reply from model.", visionUsed: false });
     mocks.filterUnsafeContent.mockResolvedValue("Filtered reply.");
     const req = new Request("http://localhost/api/vella/text", {
       method: "POST",

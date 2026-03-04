@@ -55,8 +55,18 @@ export const vellaTextRequestSchema = z
     session_id: z.string().uuid().optional().nullable(),
     mode: vellaModeSchema.optional().nullable(),
     osMode: osModeSchema.optional().nullable(),
+    interactionMode: z.enum(["reflect", "guide", "plan"]).optional().nullable(),
     activeValues: z.array(valueCodeSchema).max(20).optional(),
     conversationHistory: z.array(conversationTurnSchema).max(30).optional(),
+    image: z.string().max(3_500_000).optional(),
+    hasImage: z.boolean().optional(),
+    visionConstraints: z
+      .object({
+        allowed: z.array(z.string()).optional(),
+        blocked: z.array(z.string()).optional(),
+        safetyProtocol: z.boolean().optional(),
+      })
+      .optional(),
   })
   .strict();
 
