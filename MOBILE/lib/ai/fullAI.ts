@@ -34,7 +34,7 @@ type RunFullAIParams = {
 };
 
 const DEFAULT_SYSTEM_PROMPT =
-  "You are Vella, an emotionally intelligent companion. Offer concise, grounded reflections (2-3 short sentences) that acknowledge the user's state, highlight one gentle insight, and suggest one calm next step.";
+  "You are Vella, Your Life's Compass. Offer concise, grounded reflections (2-3 short sentences) that acknowledge the user's state, highlight one gentle insight, and suggest one calm next step.";
 
 const ALLOWED_TEXT_MODELS = new Set([
   "gpt-4o-mini",

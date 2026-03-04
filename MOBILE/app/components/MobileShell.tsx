@@ -7,6 +7,8 @@ import { LockProvider } from "@/lib/security/lockState";
 import { LockScreen } from "./LockScreen";
 import { EntitlementsProvider, TokenBalanceProvider, AccountStatusProvider } from "./providers";
 import { AuthBootstrap } from "./providers/AuthBootstrap";
+import { OnboardingGate } from "./OnboardingGate";
+import { PwaInstallHandler } from "./PwaInstallHandler";
 
 /**
  * Routes that should display the bottom navigation.
@@ -41,7 +43,7 @@ export function MobileShell({ children }: { children: React.ReactNode }) {
               <AccountStatusProvider>
                 <div className="h-dvh flex flex-col">
                   <TriggerSchedulerProvider />
-                  <main className="flex-1 min-h-0 w-full flex flex-col overflow-hidden">{children}</main>
+                  <main className="flex-1 min-h-0 w-full flex flex-col overflow-hidden"><OnboardingGate>{children}</OnboardingGate></main>
                 </div>
               </AccountStatusProvider>
             </TokenBalanceProvider>
@@ -60,7 +62,8 @@ export function MobileShell({ children }: { children: React.ReactNode }) {
             <AccountStatusProvider>
               <div className="min-h-screen flex flex-col">
                 <TriggerSchedulerProvider />
-                <main className="flex-1 min-h-0 w-full flex flex-col">{children}</main>
+                <PwaInstallHandler />
+                <main className="flex-1 min-h-0 w-full flex flex-col"><OnboardingGate>{children}</OnboardingGate></main>
                 {showBottomNav && (
                   <div className="sticky bottom-0 w-full z-50">
                     <BottomNav />

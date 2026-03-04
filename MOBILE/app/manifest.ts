@@ -4,7 +4,7 @@ export default function manifest(): MetadataRoute.Manifest {
   return {
     name: "Vella",
     short_name: "Vella",
-    description: "Your emotionally intelligent companion for clarity, insight, and calm.",
+    description: "Your Life's Compass",
     start_url: "/",
     display: "standalone",
     orientation: "portrait",

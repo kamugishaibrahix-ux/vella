@@ -29,8 +29,8 @@ const dmSans = DM_Sans({
 });
 
 export const metadata: Metadata = {
-  title: "Vella",
-  description: "Emotionally intelligent companion",
+  title: "Vella — Your Life's Compass",
+  description: "Your Life's Compass",
   icons: {
     icon: "/icons/icon-192.png",
     shortcut: "/icons/icon-192.png",

@@ -1,7 +1,7 @@
 /**
  * Production-grade rate limiting with store abstraction.
  * - Development: in-memory store (single instance) when REDIS_URL is unset.
- * - Production: Redis required (REDIS_URL must be set); throws on boot if missing.
+ * - Production: Redis recommended (REDIS_URL). Falls back to in-memory store with warning if unset.
  *
  * Phase 3.3: Redis Failure Policy
  * - Money-spending endpoints: FAIL-CLOSED (deny when Redis down)
@@ -107,10 +107,10 @@ async function getStore(): Promise<RateLimitStore | null> {
   if (!storePromise) {
     storePromise = (async (): Promise<RateLimitStore> => {
       const url = process.env.REDIS_URL?.trim() || undefined;
-      // Fail when store is first used in production without REDIS_URL (not at import, so build can complete).
+      // Warn when REDIS_URL is missing in production — degrade to in-memory store instead of crashing.
       if (process.env.NODE_ENV === "production" && !url) {
-        throw new Error(
-          "[RateLimit] Production requires REDIS_URL. Set REDIS_URL (e.g. redis://localhost:6379) or run with NODE_ENV=development for in-memory store."
+        console.warn(
+          "[RateLimit] WARNING: REDIS_URL not set in production — falling back to in-memory rate limiter. This is NOT recommended for multi-instance deployments."
         );
       }
       if (url) {

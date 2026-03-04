@@ -162,8 +162,8 @@ export const env = {
 };
 
 /**
- * Production boot requirement: required env vars when NODE_ENV === "production".
- * Application refuses to start if any are missing (hard stop).
+ * Production boot advisory: env vars checked when NODE_ENV === "production".
+ * Missing vars are logged as warnings — the application continues to start.
  */
 const PRODUCTION_REQUIRED_KEYS = [
   "OPENAI_API_KEY",

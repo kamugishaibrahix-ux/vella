@@ -39,6 +39,9 @@ const C = {
 };
 
 function proceed() {
+  // Mark onboarding as complete (device-based, used by OnboardingGate).
+  writeFlag("hasSeenOnboarding", "true");
+
   // Auto-enable trigger engine after onboarding, only if not already configured.
   // Sets a 7-day soft-start window for relaxed proposal thresholds.
   // readFlag / writeFlag are SSR-safe and try/catch-wrapped.
