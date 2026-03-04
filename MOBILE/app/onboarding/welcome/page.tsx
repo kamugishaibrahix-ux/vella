@@ -118,6 +118,12 @@ export default function OnboardingWelcomePage() {
       {/* Small spacer */}
       <div style={{ flex: 1 }} />
 
+      {/* Legal links */}
+      <div style={{ display: "flex", gap: 16, marginBottom: 12 }}>
+        <a href="/privacy" style={{ fontSize: 11, color: "#8A8F95", textDecoration: "underline" }}>Privacy Policy</a>
+        <a href="/terms" style={{ fontSize: 11, color: "#8A8F95", textDecoration: "underline" }}>Terms of Service</a>
+      </div>
+
       {/* Progress Dots */}
       <ProgressDots total={4} current={0} />
 

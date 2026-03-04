@@ -45,7 +45,7 @@ export const metadata: Metadata = {
   },
   appleWebApp: {
     capable: true,
-    statusBarStyle: "black-translucent",
+    statusBarStyle: "default",
     title: "Vella",
   },
 };
@@ -53,7 +53,8 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
-  themeColor: "#0F1115",
+  viewportFit: "cover",
+  themeColor: "#f5f5f4",
 };
 
 export default function RootLayout({

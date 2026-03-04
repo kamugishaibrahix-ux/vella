@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, Palette, Globe, Moon, Sun, ChevronRight, Crown, Sparkles, Zap } from "lucide-react";
+import { ArrowLeft, Globe, ChevronRight, Crown, Sparkles, Zap } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useEntitlements } from "@/hooks/useEntitlements";
 import { TokenUsageDisplay } from "@/components/TokenUsageDisplay";
@@ -10,11 +10,9 @@ import { getPlanLabel, getPlanBadgeStyles } from "@/lib/plans/uiTierModel";
 import type { PlanTier } from "@/lib/plans/types";
 
 // Types
-type Theme = "light" | "dark" | "system";
 type Language = "en" | "es" | "fr" | "de" | "ja";
 
 interface SettingsState {
-  theme: Theme;
   language: Language;
   reducedMotion: boolean;
 }
@@ -32,48 +30,6 @@ const LANGUAGE_LABELS: Record<Language, string> = {
 };
 
 // Components
-function ThemeToggle({
-  value,
-  onChange,
-}: {
-  value: Theme;
-  onChange: (theme: Theme) => void;
-}) {
-  const options: { value: Theme; label: string; icon: React.ReactNode }[] = [
-    { value: "light", label: "Light", icon: <Sun className="w-4 h-4" /> },
-    { value: "dark", label: "Dark", icon: <Moon className="w-4 h-4" /> },
-    { value: "system", label: "Auto", icon: <Palette className="w-4 h-4" /> },
-  ];
-
-  return (
-    <div 
-      className="inline-flex rounded-xl border p-1"
-      style={{ borderColor: "var(--vella-border)", backgroundColor: "var(--vella-bg-card)" }}
-    >
-      {options.map((opt) => (
-        <button
-          key={opt.value}
-          onClick={() => onChange(opt.value)}
-          className={cn(
-            "flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-medium transition-all duration-150",
-            value === opt.value
-              ? "shadow-sm"
-              : "hover:opacity-80"
-          )}
-          style={
-            value === opt.value
-              ? { backgroundColor: "var(--vella-primary)", color: "white" }
-              : { color: "var(--vella-muted)" }
-          }
-        >
-          {opt.icon}
-          {opt.label}
-        </button>
-      ))}
-    </div>
-  );
-}
-
 function SettingRow({
   icon,
   title,
@@ -138,7 +94,6 @@ export default function SettingsPage() {
   const { plan: currentPlan, isLoading: planLoading } = useEntitlements();
   const [mounted, setMounted] = useState(false);
   const [settings, setSettings] = useState<SettingsState>({
-    theme: "system",
     language: "en",
     reducedMotion: false,
   });
@@ -166,24 +121,6 @@ export default function SettingsPage() {
     } catch {
       // Ignore storage errors
     }
-
-    // Apply theme change
-    if (updates.theme) {
-      applyTheme(updates.theme);
-    }
-  };
-
-  const applyTheme = (theme: Theme) => {
-    const root = document.documentElement;
-    root.classList.remove("light", "dark");
-
-    if (theme === "system") {
-      const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-      if (prefersDark) root.classList.add("dark");
-    } else if (theme === "dark") {
-      root.classList.add("dark");
-    }
-    // light = no class (default)
   };
 
   // Get plan badge styles
@@ -219,37 +156,6 @@ export default function SettingsPage() {
           <h1 className="text-xl font-semibold text-neutral-900">Settings & Plan</h1>
         </header>
 
-        {/* Appearance Section */}
-        <section 
-          className="rounded-2xl border p-5 shadow-sm"
-          style={{ borderColor: "var(--vella-border)", backgroundColor: "var(--vella-bg-card)" }}
-        >
-          <h2 
-            className="text-sm font-semibold uppercase tracking-wide mb-4"
-            style={{ color: "var(--vella-muted)" }}
-          >
-            Appearance
-          </h2>
-
-          <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div 
-                  className="w-9 h-9 rounded-lg flex items-center justify-center"
-                  style={{ backgroundColor: "var(--vella-bg)", color: "var(--vella-muted)" }}
-                >
-                  <Palette className="w-5 h-5" />
-                </div>
-                <div>
-                  <div className="font-medium" style={{ color: "var(--vella-text)" }}>Theme</div>
-                  <div className="text-sm text-neutral-500">Choose your preferred look</div>
-                </div>
-              </div>
-              <ThemeToggle value={settings.theme} onChange={(t) => saveSettings({ theme: t })} />
-            </div>
-          </div>
-        </section>
-
         {/* Language Section */}
         <section 
           className="rounded-2xl border p-5 shadow-sm"
@@ -276,7 +182,7 @@ export default function SettingsPage() {
           />
         </section>
 
-        {/* Plan Section - UPDATED */}
+        {/* Plan Section */}
         <section 
           className="rounded-2xl border p-5 shadow-sm"
           style={{ borderColor: "var(--vella-border)", backgroundColor: "var(--vella-bg-card)" }}
@@ -381,6 +287,10 @@ export default function SettingsPage() {
         <footer className="text-center text-xs text-neutral-400 pt-4 space-y-1">
           <p>Settings are stored locally on this device.</p>
           <p>Vella respects your privacy.</p>
+          <div className="flex justify-center gap-4 mt-3">
+            <a href="/privacy" className="underline hover:text-neutral-600">Privacy Policy</a>
+            <a href="/terms" className="underline hover:text-neutral-600">Terms of Service</a>
+          </div>
         </footer>
       </div>
     </div>

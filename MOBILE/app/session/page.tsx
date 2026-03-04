@@ -4,7 +4,7 @@ import { useState, useCallback, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
-import { Mic, AudioLines, Send, Plus, X, Camera, Check } from "lucide-react";
+import { Mic, AudioLines, Send, Plus, X, Camera, Check, Archive } from "lucide-react";
 import type { PendingProposal } from "@/lib/session/negotiationState";
 import {
   persistProposal,
@@ -432,72 +432,72 @@ export default function SessionPage() {
   const hasText = input.trim().length > 0;
 
   return (
-    <div className="h-screen flex flex-col overflow-hidden bg-gradient-to-b from-[#f3f6fb] to-[#eef2f7] text-gray-900" style={{ maxWidth: 640, margin: "0 auto", width: "100%" }}>
+    <div className="h-dvh flex flex-col overflow-hidden bg-gradient-to-b from-[#f3f6fb] to-[#eef2f7] text-gray-900 max-w-full" style={{ maxWidth: 640, margin: "0 auto", width: "100%" }}>
       {/* Header */}
-      <header className="shrink-0 px-6 pt-6 pb-3 relative">
-        <div className="flex items-start justify-between gap-2">
-          <div>
-            <div className="flex items-center gap-3">
-              <div className="w-7 h-7 rounded-[6px] bg-[#E5E7EB] shrink-0" />
-              <h1 className="text-2xl font-semibold tracking-tight text-neutral-900">Session</h1>
-            </div>
-            <p className="text-xs text-gray-500 mt-0.5 whitespace-nowrap">Talk it through. Turn it into an execution plan.</p>
-            {domainLabels.length > 0 && (
-              <p className="mt-1 text-xs text-sky-500 truncate whitespace-nowrap overflow-hidden text-ellipsis">
-                {domainLabels.length > 2
-                  ? `${domainLabels.slice(0, 2).join(" · ")} · \u2026`
-                  : domainLabels.join(" · ")}
-              </p>
-            )}
-            <div className="mt-2">
-              <OSModeSelector variant="compact" />
-            </div>
-          </div>
-          <div className="flex items-center gap-1">
-            {/* Token usage indicator */}
-            {!isUnlimited && (
+      <header className="shrink-0 h-14 flex items-center justify-between px-4 w-full" style={{ paddingTop: "env(safe-area-inset-top, 0px)" }}>
+        <div className="flex items-center gap-2 min-w-0 flex-1">
+          <Image src="/icons/icon-192.png" alt="Vella" width={28} height={28} priority className="w-7 h-7 rounded-[6px] shrink-0 object-contain" />
+          <h1 className="text-lg font-semibold tracking-tight text-neutral-900 truncate overflow-hidden whitespace-nowrap text-ellipsis">Session</h1>
+        </div>
+        <div className="flex items-center gap-0.5 shrink-0">
+          {/* Token usage indicator */}
+          {!isUnlimited && (
+            <span
+              className="flex items-center min-w-[44px] min-h-[44px] justify-center cursor-default"
+              title="Token usage indicator"
+            >
               <span
-                className="flex items-center p-2 cursor-default"
-                title="Token usage indicator"
-              >
-                <span
-                  className={cn(
-                    "inline-block w-2 h-2 rounded-full",
-                    isTokenDepleted
-                      ? "bg-red-500"
-                      : account.isCritical
-                        ? "bg-amber-500"
-                        : "bg-gray-400"
-                  )}
-                />
-              </span>
-            )}
-            <button
-              type="button"
-              onClick={handleNewChat}
-              className="p-2 rounded-lg text-gray-500 hover:text-gray-700 hover:bg-gray-100 pressable"
-              aria-label="New chat"
-            >
-              <Plus className="w-5 h-5" />
-            </button>
-            <button
-              type="button"
-              onClick={() => router.push("/session/archive")}
-              className="text-sm text-gray-500 hover:text-gray-700 font-medium pressable py-1.5 px-2"
-            >
-              Archive
-            </button>
-            <button
-              type="button"
-              onClick={() => router.push("/home")}
-              className="p-2 rounded-lg text-gray-500 hover:text-gray-700 hover:bg-gray-100 pressable"
-              aria-label="Close session"
-            >
-              <X className="w-5 h-5" />
-            </button>
-          </div>
+                className={cn(
+                  "inline-block w-2 h-2 rounded-full",
+                  isTokenDepleted
+                    ? "bg-red-500"
+                    : account.isCritical
+                      ? "bg-amber-500"
+                      : "bg-gray-400"
+                )}
+              />
+            </span>
+          )}
+          <button
+            type="button"
+            onClick={handleNewChat}
+            className="min-w-[44px] min-h-[44px] flex items-center justify-center rounded-lg text-gray-500 hover:text-gray-700 hover:bg-gray-100 pressable"
+            aria-label="New chat"
+          >
+            <Plus className="w-5 h-5" />
+          </button>
+          <button
+            type="button"
+            onClick={() => router.push("/session/archive")}
+            className="min-w-[44px] min-h-[44px] flex items-center justify-center rounded-lg text-gray-500 hover:text-gray-700 hover:bg-gray-100 pressable"
+            aria-label="Archive"
+          >
+            <Archive className="w-5 h-5" />
+          </button>
+          <button
+            type="button"
+            onClick={() => router.push("/home")}
+            className="min-w-[44px] min-h-[44px] flex items-center justify-center rounded-lg text-gray-500 hover:text-gray-700 hover:bg-gray-100 pressable"
+            aria-label="Close session"
+          >
+            <X className="w-5 h-5" />
+          </button>
         </div>
       </header>
+      {/* Session subtitle + mode selector (below compact header) */}
+      <div className="shrink-0 px-4 pb-2">
+        <p className="text-xs text-gray-500 whitespace-nowrap">Talk it through. Turn it into an execution plan.</p>
+        {domainLabels.length > 0 && (
+          <p className="mt-0.5 text-xs text-sky-500 truncate overflow-hidden whitespace-nowrap text-ellipsis">
+            {domainLabels.length > 2
+              ? `${domainLabels.slice(0, 2).join(" · ")} · \u2026`
+              : domainLabels.join(" · ")}
+          </p>
+        )}
+        <div className="mt-1">
+          <OSModeSelector variant="compact" />
+        </div>
+      </div>
 
       {/* Basic mode notice */}
       {isBasicMode && (
@@ -507,7 +507,7 @@ export default function SessionPage() {
       )}
 
       {/* Message Area */}
-      <div className="flex-1 overflow-y-auto scrollbar-hide bg-gradient-to-b from-neutral-50 to-neutral-100 px-6 py-8 space-y-6 min-h-0">
+      <div className="flex-1 overflow-y-auto overflow-x-hidden scrollbar-hide bg-gradient-to-b from-neutral-50 to-neutral-100 px-4 sm:px-6 py-6 sm:py-8 space-y-6 min-h-0">
         {messages.map((m) => (
           <div key={m.id}>
             <VellaMessageBubble
@@ -653,7 +653,7 @@ export default function SessionPage() {
       </div>
 
       {/* Composer */}
-      <div className="shrink-0 border-t border-gray-200 px-4 py-4 pb-[env(safe-area-inset-bottom,0px)]">
+      <div className="shrink-0 sticky bottom-0 border-t border-gray-200 bg-gradient-to-b from-[#eef2f7] to-[#eef2f7] px-4 py-3" style={{ paddingBottom: "max(12px, env(safe-area-inset-bottom, 0px))" }}>
         {/* UX hint banner based on last response */}
         {lastResponseReason === "token_blocked" && (
           <div className="mb-2 px-1 text-xs text-amber-600">

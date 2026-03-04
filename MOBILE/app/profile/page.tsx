@@ -750,6 +750,10 @@ export default function ProfilePage() {
         <footer className="text-center text-xs text-neutral-400 pt-4">
           <p>Vella ID: {profile.vellaId}</p>
           <p className="mt-1">Local-first. Your data stays on this device.</p>
+          <div className="flex justify-center gap-4 mt-3">
+            <a href="/privacy" className="underline hover:text-neutral-600">Privacy Policy</a>
+            <a href="/terms" className="underline hover:text-neutral-600">Terms of Service</a>
+          </div>
         </footer>
       </div>
 
