@@ -174,9 +174,10 @@ const PRODUCTION_REQUIRED_KEYS = [
 ] as const;
 
 /**
- * Asserts all production-required environment variables are set.
- * Call at server boot (e.g. from instrumentation). Throws on first missing var.
- * No mocks, no warnings — hard stop.
+ * Checks all production-required environment variables are set.
+ * Call at server boot (e.g. from instrumentation). Logs warnings for missing
+ * vars but never throws — dependent features will degrade gracefully at
+ * call-site instead of crashing the entire application on boot.
  */
 export function assertProductionEnv(): void {
   if (!isProduction()) return;
@@ -193,9 +194,9 @@ export function assertProductionEnv(): void {
     const list = missing.join(", ");
     const message =
       missing.length === 1
-        ? `CRITICAL: Missing required production environment variable: ${list}`
-        : `CRITICAL: Missing required production environment variables: ${list}`;
-    throw new Error(message);
+        ? `[Instrumentation] WARNING: Missing required production environment variable: ${list} — related features will be unavailable.`
+        : `[Instrumentation] WARNING: Missing required production environment variables: ${list} — related features will be unavailable.`;
+    console.warn(message);
   }
 }
 

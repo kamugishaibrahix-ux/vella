@@ -49,3 +49,7 @@ push_attempt.log
 push_full.log
 repairs.txt
 file_tree.txt
+
+# Allow compiled contract package
+!packages/vella-contract/dist/
+!packages/vella-contract/dist/**
