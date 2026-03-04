@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { X } from "lucide-react";
 import { VoiceOptionCard, type VoiceOption } from "./VoiceOptionCard";
 import { getSelectedDomainLabels } from "@/lib/focusAreas";
-import { OSModeSelector } from "@/components/OSModeSelector";
+import { InteractionModeSelector } from "@/components/InteractionModeSelector";
 
 const VOICE_OPTIONS: VoiceOption[] = [
   { id: "luna", name: "Luna", personality: "Calm · Warm · Reflective" },
@@ -132,9 +132,9 @@ export function VoiceSelectorSheet({
               ))}
             </div>
 
-            {/* Personal OS Mode */}
+            {/* Interaction Mode */}
             <div className="px-4 pb-3">
-              <OSModeSelector variant="full" />
+              <InteractionModeSelector variant="full" />
             </div>
 
             {/* OS Context */}

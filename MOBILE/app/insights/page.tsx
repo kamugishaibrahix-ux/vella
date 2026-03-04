@@ -50,7 +50,7 @@ const fetcher = async (url: string): Promise<InsightsSnapshotResponse> => {
 
 function InsightsLoading() {
   return (
-    <div className="min-h-screen bg-vella-bg pb-24 flex items-center justify-center">
+    <div className="flex-1 min-h-0 bg-vella-bg flex items-center justify-center">
       <div className="flex flex-col items-center gap-3 text-vella-muted">
         <Activity className="w-8 h-8 animate-pulse" />
         <p className="text-sm">Loading insights…</p>
@@ -61,7 +61,7 @@ function InsightsLoading() {
 
 function InsightsError({ message, onRetry }: { message: string; onRetry?: () => void }) {
   return (
-    <div className="min-h-screen bg-vella-bg pb-24 flex items-center justify-center px-5">
+    <div className="flex-1 min-h-0 bg-vella-bg flex items-center justify-center px-5">
       <div className="rounded-2xl bg-vella-bg-card border border-vella-border p-6 max-w-sm text-center">
         <AlertCircle className="w-10 h-10 text-rose-500 mx-auto mb-3" />
         <h2 className="text-base font-semibold text-vella-text mb-1">Unable to load insights</h2>
@@ -82,7 +82,7 @@ function InsightsError({ message, onRetry }: { message: string; onRetry?: () => 
 
 function InsightsEmpty() {
   return (
-    <div className="min-h-screen bg-vella-bg pb-24 flex items-center justify-center px-5">
+    <div className="flex-1 min-h-0 bg-vella-bg flex items-center justify-center px-5">
       <div className="rounded-2xl bg-vella-bg-card border border-vella-border p-6 max-w-sm text-center">
         <Target className="w-10 h-10 text-vella-muted mx-auto mb-3" />
         <h2 className="text-base font-semibold text-vella-text mb-1">No insights yet</h2>
@@ -178,7 +178,7 @@ export default function ClarityPage() {
 
   if (isEmptyLocal) {
     return (
-      <div className="min-h-screen bg-vella-bg pb-24 flex items-center justify-center px-5">
+      <div className="flex-1 min-h-0 bg-vella-bg flex items-center justify-center px-5">
         <div className="flex flex-col items-center justify-center text-center px-6 py-20">
           <div className="max-w-md">
             <h2 className="text-xl font-semibold text-vella-text mb-3">
@@ -197,7 +197,8 @@ export default function ClarityPage() {
   const { condition, direction, alignment, friction, trajectory } = data;
 
   return (
-    <div className="min-h-screen bg-vella-bg pb-24">
+    <div className="flex-1 min-h-0 flex flex-col bg-vella-bg">
+      <div className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden scrollbar-hidden pb-24">
       <div className="px-5 py-6 space-y-5">
         <header>
           <h1 className="text-xl font-semibold text-vella-text">Clarity</h1>
@@ -336,6 +337,7 @@ export default function ClarityPage() {
             </div>
           </div>
         </section>
+      </div>
       </div>
     </div>
   );

@@ -30,10 +30,15 @@ function isStandalone(): boolean {
   );
 }
 
+const INSTALL_DISMISSED_KEY = "vella_install_dismissed";
+
 export function PwaInstallHandler() {
   const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
   const [showIOSBanner, setShowIOSBanner] = useState(false);
-  const [dismissed, setDismissed] = useState(false);
+  const [dismissed, setDismissed] = useState(() => {
+    if (typeof window === "undefined") return false;
+    return localStorage.getItem(INSTALL_DISMISSED_KEY) === "true";
+  });
 
   useEffect(() => {
     // Already installed as standalone — do nothing
@@ -65,10 +70,12 @@ export function PwaInstallHandler() {
       setDeferredPrompt(null);
     }
     setDismissed(true);
+    localStorage.setItem(INSTALL_DISMISSED_KEY, "true");
   }, [deferredPrompt]);
 
   const handleDismiss = useCallback(() => {
     setDismissed(true);
+    localStorage.setItem(INSTALL_DISMISSED_KEY, "true");
     setShowIOSBanner(false);
   }, []);
 

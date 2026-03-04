@@ -23,6 +23,7 @@ export type VellaMessage = {
   sessionId: string;
   role: "user" | "assistant";
   content: string;
+  image?: string | null;
   createdAt: string;
 };
 

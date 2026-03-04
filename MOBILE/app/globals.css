@@ -82,6 +82,15 @@ html {
     width: 0px;
     background: transparent;
   }
+
+  /* Scroll architecture: invisible scrollbar, scrolling still works */
+  .scrollbar-hidden::-webkit-scrollbar {
+    display: none;
+  }
+  .scrollbar-hidden {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
 }
 
 /* Fade-in for chat messages */
@@ -106,8 +115,12 @@ html {
   max-width: 100vw;
 }
 
-html, body {
-  overflow-x: hidden;
+html, body, #__next {
+  height: 100%;
+}
+
+body {
+  overflow: hidden;
 }
 
 /* ── Tablet / iPad support (768px+) ── */

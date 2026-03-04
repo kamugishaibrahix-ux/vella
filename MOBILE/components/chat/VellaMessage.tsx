@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 type Props = {
   role: "user" | "assistant";
   content: string;
+  image?: string | null;
   mode?: "ai" | "fallback" | "exercise";
   isStreaming?: boolean;
 };
@@ -12,6 +13,7 @@ type Props = {
 export function VellaMessage({
   role,
   content,
+  image,
   mode = "ai",
   isStreaming = false,
 }: Props) {
@@ -71,7 +73,16 @@ export function VellaMessage({
               <div>{content}</div>
             </div>
           ) : (
-            content
+            <div>
+              {image && (
+                <img
+                  src={image}
+                  alt="Attached image"
+                  className="max-w-[120px] max-h-[140px] object-cover rounded-lg mb-2 border border-neutral-200"
+                />
+              )}
+              {content}
+            </div>
           )}
         </motion.div>
 

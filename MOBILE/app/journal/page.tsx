@@ -858,7 +858,8 @@ export default function JournalPage() {
   const pageStyle = useMemo(() => ({ backgroundColor: VISUAL_SYSTEM.clarity[clarity] }), [clarity]);
 
   return (
-    <div className="min-h-[100dvh] overflow-y-auto pb-24 transition-colors duration-500" style={pageStyle}>
+    <div className="flex-1 min-h-0 flex flex-col transition-colors duration-500" style={pageStyle}>
+      <div className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden scrollbar-hidden pb-24">
       <div className="px-5 py-6 space-y-8 max-w-2xl mx-auto">
         {/* Header */}
         <header className="flex items-center justify-between gap-3">
@@ -990,6 +991,7 @@ export default function JournalPage() {
             </button>
           </div>
         </RevealSection>
+      </div>
       </div>
     </div>
   );

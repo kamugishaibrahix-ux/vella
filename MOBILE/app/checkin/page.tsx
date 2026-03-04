@@ -367,14 +367,15 @@ export default function CheckinPage() {
 
   if (!isHydrated) {
     return (
-      <div className="min-h-screen bg-[#F3F4F6] flex items-center justify-center">
+      <div className="flex-1 min-h-0 bg-[#F3F4F6] flex items-center justify-center">
         <div className="text-slate-500">Loading…</div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-[#F3F4F6]">
+    <div className="flex-1 min-h-0 flex flex-col bg-[#F3F4F6]">
+      <div className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden scrollbar-hidden">
       <div className="max-w-xl mx-auto px-6">
       {/* Header */}
       <header className="sticky top-0 z-40 py-4 bg-[#F3F4F6]">
@@ -558,6 +559,7 @@ export default function CheckinPage() {
         isDisabled={!canAdd}
         helperText={limitText || undefined}
       />
+      </div>
       </div>
     </div>
   );
